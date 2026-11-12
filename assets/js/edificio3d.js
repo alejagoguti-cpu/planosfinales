@@ -181,6 +181,41 @@ function facadeTexture({ wall, brick = false, glass = ['#9fb2bf', '#2b3944'], fr
   return t;
 }
 
+/** Adoquín de granito en hilada trabada (4 × 4 m): piezas de 20 × 10 cm con tonos gris-café, desgaste y juntas.
+ *  Devuelve color y relieve (la misma imagen en grises sirve de bumpMap). */
+function settsTexture(seed = 5) {
+  const S = 1024, px = S / 4, c = document.createElement('canvas'); c.width = c.height = S;
+  const g = c.getContext('2d');
+  let r = seed * 7919 % 2147483647 || 3; const rnd = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+  g.fillStyle = '#3b3833'; g.fillRect(0, 0, S, S);                 // junta de arena oscura
+  const bw = 0.2 * px, bh = 0.1 * px, gap = 2.2;
+  for (let y = 0, row = 0; y < S; y += bh, row++) {
+    for (let x = -(row % 2) * bw / 2 - rnd() * 3; x < S; x += bw) {
+      const tone = rnd(), warm = rnd();
+      const l = 104 + tone * 50, rr = l + warm * 16, gg = l + warm * 6, bb = l - warm * 6 - 4;
+      g.fillStyle = `rgb(${rr | 0},${gg | 0},${bb | 0})`;
+      const w = bw - gap - rnd() * 1.5, h = bh - gap - rnd() * 1.2;
+      g.beginPath(); g.roundRect ? g.roundRect(x + gap / 2, y + gap / 2, w, h, 3) : g.rect(x + gap / 2, y + gap / 2, w, h); g.fill();
+      // cara de la piedra: luz arriba, sombra abajo y algo de grano
+      const gr = g.createLinearGradient(0, y, 0, y + bh);
+      gr.addColorStop(0, 'rgba(255,255,255,.10)'); gr.addColorStop(1, 'rgba(0,0,0,.16)');
+      g.fillStyle = gr; g.fillRect(x + gap / 2, y + gap / 2, w, h);
+      for (let k = 0; k < 6; k++) { g.fillStyle = `rgba(${rnd() < 0.5 ? '0,0,0' : '255,255,255'},${(rnd() * 0.08).toFixed(3)})`; g.fillRect(x + rnd() * w, y + rnd() * h, 2, 2); }
+    }
+  }
+  // manchas grandes de uso y humedad
+  for (let i = 0; i < 40; i++) {
+    const x = rnd() * S, y = rnd() * S, rad = 40 + rnd() * 160, gr = g.createRadialGradient(x, y, 0, x, y, rad);
+    gr.addColorStop(0, `rgba(${rnd() < 0.35 ? '20,18,15' : '235,225,210'},${(0.04 + rnd() * 0.05).toFixed(3)})`); gr.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = gr; g.fillRect(x - rad, y - rad, rad * 2, rad * 2);
+  }
+  const map = new THREE.CanvasTexture(c);
+  map.colorSpace = THREE.SRGBColorSpace; map.wrapS = map.wrapT = THREE.RepeatWrapping; map.anisotropy = 8;
+  const bump = new THREE.CanvasTexture(c);
+  bump.wrapS = bump.wrapT = THREE.RepeatWrapping; bump.repeat.set(1 / 4, 1 / 4); bump.anisotropy = 8;
+  return { map, bump };
+}
+
 /** Cielo de tarde en degradé (fondo y reflejos). */
 function skyTexture() {
   const c = document.createElement('canvas'); c.width = 4; c.height = 512;
@@ -429,9 +464,7 @@ export class Edificio3D {
     // ---------- el resto del hotel, completo pero transparente: así resalta solo el ala del proyecto
     const mb = new THREE.Box3(); this.layers.forEach((l) => mb.expandByObject(l)); mb.expandByScalar(0.5);
     const onModel = (pts) => { const c = pts.reduce((s, [x, z]) => [s[0] + x / pts.length, s[1] + z / pts.length], [0, 0]); return c[0] > mb.min.x && c[0] < mb.max.x && c[1] > mb.min.z && c[1] < mb.max.z; };
-    const ghost = new THREE.MeshStandardMaterial({ color: 0xf7f4ef, roughness: 0.45, metalness: 0, transparent: true, opacity: 0.2, depthWrite: false, envMapIntensity: 0.7, side: THREE.DoubleSide });
-    const ghostRoof = ghost.clone(); ghostRoof.color.set(0xe7c0ab); ghostRoof.opacity = 0.4;
-    const edgeMat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5, depthWrite: false });
+    // material real del hotel (ladrillo con ventanas de marco blanco, teja de barro), con opacidad reducida
     const walls = [], roofs = [], lots = [], hotelFeet = [];
     for (const b of ctx.hotelBloques || []) {
       lots.push(plane(b.p, 0.012)); hotelFeet.push(openRing(b.p));
@@ -445,14 +478,24 @@ export class Edificio3D {
       if (a.flat) { const fg = new THREE.BufferGeometry(); fg.setAttribute('position', new THREE.Float32BufferAttribute(a.flat.p, 3)); fg.setIndex(a.flat.i); roofs.push(fg.toNonIndexed()); }
     }
     add(lots, plaza);
-    const ghostMesh = (geos, mat) => {
+    const OP = 0.58;
+    const semi = (m) => { m.transparent = true; m.opacity = OP; m.depthWrite = true; return m; };
+    const hotelFacade = semi(new THREE.MeshStandardMaterial({ map: facadeTexture({ wall: '#8f4e3b', brick: true, seed: 31, frame: '#f4f2ee', glass: ['#a7b7c2', '#24303a'] }), roughness: 0.88, envMapIntensity: 0.4 }));
+    hotelFacade.map.repeat.set(1 / 12, 1 / 12.4);   // pisos del hotel de ~3,1 m
+    const hotelTeja = semi(new THREE.MeshStandardMaterial({ color: 0xe8d4c8, roughness: 0.86, envMapIntensity: 0.35 }));
+    hotelTeja.map = tex('teja.webp', 1); triplanar(hotelTeja, 2.0, 0.4); hotelTeja.side = THREE.DoubleSide;
+    const hotelFlat = semi(new THREE.MeshStandardMaterial({ map: tex('loseta-concreto.webp', 3), color: 0xbdb5aa, roughness: 0.95 }));
+    const wallSides = [], wallCaps = [];
+    const splitExtrude = (g) => { wallCaps.push(part(g, 0)); wallSides.push(part(g, 1)); g.dispose(); };
+    walls.forEach(splitExtrude);
+    const solid = (geos, mat, keepUV = true) => {
       if (!geos.length) return;
-      const geo = mergeGeometries(geos.map((g) => { const x = g.index ? g.toNonIndexed() : g; for (const k of Object.keys(x.attributes)) if (k !== 'position') x.deleteAttribute(k); return x; }), false);
-      geo.computeVertexNormals();
-      const m = new THREE.Mesh(geo, mat); m.renderOrder = 3; grp.add(m);
-      const e = new THREE.LineSegments(new THREE.EdgesGeometry(geo, 28), edgeMat); e.renderOrder = 4; grp.add(e);
+      const list = geos.map((g) => { const x = g.index ? g.toNonIndexed() : g; if (!keepUV) for (const k of Object.keys(x.attributes)) if (k !== 'position') x.deleteAttribute(k); return x; });
+      const geo = mergeGeometries(list, false);
+      if (!keepUV) geo.computeVertexNormals();
+      const m = new THREE.Mesh(geo, mat); m.castShadow = true; m.receiveShadow = true; m.renderOrder = 2; grp.add(m);
     };
-    ghostMesh(walls, ghost); ghostMesh(roofs, ghostRoof);
+    solid(wallSides, hotelFacade); solid(wallCaps, hotelFlat); solid(roofs, hotelTeja, false);
 
     // ---------- reja: la de Revit va recta en X pero el lindero real (borde del andén) va inclinado ~6°;
     // se oculta la de Revit y se construye una reja recta sobre el lindero, con portón vehicular, seto y faroles
@@ -512,8 +555,9 @@ export class Edificio3D {
     const wedge = [[A.x, A.y], [B.x, B.y], [B.x, -5], [A.x, -5]];
     const wg = new THREE.ShapeGeometry(new THREE.Shape(wedge.map(([x, z]) => new THREE.Vector2(x, -z))));
     wg.rotateX(-Math.PI / 2); wg.translate(0, 0.02, 0);
-    const wedgeMat = new THREE.MeshStandardMaterial({ color: 0xe2dbd4, roughness: 0.85, envMapIntensity: 0.4 });
-    wedgeMat.map = tex('plaza-abanico.webp', 1); triplanar(wedgeMat, 7.5, 0.3);
+    const setts = settsTexture(5);   // adoquín de granito gris-café, como la plaza real
+    const wedgeMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.8, envMapIntensity: 0.45, bumpMap: setts.bump, bumpScale: 2.2 });
+    wedgeMat.map = setts.map; triplanar(wedgeMat, 4, 0.18);
     const wm = new THREE.Mesh(wg, wedgeMat); wm.receiveShadow = true; grp.add(wm);
 
     const metal = new THREE.MeshStandardMaterial({ color: 0x1b1c1e, roughness: 0.42, metalness: 0.65 });
@@ -621,7 +665,7 @@ export class Edificio3D {
         const s = shape2(outer); s.holes.push(new THREE.Path(inner.map(([x, z]) => new THREE.Vector2(x, -z))));
         const pg = new THREE.ExtrudeGeometry(s, { depth: 0.9, bevelEnabled: false });
         pg.rotateX(-Math.PI / 2); pg.translate(0, h, 0);
-        parapets.push(pg.toNonIndexed());
+        parapets.push(pg);
       } catch { /* polígono raro: sin antepecho */ }
     }
     const add = (geos, mat) => {

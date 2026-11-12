@@ -256,8 +256,8 @@ h1, h2, h3, h4 { margin: 0; font-family: var(--head); font-weight: 400; letter-s
 /* imágenes que se descubren de abajo hacia arriba, con un leve zoom de salida */
 .js-anim .wipe img { clip-path: inset(100% 0 0 0); transform: scale(1.08); transition: clip-path 1.3s var(--ease-io), transform 1.8s var(--ease); }
 .js-anim .wipe.in img { clip-path: inset(0 0 0 0); transform: scale(1); }
-.js-anim .statement.wipe img { transform: translateY(var(--py, 0px)) scale(1.12); }
-.js-anim .statement.wipe.in img { transform: translateY(var(--py, 0px)) scale(1.06); }
+.js-anim .statement.wipe img { transform: translateY(var(--py, 0px)) scale(1.04); }
+.js-anim .statement.wipe.in img { transform: translateY(var(--py, 0px)) scale(1.02); }
 .statement { background: var(--white); }
 .shadow-img::before { transition: inset 1.2s var(--ease) .4s; }
 .js-anim .shadow-img:not(.in)::before { inset: 0; }
@@ -455,3 +455,5 @@ main { counter-reset: sec; }
   .pills button[aria-pressed="true"]::before { transform: scaleX(1); }
   .facts > div { border-left: 0; padding-left: 0; border-top: 1px solid var(--line); padding-top: 1rem; }
 }
+/* foto del titular: nítida (sin escalarla de más) */
+.statement img { image-rendering: auto; backface-visibility: hidden; }

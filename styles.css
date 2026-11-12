@@ -345,10 +345,10 @@ h1, h2, h3, h4 { margin: 0; font-family: var(--head); font-weight: 400; letter-s
   --ink: #16181b;
   --paper: #f7f4ef;
   --line: rgba(22, 24, 27, .14);
-  --serif: "Fraunces", "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --serif: "Inter Tight", "Helvetica Neue", Arial, sans-serif;   /* títulos: sans fina (sin serif) */
 }
 body { background: var(--paper); color: var(--ink); }
-h1, h2 { font-family: var(--serif); font-weight: 300; letter-spacing: -.02em; font-variation-settings: "opsz" 144, "SOFT" 30; }
+h1, h2 { font-family: var(--serif); font-weight: 300; letter-spacing: -.03em; }
 h3, h4 { font-family: var(--head); }
 ::selection { background: var(--red); color: var(--white); }
 
@@ -384,7 +384,7 @@ main { counter-reset: sec; }
 /* bienvenida: piedra cálida y la dirección de fondo en contorno */
 .welcome { background: var(--grey); padding-top: clamp(7rem, 11vw, 10rem); }
 .welcome h2 { font-family: var(--serif); font-weight: 300; font-size: clamp(2.2rem, 1.1rem + 3.3vw, 4.4rem); line-height: 1.12; letter-spacing: -.02em; }
-.welcome h2 .red { font-style: italic; }
+
 .ghost { color: transparent; -webkit-text-stroke: 1px rgba(22, 24, 27, .16); opacity: 1; font-family: var(--serif); font-weight: 300; }
 
 /* introducción: filete dorado desplazado en vez de la sombra gris */
@@ -412,7 +412,7 @@ main { counter-reset: sec; }
 
 /* titular: la foto se abre de un marco a pantalla completa con el scroll */
 .statement h2 { font-family: var(--serif); font-weight: 300; font-size: clamp(2.8rem, 1.4rem + 5vw, 6.4rem); letter-spacing: -.03em; }
-.statement h2 .red { font-style: italic; }
+
 .statement img { clip-path: inset(var(--inset, 8%) var(--inset, 8%) 0 var(--inset, 8%)); transition: none; }
 .js-anim .statement.wipe img, .js-anim .statement.wipe.in img { clip-path: inset(var(--inset, 8%) var(--inset, 8%) 0 var(--inset, 8%)); }
 

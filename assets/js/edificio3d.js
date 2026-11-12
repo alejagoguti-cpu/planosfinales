@@ -117,6 +117,70 @@ function materialFor(src) {
   return m;
 }
 
+// ------------------------------------------------------------------ polígonos en planta [x, z]
+const openRing = (pts) => { const p = pts.slice(); const a = p[0], b = p[p.length - 1]; if (p.length > 2 && a[0] === b[0] && a[1] === b[1]) p.pop(); return p; };
+function signedArea(p) { let a = 0; for (let i = 0; i < p.length; i++) { const [x0, z0] = p[i], [x1, z1] = p[(i + 1) % p.length]; a += x0 * z1 - x1 * z0; } return a / 2; }
+/** Desplaza un polígono d metros hacia afuera (d < 0: hacia adentro), con inglete limitado en esquinas agudas. */
+function offsetPoly(pts, d) {
+  const p = openRing(pts), n = p.length, s = Math.sign(signedArea(p)) || 1, out = [];
+  for (let i = 0; i < n; i++) {
+    const a = p[(i - 1 + n) % n], b = p[i], c = p[(i + 1) % n];
+    const e1 = [b[0] - a[0], b[1] - a[1]], e2 = [c[0] - b[0], c[1] - b[1]];
+    const l1 = Math.hypot(e1[0], e1[1]) || 1, l2 = Math.hypot(e2[0], e2[1]) || 1;
+    const n1 = [s * e1[1] / l1, -s * e1[0] / l1], n2 = [s * e2[1] / l2, -s * e2[0] / l2];
+    const dot = n1[0] * n2[0] + n1[1] * n2[1], k = d / Math.max(0.35, 1 + dot);
+    out.push([b[0] + (n1[0] + n2[0]) * k, b[1] + (n1[1] + n2[1]) * k]);
+  }
+  return out;
+}
+function inPoly(x, z, p) { let c = false; for (let i = 0, j = p.length - 1; i < p.length; j = i++) { if (((p[i][1] > z) !== (p[j][1] > z)) && (x < (p[j][0] - p[i][0]) * (z - p[i][1]) / (p[j][1] - p[i][1]) + p[i][0])) c = !c; } return c; }
+function distToPoly(x, z, p) {
+  let d = Infinity;
+  for (let i = 0, j = p.length - 1; i < p.length; j = i++) {
+    const [ax, az] = p[j], [bx, bz] = p[i], dx = bx - ax, dz = bz - az, L = dx * dx + dz * dz || 1;
+    const t = Math.max(0, Math.min(1, ((x - ax) * dx + (z - az) * dz) / L));
+    d = Math.min(d, Math.hypot(x - ax - t * dx, z - az - t * dz));
+  }
+  return d;
+}
+
+/** Fachada urbana procedimental: 12 × 12 m (4 pisos de 3 m, 4 vanos de 3 m), ventanas con vidrio, marco y antepecho. */
+function facadeTexture({ wall, brick = false, glass = ['#9fb2bf', '#2b3944'], frame = '#ece8e1', seed = 1 }) {
+  const S = 512, px = S / 12, c = document.createElement('canvas'); c.width = c.height = S;
+  const g = c.getContext('2d');
+  let r = seed * 9973 % 2147483647 || 7; const rnd = () => ((r = (r * 16807) % 2147483647) / 2147483647);
+  g.fillStyle = wall; g.fillRect(0, 0, S, S);
+  if (brick) {   // hiladas de ladrillo con juntas y variación de tono por pieza
+    const bh = 0.075 * px, bw = 0.25 * px;
+    for (let y = 0, row = 0; y < S; y += bh, row++) for (let x = -(row % 2) * bw / 2; x < S; x += bw) {
+      g.fillStyle = `rgba(${rnd() < 0.5 ? '0,0,0' : '255,235,220'},${(rnd() * 0.12).toFixed(3)})`; g.fillRect(x, y, bw - 1, bh - 1);
+    }
+    g.fillStyle = 'rgba(225,210,195,.18)';
+    for (let y = 0; y < S; y += bh) g.fillRect(0, y + bh - 1, S, 1);
+  } else {       // revoque: grano fino y manchas suaves
+    for (let i = 0; i < 2600; i++) { g.fillStyle = `rgba(0,0,0,${(rnd() * 0.05).toFixed(3)})`; g.fillRect(rnd() * S, rnd() * S, 2, 2); }
+  }
+  for (let f = 0; f < 4; f++) {
+    const yb = S - f * 3 * px;                         // borde inferior del piso f
+    g.fillStyle = 'rgba(0,0,0,.07)'; g.fillRect(0, yb - 3 * px, S, 0.12 * px);   // filo de placa
+    for (let b = 0; b < 4; b++) {
+      const w = 1.8 * px, h = 1.5 * px, x = b * 3 * px + (3 * px - w) / 2, y = yb - 0.9 * px - h;
+      g.fillStyle = 'rgba(0,0,0,.28)'; g.fillRect(x - 3, y - 3, w + 6, h + 6);       // vano en sombra
+      const gr = g.createLinearGradient(0, y, 0, y + h);
+      const lit = rnd();
+      gr.addColorStop(0, lit > 0.85 ? '#d8c9a8' : glass[0]); gr.addColorStop(1, lit > 0.85 ? '#8a7a60' : glass[1]);
+      g.fillStyle = gr; g.fillRect(x, y, w, h);
+      if (lit > 0.55 && lit <= 0.85) { g.fillStyle = 'rgba(235,228,215,.55)'; g.fillRect(x + w * (rnd() < 0.5 ? 0 : 0.55), y, w * 0.45, h); }   // cortina
+      g.strokeStyle = frame; g.lineWidth = 3; g.strokeRect(x, y, w, h);
+      g.fillStyle = frame; g.fillRect(x + w / 2 - 1.5, y, 3, h);                       // parteluz
+      g.fillStyle = 'rgba(255,255,255,.35)'; g.fillRect(x - 4, y + h + 2, w + 8, 4); // alféizar
+    }
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(1 / 12, 1 / 12); t.anisotropy = 8;
+  return t;
+}
+
 /** Cielo de tarde en degradé (fondo y reflejos). */
 function skyTexture() {
   const c = document.createElement('canvas'); c.width = 4; c.height = 512;
@@ -289,7 +353,7 @@ export class Edificio3D {
     // contexto inmediato modelado: vías, andenes, separadores y manzanas del barrio en 3D
     this._context(ctx);
     this._rooms();
-    await this._trees(ctx.arboles);
+    await this._trees([...ctx.arboles, ...(this._extraTrees || [])]);
 
     this._home(true);
     await this._warmUp();
@@ -322,15 +386,14 @@ export class Edificio3D {
       return m;
     };
     const asphalt = pbr('asphalt_02', 6, { tint: 0xf2f2f2, ns: 0.9, macro: 0.3 });
-    const base = pbr('concrete_pavement', 4, { ns: 0.7, macro: 0.22 });
-    base.color.setRGB(1.12, 1.15, 1.22);   // concreto claro y neutro (la textura es ocre)
     const plaza = pbr('concrete_pavement', 3.2, { ns: 0.8, macro: 0.18 });
     plaza.color.setRGB(1.25, 1.24, 1.26);
     const curb = pbr('concrete_floor_worn_001', 1.2, { tint: 0xe6e1d9, ns: 0.6, macro: 0 });
     const grass = pbr('leafy_grass', 2.5, { tint: 0xbfc9a6, ns: 1.1, macro: 0.4 });
-    const pavers = new THREE.MeshStandardMaterial({ color: 0xd8cdc6, roughness: 0.9, envMapIntensity: 0.35 });
-    pavers.map = tex('adoquin-arcilla.webp', 1); pavers.bumpMap = pavers.map; pavers.bumpScale = 1.2;
-    triplanar(pavers, 1.5, 0.25);
+    const lawn = pbr('leafy_grass', 3.2, { tint: 0xa9b98c, ns: 1.0, macro: 0.45 });   // jardines y patios
+    // andenes en loseta de concreto gris (no adoquín rojo)
+    const pavers = pbr('concrete_pavement', 1.8, { ns: 0.9, macro: 0.2 });
+    pavers.color.setRGB(1.08, 1.1, 1.14);
     const bike = pbr('asphalt_02', 4, { tint: 0x9a5546, ns: 0.7, macro: 0.15 });
 
     // ExtrudeGeometry: grupo 0 = tapas (superficie), grupo 1 = costados (bordillo)
@@ -351,7 +414,8 @@ export class Edificio3D {
       grp.add(m);
     };
 
-    add([plane([[-1400, -1400], [1400, -1400], [1400, 1400], [-1400, 1400]], -0.03)], base);
+    // ---------- suelo: jardín en las manzanas, asfalto, andenes con bordillo y separadores con césped
+    add([plane([[-1400, -1400], [1400, -1400], [1400, 1400], [-1400, 1400]], -0.03)], lawn);
     add(ctx.calzadas.map((p) => plane(p, 0.0)), asphalt);
     const andTop = [], andSide = [], sepTop = [], sepSide = [];
     for (const p of ctx.andenes) { const g = slab(p, 0.15); andTop.push(part(g, 0)); andSide.push(part(g, 1)); g.dispose(); }
@@ -362,34 +426,179 @@ export class Edificio3D {
     bike.polygonOffset = true; bike.polygonOffsetFactor = -2; bk.receiveShadow = true;
     if (ctx.ciclorrutas.length) grp.add(bk);
 
-    // resto del hotel (no hace parte del modelo de Revit): volúmenes neutros claros, como maqueta del existente,
-    // sobre un patio en placas de concreto; así el predio no queda como un lote vacío
-    const hotelMat = new THREE.MeshStandardMaterial({ color: 0xe9e4dc, roughness: 0.92, envMapIntensity: 0.4 });
-    const lot = [], hotel = [];
-    // se omite lo que cae sobre el ala modelada (su centro dentro de la huella del modelo)
+    // ---------- el resto del hotel, completo pero transparente: así resalta solo el ala del proyecto
     const mb = new THREE.Box3(); this.layers.forEach((l) => mb.expandByObject(l)); mb.expandByScalar(0.5);
     const onModel = (pts) => { const c = pts.reduce((s, [x, z]) => [s[0] + x / pts.length, s[1] + z / pts.length], [0, 0]); return c[0] > mb.min.x && c[0] < mb.max.x && c[1] > mb.min.z && c[1] < mb.max.z; };
-    for (const b of ctx.hotelBloques || []) { lot.push(plane(b.p, 0.012)); if (!onModel(b.p)) hotel.push(slab(b.p, Math.max(3, b.h))); }
-    for (const a of ctx.hotelAlas || []) if (!onModel(a.footprint)) hotel.push(slab(a.footprint, Math.max(3, a.wallTop)));
-    add(lot, plaza);
-    if (hotel.length) { const hm = new THREE.Mesh(mergeGeometries(hotel, false), hotelMat); hm.castShadow = hm.receiveShadow = true; hm.name = 'HotelExistente'; grp.add(hm); }
+    const ghost = new THREE.MeshStandardMaterial({ color: 0xf7f4ef, roughness: 0.45, metalness: 0, transparent: true, opacity: 0.2, depthWrite: false, envMapIntensity: 0.7, side: THREE.DoubleSide });
+    const ghostRoof = ghost.clone(); ghostRoof.color.set(0xe7c0ab); ghostRoof.opacity = 0.4;
+    const edgeMat = new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.5, depthWrite: false });
+    const walls = [], roofs = [], lots = [], hotelFeet = [];
+    for (const b of ctx.hotelBloques || []) {
+      lots.push(plane(b.p, 0.012)); hotelFeet.push(openRing(b.p));
+      if (!onModel(b.p)) walls.push(slab(b.p, Math.max(3, b.h)));
+    }
+    for (const a of ctx.hotelAlas || []) {
+      hotelFeet.push(openRing(a.footprint));
+      if (onModel(a.footprint)) continue;
+      walls.push(slab(a.footprint, Math.max(3, a.wallTop)));
+      roofs.push(this._eaveRoof(a, 0.75));
+      if (a.flat) { const fg = new THREE.BufferGeometry(); fg.setAttribute('position', new THREE.Float32BufferAttribute(a.flat.p, 3)); fg.setIndex(a.flat.i); roofs.push(fg.toNonIndexed()); }
+    }
+    add(lots, plaza);
+    const ghostMesh = (geos, mat) => {
+      if (!geos.length) return;
+      const geo = mergeGeometries(geos.map((g) => { const x = g.index ? g.toNonIndexed() : g; for (const k of Object.keys(x.attributes)) if (k !== 'position') x.deleteAttribute(k); return x; }), false);
+      geo.computeVertexNormals();
+      const m = new THREE.Mesh(geo, mat); m.renderOrder = 3; grp.add(m);
+      const e = new THREE.LineSegments(new THREE.EdgesGeometry(geo, 28), edgeMat); e.renderOrder = 4; grp.add(e);
+    };
+    ghostMesh(walls, ghost); ghostMesh(roofs, ghostRoof);
+
+    // ---------- reja: la de Revit va recta en X pero el lindero real (borde del andén) va inclinado ~6°;
+    // se oculta la de Revit y se construye una reja recta sobre el lindero, con portón vehicular, seto y faroles
+    this._fence(grp);
+
+    // ---------- árboles en los patios del hotel
+    this._extraTrees = this._courtyardTrees(ctx, hotelFeet, mb);
 
     this.scene.add(grp);
     this._buildings(ctx.edificios);
     return grp;
   }
 
-  /** Manzanas del catastro en 3D: fachada de ladrillo con ventanas por piso y cubierta de concreto.
-   *  Se fusionan en pocas mallas (una por tono) para que el visor siga fluido. */
+  /** Cubierta de teja del ala con alero: los vértices del borde inferior salen `d` m hacia afuera y bajan un poco. */
+  _eaveRoof(a, d) {
+    const pos = a.roof.p.slice(), foot = openRing(a.footprint), off = offsetPoly(foot, d);
+    let minY = Infinity; for (let i = 1; i < pos.length; i += 3) minY = Math.min(minY, pos[i]);
+    const cx = foot.reduce((s, p) => s + p[0], 0) / foot.length, cz = foot.reduce((s, p) => s + p[1], 0) / foot.length;
+    for (let i = 0; i < pos.length; i += 3) {
+      if (Math.abs(pos[i + 1] - minY) > 0.06) continue;
+      let best = -1, bd = 2.2;
+      foot.forEach(([x, z], j) => { const dd = Math.hypot(x - pos[i], z - pos[i + 2]); if (dd < bd) { bd = dd; best = j; } });
+      if (best >= 0) { pos[i] = off[best][0] + (pos[i] - foot[best][0]); pos[i + 2] = off[best][1] + (pos[i + 2] - foot[best][1]); }
+      else { const dx = pos[i] - cx, dz = pos[i + 2] - cz, l = Math.hypot(dx, dz) || 1; pos[i] += dx / l * d; pos[i + 2] += dz / l * d; }
+      pos[i + 1] -= 0.22;
+    }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+    g.setIndex(a.roof.i);
+    return g.toNonIndexed();
+  }
+
+  /** Reja de lanzas negra sobre el lindero real, con portón abierto, seto por dentro y faroles. */
+  _fence(grp) {
+    // oculta la reja, el seto y los faroles de Revit (van paralelos al eje X, no al andén)
+    const p1 = this.layers.find((l) => l.userData.band === 'PISO 1');
+    const bb = new THREE.Box3();
+    let plazaMat = null, plazaTop = 0.02;
+    p1?.traverse((o) => {
+      if (!o.isMesh) return;
+      bb.setFromObject(o);
+      const n = o.material.name || '';
+      if (/PLAZA ABANICO/i.test(n)) { plazaMat = o.material; plazaTop = bb.max.y; }
+      const band = bb.min.z > 22.6 && bb.max.z < 24.4 && bb.max.y < 3.2;
+      if (/HIEDRA SUELO REJA/i.test(n) || (band && /MARCO NEGRO|VIDRIO LUZ CALIDA/i.test(n))) o.visible = false;
+    });
+    const A = new THREE.Vector2(-24.0, 23.28), B = new THREE.Vector2(54.72, 31.39);
+    const u = B.clone().sub(A), L = u.length(); u.normalize();
+    const nIn = new THREE.Vector2(u.y, -u.x);                 // hacia la plaza (z menor)
+    const gate = [(23.5 - A.x) / u.x, (32.5 - A.x) / u.x];   // tramo libre del portón (en metros sobre la línea)
+    const at = (s, off = 0) => new THREE.Vector3(A.x + u.x * s + nIn.x * off, 0, A.y + u.y * s + nIn.y * off);
+    const yaw = -Math.atan2(u.y, u.x);
+
+    // relleno de la cuña entre el borde recto de la plaza de Revit (z = 23.5) y el lindero inclinado
+    const zAt = (x) => A.y + (x - A.x) * (u.y / u.x);
+    // plaza de acceso en adoquín (en el modelo de Revit la plaza queda a -1 m, bajo el suelo del contexto): de la fachada a la reja
+    const wedge = [[A.x, A.y], [B.x, B.y], [B.x, -5], [A.x, -5]];
+    const wg = new THREE.ShapeGeometry(new THREE.Shape(wedge.map(([x, z]) => new THREE.Vector2(x, -z))));
+    wg.rotateX(-Math.PI / 2); wg.translate(0, 0.02, 0);
+    const wedgeMat = new THREE.MeshStandardMaterial({ color: 0xe2dbd4, roughness: 0.85, envMapIntensity: 0.4 });
+    wedgeMat.map = tex('plaza-abanico.webp', 1); triplanar(wedgeMat, 7.5, 0.3);
+    const wm = new THREE.Mesh(wg, wedgeMat); wm.receiveShadow = true; grp.add(wm);
+
+    const metal = new THREE.MeshStandardMaterial({ color: 0x1b1c1e, roughness: 0.42, metalness: 0.65 });
+    const H = 1.8, inGate = (s) => s > gate[0] && s < gate[1];
+    const segs = [[0, gate[0]], [gate[1], L]];
+    const m4 = new THREE.Matrix4(), q = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), yaw), one = new THREE.Vector3(1, 1, 1);
+    const inst = (geo, list) => {
+      const im = new THREE.InstancedMesh(geo, metal, list.length);
+      list.forEach((p, i) => im.setMatrixAt(i, m4.compose(p, q, one)));
+      im.castShadow = true; im.receiveShadow = true; grp.add(im);
+    };
+    // barrotes, postes y lanzas
+    const pick = [], posts = [], tips = [];
+    for (let s = 0.07; s < L; s += 0.13) if (!inGate(s)) { pick.push(at(s).setY(H / 2)); tips.push(at(s).setY(H + 0.05)); }
+    for (let s = 0; s <= L + 0.01; s += 2.6) if (!inGate(s)) posts.push(at(s).setY((H + 0.2) / 2));
+    for (const g of gate) posts.push(at(g).setY((H + 0.4) / 2));
+    inst(new THREE.BoxGeometry(0.022, H, 0.022), pick);
+    inst(new THREE.ConeGeometry(0.028, 0.1, 4), tips);
+    inst(new THREE.BoxGeometry(0.1, H + 0.2, 0.1), posts);
+    // pasamanos superior e inferior por tramo
+    for (const [s0, s1] of segs) for (const y of [0.12, H - 0.12]) {
+      const len = s1 - s0, rail = new THREE.Mesh(new THREE.BoxGeometry(len, 0.045, 0.035), metal);
+      rail.position.copy(at((s0 + s1) / 2)).setY(y); rail.rotation.y = yaw; rail.castShadow = true; grp.add(rail);
+    }
+    // seto por dentro de la reja
+    const hedgeMat = new THREE.MeshStandardMaterial({ color: 0x9fb07f, roughness: 1 });
+    hedgeMat.map = tex('seto-verde.webp', 1); triplanar(hedgeMat, 1.4, 0.3);
+    for (const [s0, s1] of segs) {
+      const len = s1 - s0 - 0.6; if (len < 1) continue;
+      const h = new THREE.Mesh(new THREE.BoxGeometry(len, 0.95, 0.55), hedgeMat);
+      h.position.copy(at((s0 + s1) / 2, 0.55)).setY(0.475); h.rotation.y = yaw; h.castShadow = h.receiveShadow = true; grp.add(h);
+    }
+    // faroles sobre los postes, cada ~13 m
+    const glow = new THREE.MeshStandardMaterial({ color: 0xfff1d6, emissive: 0xffd9a0, emissiveIntensity: 0.9, roughness: 0.3 });
+    for (let s = 2.6; s < L; s += 13) {
+      if (inGate(s) || inGate(s + 1)) continue;
+      const lamp = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.32, 0.2), glow);
+      lamp.position.copy(at(s)).setY(H + 0.38); lamp.rotation.y = yaw; grp.add(lamp);
+      const cap = new THREE.Mesh(new THREE.ConeGeometry(0.19, 0.16, 4), metal);
+      cap.position.copy(at(s)).setY(H + 0.62); cap.rotation.y = yaw + Math.PI / 4; grp.add(cap);
+    }
+  }
+
+  /** Árboles en los patios y jardines del hotel (dentro del conjunto, lejos de muros, vías y del ala modelada). */
+  _courtyardTrees(ctx, feet, mb) {
+    const all = feet.flat(), xs = all.map((p) => p[0]), zs = all.map((p) => p[1]);
+    const x0 = Math.min(...xs), x1 = Math.max(...xs), z0 = Math.min(...zs), z1 = Math.max(...zs);
+    // envolvente convexa del conjunto (monotone chain)
+    const pts = all.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+    const cross = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+    const lo = [], hi = [];
+    for (const p of pts) { while (lo.length >= 2 && cross(lo[lo.length - 2], lo[lo.length - 1], p) <= 0) lo.pop(); lo.push(p); }
+    for (const p of pts.slice().reverse()) { while (hi.length >= 2 && cross(hi[hi.length - 2], hi[hi.length - 1], p) <= 0) hi.pop(); hi.push(p); }
+    const hull = offsetPoly(lo.slice(0, -1).concat(hi.slice(0, -1)), -3);
+    const blocked = [...ctx.calzadas, ...ctx.andenes, ...ctx.separadores, ...ctx.edificios.map((b) => b.p)];
+    const hash = (x, z) => { const s = Math.sin(x * 12.9898 + z * 78.233) * 43758.5453; return s - Math.floor(s); };
+    const out = [];
+    for (let x = x0; x <= x1; x += 7.5) for (let z = z0; z <= z1; z += 7.5) {
+      const px = x + (hash(x, z) - 0.5) * 4, pz = z + (hash(z, x) - 0.5) * 4;
+      if (!inPoly(px, pz, hull)) continue;
+      if (px > mb.min.x - 2 && px < mb.max.x + 2 && pz > mb.min.z - 2 && pz < mb.max.z + 2) continue;
+      if (feet.some((f) => inPoly(px, pz, f) || distToPoly(px, pz, f) < 3.2)) continue;
+      if (blocked.some((p) => inPoly(px, pz, p))) continue;
+      if (ctx.arboles.some(([ax, az]) => Math.hypot(ax - px, az - pz) < 5)) continue;
+      if (hash(px * 0.7, pz * 1.3) < 0.18) continue;   // claros: no todo el patio lleno
+      out.push([px, pz]);
+    }
+    return out;
+  }
+
+  /** Manzanas del catastro en 3D: fachadas variadas (ladrillo, revoque blanco, beige, gris) con ventanas por piso,
+   *  antepecho en la cubierta. Se fusionan en pocas mallas (una por fachada) para que el visor siga fluido. */
   _buildings(list) {
     const grp = new THREE.Group();
     grp.name = 'Barrio3D';
-    const facadeTex = tex('fachada-ladrillo.jpg', 1, 1 / 15, 1 / 3.1);   // una baldosa = 15 m de frente × un piso
-    const tints = [0xffffff, 0xe9d6c8, 0xd2b9a8, 0xf3ece4];
-    const facades = tints.map((c) => new THREE.MeshStandardMaterial({ map: facadeTex, color: c, roughness: 0.9 }));
-    const roof = new THREE.MeshStandardMaterial({ map: tex('loseta-concreto.webp', 3), color: 0xb7b0a6, roughness: 0.95 });
-    const sides = tints.map(() => []), caps = [];
-    // separa los grupos de ExtrudeGeometry (0 = tapas, 1 = muros) en geometrías propias
+    const facades = [
+      facadeTexture({ wall: '#8e4f3c', brick: true, seed: 3 }),
+      facadeTexture({ wall: '#a35c45', brick: true, seed: 7, frame: '#f2efe9' }),
+      facadeTexture({ wall: '#e6e2da', seed: 11, glass: ['#a9bccb', '#33424e'] }),
+      facadeTexture({ wall: '#d9cbb5', seed: 17, frame: '#faf7f1' }),
+      facadeTexture({ wall: '#bdbab4', seed: 23, glass: ['#b6c4cf', '#2c3640'], frame: '#f3f3f3' }),
+    ].map((map) => new THREE.MeshStandardMaterial({ map, roughness: 0.88, envMapIntensity: 0.4 }));
+    const roof = new THREE.MeshStandardMaterial({ map: tex('loseta-concreto.webp', 3), color: 0xb4ada3, roughness: 0.95 });
+    const parapetMat = new THREE.MeshStandardMaterial({ color: 0xd7d2c9, roughness: 0.9 });
+    const sides = facades.map(() => []), caps = [], parapets = [];
     const part = (g, grpIdx) => {
       const { start, count } = g.groups[grpIdx], out = new THREE.BufferGeometry();
       for (const k of ['position', 'normal', 'uv']) {
@@ -404,8 +613,16 @@ export class Edificio3D {
       const g = new THREE.ExtrudeGeometry(shape2(b.p), { depth: h, bevelEnabled: false });
       g.rotateX(-Math.PI / 2);
       caps.push(part(g, 0));
-      sides[Math.floor(hash(b.p[0][0], b.p[0][1]) * tints.length) % tints.length].push(part(g, 1));
+      sides[Math.floor(hash(b.p[0][0], b.p[0][1]) * facades.length) % facades.length].push(part(g, 1));
       g.dispose();
+      // antepecho de 0,9 m alrededor de la cubierta (solo edificios de más de un piso)
+      if (h > 4.5) try {
+        const outer = openRing(b.p), inner = offsetPoly(outer, -0.25);
+        const s = shape2(outer); s.holes.push(new THREE.Path(inner.map(([x, z]) => new THREE.Vector2(x, -z))));
+        const pg = new THREE.ExtrudeGeometry(s, { depth: 0.9, bevelEnabled: false });
+        pg.rotateX(-Math.PI / 2); pg.translate(0, h, 0);
+        parapets.push(pg.toNonIndexed());
+      } catch { /* polígono raro: sin antepecho */ }
     }
     const add = (geos, mat) => {
       if (!geos.length) return;
@@ -415,6 +632,7 @@ export class Edificio3D {
     };
     sides.forEach((geos, i) => add(geos, facades[i]));
     add(caps, roof);
+    add(parapets.map((g) => { for (const k of Object.keys(g.attributes)) if (k !== 'position' && k !== 'normal') g.deleteAttribute(k); return g; }), parapetMat);
     this.scene.add(grp);
     return grp;
   }

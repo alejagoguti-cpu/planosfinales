@@ -109,49 +109,58 @@ function showCat(cat) {
 pills.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) showCat(b.dataset.cat); });
 showCat(CATS[0]);
 
-/* ---------- pantalla dividida: niveles y habitaciones ---------- */
-const levelsPlan = $('[data-plan-levels]');
-drawPlan(levelsPlan, geo);
+/* ---------- modelo 3D por pisos + lista de niveles y habitaciones ---------- */
+const { Edificio3D } = await import('./assets/js/edificio3d.js');
 const tbody = $('[data-levels]');
-const upper = [6, 5, 4, 3].map((f) => `<tr class="lvl muted" data-lvl="${f}" tabindex="0" aria-selected="false"><td>Piso ${f}</td><td>—</td><td>En modelado</td><td></td></tr>`).join('');
 const total = rooms.reduce((a, r) => a + r.priv, 0);
+const upper = [6, 5, 4, 3].map((f) => `<tr class="lvl" data-lvl="${f}" tabindex="0" aria-selected="false"><td>Piso ${f}</td><td>—</td><td>En modelado</td><td></td></tr>`).join('');
 const p2 = `<tr class="lvl" data-lvl="2" tabindex="0" aria-selected="false"><td>Piso 2</td><td>${m2(total)}</td><td>12 habitaciones</td><td>3 alas</td></tr>`;
 const roomRows = rooms.map((r) => `<tr class="room" data-n="${r.n}" tabindex="0" aria-selected="false"><td>Hab. ${r.n}</td><td>${m2(r.priv)}</td><td>${r.tipo}</td><td>${r.ala}</td></tr>`).join('');
 tbody.innerHTML = upper + p2 + roomRows;
 
-function selectRow(tr) {
-  $$('tr', tbody).forEach((t) => t.setAttribute('aria-selected', String(t === tr)));
-  const empty = tr.dataset.lvl && tr.dataset.lvl !== '2';
-  levelsPlan.hidden = empty;
-  $('[data-p-empty]').hidden = !empty;
-  if (empty) {
-    $('[data-p-title]').textContent = `Piso ${tr.dataset.lvl}`;
-    $('[data-p-area]').textContent = 'En modelado';
-    $('[data-p-sub]').textContent = '';
+const pTitle = $('[data-p-title]'), pArea = $('[data-p-area]'), pSub = $('[data-p-sub]'), pEmpty = $('[data-p-empty]'), reset = $('[data-reset]');
+const mark = (sel) => $$('tr', tbody).forEach((t) => t.setAttribute('aria-selected', String(t.matches(sel))));
+
+const viewer = new Edificio3D($('[data-viewer]'), geo, {
+  onPickFloor: (f) => openFloor(f),
+  onPickRoom: (n) => openRoom(n),
+});
+
+function openFloor(f) {
+  viewer.setFloor(f);
+  reset.hidden = f == null;
+  pEmpty.hidden = f == null || f === 2;
+  if (f == null) {
+    mark('none');
+    pTitle.textContent = 'Edificio completo';
+    pArea.textContent = 'Pisos 2 a 6';
+    pSub.textContent = 'Elige un piso en la lista o en el modelo.';
     return;
   }
-  if (tr.dataset.lvl === '2') {
-    $('[data-p-title]').textContent = 'Piso 2';
-    $('[data-p-area]').textContent = m2(total);
-    $('[data-p-sub]').textContent = 'Ala Recta Norte, Ala Diagonal y Sector Suites Fondo.';
-    highlight(levelsPlan, rooms.map((r) => r.n));
-    return;
+  mark(`[data-lvl="${f}"]`);
+  pTitle.textContent = `Piso ${f}`;
+  if (f === 2) {
+    pArea.textContent = `${m2(total)} · 12 habitaciones`;
+    pSub.textContent = 'Elige una habitación en la lista o haz clic sobre ella en el modelo.';
+  } else {
+    pArea.textContent = 'En modelado';
+    pSub.textContent = '';
   }
-  const r = rooms.find((x) => x.n === tr.dataset.n);
-  $('[data-p-title]').textContent = `Habitación ${r.n} · ${r.tipo}`;
-  $('[data-p-area]').textContent = `${m2(r.priv)} privados · ${m2(r.cons)} construidos`;
-  $('[data-p-sub]').textContent = `${r.ubic}. ${r.camas}.`;
-  highlight(levelsPlan, [r.n]);
 }
-tbody.addEventListener('click', (e) => { const tr = e.target.closest('tr'); if (tr) selectRow(tr); });
+function openRoom(n) {
+  const r = rooms.find((x) => x.n === n);
+  viewer.selectRoom(n);
+  reset.hidden = false;
+  pEmpty.hidden = true;
+  mark(`[data-n="${n}"]`);
+  pTitle.textContent = `Habitación ${r.n} · ${r.tipo}`;
+  pArea.textContent = `${m2(r.priv)} privados · ${m2(r.cons)} construidos`;
+  pSub.textContent = `${r.ubic}. ${r.camas}.`;
+}
+const choose = (tr) => (tr.dataset.n ? openRoom(tr.dataset.n) : openFloor(+tr.dataset.lvl));
+tbody.addEventListener('click', (e) => { const tr = e.target.closest('tr'); if (tr) choose(tr); });
 tbody.addEventListener('keydown', (e) => {
   const tr = e.target.closest('tr');
-  if (tr && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); selectRow(tr); }
+  if (tr && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); choose(tr); }
 });
-selectRow($('tr[data-lvl="2"]', tbody));
-
-// clic en una habitación del plano rojo → selecciona su fila
-levelsPlan.addEventListener('click', (e) => {
-  const g = e.target.closest('[data-room]');
-  if (g) selectRow($(`tr[data-n="${g.dataset.room}"]`, tbody));
-});
+reset.addEventListener('click', () => openFloor(null));

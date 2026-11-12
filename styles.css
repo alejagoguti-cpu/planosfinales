@@ -1,6 +1,7 @@
 /* Lenguaje visual tipo HYLO: grotesk, blanco/negro/gris, acento rojo, pantalla dividida. */
 :root {
-  --red: #ff0a2e;
+  --red: #0e3064;
+  --gold: #b59535;
   --grey: #d1d2d2;
   --grey-2: #9b9b9b;
   --dark: #212121;
@@ -119,28 +120,19 @@ h1, h2, h3, h4 { margin: 0; font-family: var(--head); font-weight: 400; letter-s
 .levels tr.room td:first-child { padding-left: 3rem; }
 .levels tr:hover { background: #2e2e2e; }
 .levels tr[aria-selected="true"] { background: var(--red); color: var(--white); }
-.levels-panel { position: sticky; top: 0; align-self: start; min-height: 100svh; background: var(--red); color: var(--white); padding: 1.6rem 5.5rem 2rem 1rem; display: flex; flex-direction: column; }
-.panel-top { display: flex; justify-content: space-between; gap: 1.5rem; }
-.panel-top h3 { font-size: clamp(1.6rem, 1.2rem + 1vw, 2rem); }
-.panel-top p { margin: .3rem 0 0; font: 400 1.35rem/1.2 var(--head); }
-.panel-top .panel-sub { font: 400 .95rem/1.4 var(--body); max-width: 22rem; opacity: .95; }
-.key { list-style: none; margin: .4rem 0 0; padding: 0; display: grid; gap: .6rem; font-size: .9rem; }
-.key li { display: flex; align-items: center; gap: .7rem; }
-.key i { width: 1.85rem; height: 1.85rem; display: block; }
-.k-sel { background: var(--white); }
-.k-room { background: var(--grey); }
-.k-circ { background: var(--black); }
-.plan-red { margin: auto 0; padding: 2rem 0; }
-.plan-red .slab { fill: rgba(255, 255, 255, .12); }
-.plan-red .wall { stroke: #111; }
-.plan-red .col { fill: #111; }
-.plan-red .circ { fill: var(--black); }
-.plan-red .room, .plan-red .bath { fill: var(--grey); }
-.plan-red .room.hl, .plan-red .bath.hl { fill: var(--white); }
-.plan-red .num { fill: #444; }
-.plan-red .num.hl { fill: var(--red); }
-.panel-empty { margin: auto 0; font: 400 1.6rem/1.3 var(--head); max-width: 22rem; }
-.panel-links { display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; font-size: .9rem; }
+.levels-panel { position: sticky; top: 0; align-self: start; height: 100svh; min-height: 34rem; background: var(--grey); color: var(--black); overflow: hidden; }
+.viewer { position: absolute; inset: 0; }
+.viewer canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+.panel-top { position: absolute; z-index: 2; top: 1.6rem; left: 1.5rem; right: 5.5rem; display: flex; justify-content: space-between; align-items: flex-start; gap: 1.5rem; pointer-events: none; }
+.panel-top > * { pointer-events: auto; }
+.panel-top h3 { font-size: clamp(1.6rem, 1.2rem + 1vw, 2.1rem); }
+.panel-top p { margin: .3rem 0 0; font: 400 1.25rem/1.25 var(--head); color: var(--red); }
+.panel-top .panel-sub { font: 400 .95rem/1.4 var(--body); max-width: 24rem; color: var(--black); }
+.btn-reset { flex-shrink: 0; padding: .35rem 1.2rem; border: 0; border-radius: 99px; background: var(--red); color: var(--white); cursor: pointer; font: 400 1rem/1.4 var(--body); }
+.btn-reset:hover { background: var(--black); }
+.panel-empty { position: absolute; z-index: 2; left: 1.5rem; bottom: 4.5rem; margin: 0; padding: .6rem 1rem; background: var(--white); font: 400 1.1rem/1.3 var(--head); max-width: 22rem; }
+.panel-hint { position: absolute; z-index: 2; right: 1.25rem; bottom: 1.1rem; margin: 0; font-size: .78rem; color: #555; }
+.panel-links { position: absolute; z-index: 2; left: 1.5rem; bottom: 1.1rem; display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; font-size: .85rem; }
 
 /* ---------- tres columnas ---------- */
 .detail { padding: clamp(5rem, 8vw, 7rem) var(--pad); }
@@ -177,7 +169,7 @@ h1, h2, h3, h4 { margin: 0; font-family: var(--head); font-weight: 400; letter-s
   .types-r { grid-column: 1 / -1; grid-row: 2; flex-direction: row; flex-wrap: wrap; }
   .types-plan { grid-column: 1 / -1; }
   .levels { grid-template-columns: 1fr; }
-  .levels-panel { position: relative; min-height: 0; padding: 1.5rem 1rem 2rem; }
+  .levels-panel { position: relative; height: 78svh; min-height: 30rem; order: -1; }
   .foot-cols { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 720px) {
@@ -190,11 +182,37 @@ h1, h2, h3, h4 { margin: 0; font-family: var(--head); font-weight: 400; letter-s
   .facts { grid-template-columns: 1fr 1fr; }
   .levels td:nth-child(3), .levels td:nth-child(4) { font-size: .8rem; }
   .levels td:nth-child(4) { display: none; }
-  .panel-top { flex-direction: column; }
-  .key { grid-auto-flow: column; justify-content: start; }
+  .panel-top { flex-direction: column; right: 1rem; left: 1rem; top: 5.6rem; gap: .6rem; }
+  .panel-top .panel-sub { display: none; }
+  .panel-hint { display: none; }
   .foot-cols { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after { transition: none !important; animation: none !important; }
 }
+
+/* ---------- detalles en dorado ---------- */
+.brand small { color: var(--gold); }
+.menu a:hover { color: var(--gold); }
+.intro-txt h3 b { color: var(--gold); }
+.bars button[aria-selected="true"]::before { background: var(--gold); }
+.types-c p:not(.big) { color: var(--gold); font-weight: 500; }
+.pills button[aria-pressed="true"] { box-shadow: inset 0 0 0 2px var(--gold); }
+.facts div:nth-child(2) dt { color: var(--gold); }
+.facts dd { color: var(--gold); }
+.panel-top p { color: var(--gold); }
+.btn-reset:hover { background: var(--gold); }
+.levels tr[aria-selected="true"] td:nth-child(2) { color: var(--gold); }
+.levels-h .red { color: var(--gold); }
+.btn-dark:hover { background: var(--gold); }
+.foot h4 { color: var(--gold); }
+.foot a { color: var(--gold); }
+.welcome h2 .red { color: var(--red); }
+.statement h2 .red { color: var(--gold); }
+
+/* ---------- logos ---------- */
+.brand { background: var(--white); padding: .55rem; justify-content: center; align-items: center; box-shadow: 0 0 0 1px rgba(14, 48, 100, .08); }
+.brand img { width: 100%; height: 100%; object-fit: contain; }
+.foot-logos { display: flex; gap: 1.5rem; align-items: center; margin-bottom: 3rem; }
+.foot-logos img { width: 6.5rem; height: 6.5rem; object-fit: contain; background: var(--white); border-radius: 50%; padding: .4rem; }

@@ -11,12 +11,16 @@
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500&family=Archivo:wght@400;500&display=swap" rel="stylesheet">
   <link rel="preload" as="image" href="assets/img/hero-aerea.webp" fetchpriority="high">
   <link rel="stylesheet" href="styles.css">
+  <script type="importmap">
+    { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script type="module" src="script.js"></script>
 </head>
 <body>
   <a class="skip" href="#main">Saltar al contenido</a>
 
-  <a class="brand" href="#top" aria-label="Hotel La Fontana, inicio"><span>La</span><span>Fontana</span><small>Piso 2</small></a>
+  <a class="brand" href="#top" aria-label="Hotel Estelar La Fontana, inicio"><img src="assets/logos/estelar.png" alt="Estelar" width="300" height="300"></a>
   <button class="burger" type="button" aria-expanded="false" aria-controls="menu" aria-label="Abrir menú" data-burger><i></i><i></i><i></i></button>
 
   <nav class="menu" id="menu" aria-label="Principal" hidden data-menu>
@@ -101,21 +105,18 @@
           <tbody data-levels></tbody>
         </table>
       </div>
-      <aside class="levels-panel" aria-live="polite">
-        <div class="panel-top">
+      <aside class="levels-panel">
+        <div class="viewer" data-viewer role="img" aria-label="Modelo 3D del edificio por pisos"></div>
+        <div class="panel-top" aria-live="polite">
           <div>
-            <h3 data-p-title>Piso 2</h3>
-            <p data-p-area>—</p>
-            <p class="panel-sub" data-p-sub></p>
+            <h3 data-p-title>Edificio completo</h3>
+            <p data-p-area>Pisos 2 a 6</p>
+            <p class="panel-sub" data-p-sub>Elige un piso en la lista o en el modelo.</p>
           </div>
-          <ul class="key">
-            <li><i class="k-sel"></i>Selección</li>
-            <li><i class="k-room"></i>Habitaciones</li>
-            <li><i class="k-circ"></i>Circulación</li>
-          </ul>
+          <button type="button" class="btn-reset" data-reset hidden>Ver edificio completo</button>
         </div>
-        <svg class="plan plan-red" data-plan-levels role="img" aria-label="Planta del Piso 2"></svg>
         <p class="panel-empty" data-p-empty hidden>Planta en modelado en el archivo HLF_P2-P6.</p>
+        <p class="panel-hint">Arrastra para girar · rueda para acercar</p>
         <div class="panel-links">
           <a href="assets/planos/p2-mobiliario.png" target="_blank" rel="noopener">Plano de mobiliario</a>
           <a href="assets/planos/p2-arquitectonica.png" target="_blank" rel="noopener">Plano arquitectónico</a>
@@ -157,6 +158,7 @@
 
   <!-- 10 · Pie oscuro -->
   <footer class="foot" id="contacto">
+    <div class="foot-logos"><img src="assets/logos/estelar.png" alt="Hoteles Estelar" width="300" height="300"><img src="assets/logos/baco.png" alt="Baco Studio" width="300" height="300"></div>
     <div class="foot-cols">
       <div class="foot-main">
         <p>Hotel Estelar La Fontana<br>Av. Calle 127 # 15A-10<br>Bogotá D.C., Colombia</p>

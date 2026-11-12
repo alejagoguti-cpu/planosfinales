@@ -113,28 +113,27 @@ showCat(CATS[0]);
 const { Edificio3D } = await import('./assets/js/edificio3d.js');
 const tbody = $('[data-levels]');
 const total = rooms.reduce((a, r) => a + r.priv, 0);
-const upper = [6, 5, 4, 3].map((f) => `<tr class="lvl" data-lvl="${f}" tabindex="0" aria-selected="false"><td>Piso ${f}</td><td>—</td><td>En modelado</td><td></td></tr>`).join('');
 const p2 = `<tr class="lvl" data-lvl="2" tabindex="0" aria-selected="false"><td>Piso 2</td><td>${m2(total)}</td><td>12 habitaciones</td><td>3 alas</td></tr>`;
 const roomRows = rooms.map((r) => `<tr class="room" data-n="${r.n}" tabindex="0" aria-selected="false"><td>Hab. ${r.n}</td><td>${m2(r.priv)}</td><td>${r.tipo}</td><td>${r.ala}</td></tr>`).join('');
-tbody.innerHTML = upper + p2 + roomRows;
+tbody.innerHTML = p2 + roomRows;
 
 const pTitle = $('[data-p-title]'), pArea = $('[data-p-area]'), pSub = $('[data-p-sub]'), pEmpty = $('[data-p-empty]'), reset = $('[data-reset]');
 const mark = (sel) => $$('tr', tbody).forEach((t) => t.setAttribute('aria-selected', String(t.matches(sel))));
 
 const viewer = new Edificio3D($('[data-viewer]'), geo, {
-  onPickFloor: (f) => openFloor(f),
+  onPickFloor: () => openFloor(2), // solo el Piso 2 es parte del proyecto
   onPickRoom: (n) => openRoom(n),
 });
 
 function openFloor(f) {
   viewer.setFloor(f);
   reset.hidden = f == null;
-  pEmpty.hidden = f == null || f === 2;
+  if (pEmpty) pEmpty.hidden = f == null || f === 2;
   if (f == null) {
     mark('none');
     pTitle.textContent = 'Edificio completo';
-    pArea.textContent = 'Pisos 2 a 6';
-    pSub.textContent = 'Elige un piso en la lista o en el modelo.';
+    pArea.textContent = 'Remodelación del Piso 2';
+    pSub.textContent = 'Haz clic en el edificio o en el Piso 2 para abrirlo.';
     return;
   }
   mark(`[data-lvl="${f}"]`);
@@ -151,7 +150,7 @@ function openRoom(n) {
   const r = rooms.find((x) => x.n === n);
   viewer.selectRoom(n);
   reset.hidden = false;
-  pEmpty.hidden = true;
+  if (pEmpty) pEmpty.hidden = true;
   mark(`[data-n="${n}"]`);
   pTitle.textContent = `Habitación ${r.n} · ${r.tipo}`;
   pArea.textContent = `${m2(r.priv)} privados · ${m2(r.cons)} construidos`;

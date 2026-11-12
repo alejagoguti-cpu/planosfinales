@@ -125,14 +125,15 @@ h1, h2, h3, h4 { margin: 0; font-family: var(--head); font-weight: 400; letter-s
 .viewer canvas { display: block; width: 100%; height: 100%; touch-action: none; }
 .panel-top { position: absolute; z-index: 2; top: 1.6rem; left: 1.5rem; right: 5.5rem; display: flex; justify-content: space-between; align-items: flex-start; gap: 1.5rem; pointer-events: none; }
 .panel-top > * { pointer-events: auto; }
+.panel-top > div { padding: .8rem 1rem .9rem; background: rgba(255, 255, 255, .86); backdrop-filter: blur(6px); }
 .panel-top h3 { font-size: clamp(1.6rem, 1.2rem + 1vw, 2.1rem); }
 .panel-top p { margin: .3rem 0 0; font: 400 1.25rem/1.25 var(--head); color: var(--red); }
 .panel-top .panel-sub { font: 400 .95rem/1.4 var(--body); max-width: 24rem; color: var(--black); }
 .btn-reset { flex-shrink: 0; padding: .35rem 1.2rem; border: 0; border-radius: 99px; background: var(--red); color: var(--white); cursor: pointer; font: 400 1rem/1.4 var(--body); }
 .btn-reset:hover { background: var(--black); }
 .panel-empty { position: absolute; z-index: 2; left: 1.5rem; bottom: 4.5rem; margin: 0; padding: .6rem 1rem; background: var(--white); font: 400 1.1rem/1.3 var(--head); max-width: 22rem; }
-.panel-hint { position: absolute; z-index: 2; right: 1.25rem; bottom: 1.1rem; margin: 0; font-size: .78rem; color: #555; }
-.panel-links { position: absolute; z-index: 2; left: 1.5rem; bottom: 1.1rem; display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; font-size: .85rem; }
+.panel-hint { position: absolute; z-index: 2; left: 1.5rem; bottom: 3.6rem; margin: 0; padding: .2rem .6rem; font-size: .78rem; color: #333; background: rgba(255, 255, 255, .8); }
+.panel-links { position: absolute; z-index: 2; left: 1.5rem; bottom: 1.1rem; display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; padding: .5rem 1rem; font-size: .85rem; background: rgba(255, 255, 255, .86); }
 
 /* ---------- tres columnas ---------- */
 .detail { padding: clamp(5rem, 8vw, 7rem) var(--pad); }

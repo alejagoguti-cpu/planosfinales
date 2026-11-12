@@ -157,7 +157,13 @@ function openRoom(n) {
   pArea.textContent = `${m2(r.priv)} privados · ${m2(r.cons)} construidos`;
   pSub.textContent = `${r.ubic}. ${r.camas}.`;
 }
-const choose = (tr) => (tr.dataset.n ? openRoom(tr.dataset.n) : openFloor(+tr.dataset.lvl));
+const panel = $('.levels-panel');
+const narrow = matchMedia('(max-width: 1000px)');
+const choose = (tr) => {
+  if (tr.dataset.n) openRoom(tr.dataset.n); else openFloor(+tr.dataset.lvl);
+  // en pantallas angostas el visor queda arriba de la lista: se sube para ver el cambio
+  if (narrow.matches) panel.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+};
 tbody.addEventListener('click', (e) => { const tr = e.target.closest('tr'); if (tr) choose(tr); });
 tbody.addEventListener('keydown', (e) => {
   const tr = e.target.closest('tr');

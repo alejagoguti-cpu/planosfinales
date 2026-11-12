@@ -1,0 +1,134 @@
+[
+ {
+  "n": "214",
+  "tipo": "Suite D",
+  "cat": "Suite Ejecutiva",
+  "ala": "Ala Recta Norte",
+  "ubic": "Esquinera Occidental · Vista Jardines Calle 124",
+  "camas": "1 Cama King (2000×2000 mm) + Sala Curva + Comedor 4 Puestos",
+  "priv": 51.84,
+  "cons": 59.1,
+  "pmr": "NO"
+ },
+ {
+  "n": "215",
+  "tipo": "Doble",
+  "cat": "Habitación Doble",
+  "ala": "Ala Recta Norte",
+  "ubic": "Medianera Norte · Vista Calle 124",
+  "camas": "2 Camas Dobles (1600×2000 mm) + Poltrona + Escritorio",
+  "priv": 26.42,
+  "cons": 30.12,
+  "pmr": "NO"
+ },
+ {
+  "n": "216",
+  "tipo": "Sencilla",
+  "cat": "Habitación Sencilla King",
+  "ala": "Ala Recta Norte",
+  "ubic": "Medianera Norte · Vista Calle 124",
+  "camas": "1 Cama King (1800×2000 mm) + Sofá / Poltrona + Consola TV",
+  "priv": 24.45,
+  "cons": 27.87,
+  "pmr": "NO"
+ },
+ {
+  "n": "217",
+  "tipo": "Doble",
+  "cat": "Habitación Doble",
+  "ala": "Ala Recta Norte",
+  "ubic": "Medianera Norte · Vista Calle 124",
+  "camas": "2 Camas Dobles (1600×2000 mm) + Poltrona + Consola TV",
+  "priv": 26.36,
+  "cons": 30.05,
+  "pmr": "NO"
+ },
+ {
+  "n": "218",
+  "tipo": "Sencilla",
+  "cat": "Habitación Sencilla King",
+  "ala": "Ala Recta Norte",
+  "ubic": "Esquinera Interior Norte · Vista Jardín Central",
+  "camas": "1 Cama King (1800×2000 mm) + 2 Mesas de Noche + Poltrona",
+  "priv": 26.1,
+  "cons": 29.75,
+  "pmr": "NO"
+ },
+ {
+  "n": "219",
+  "tipo": "Doble",
+  "cat": "Habitación Doble",
+  "ala": "Ala Diagonal",
+  "ubic": "Ala Diagonal · Vista Plazoleta & Jardín Interior",
+  "camas": "2 Camas Dobles (1600×2000 mm) + Poltrona Club Chair + Consola",
+  "priv": 25.38,
+  "cons": 28.93,
+  "pmr": "NO"
+ },
+ {
+  "n": "220",
+  "tipo": "Sencilla",
+  "cat": "Habitación Sencilla King",
+  "ala": "Ala Diagonal",
+  "ubic": "Ala Diagonal Central · Vista Jardín Interior",
+  "camas": "1 Cama King (1800×2000 mm) + Poltrona Club Chair + Escritorio",
+  "priv": 26.9,
+  "cons": 30.67,
+  "pmr": "NO"
+ },
+ {
+  "n": "221",
+  "tipo": "Doble",
+  "cat": "Habitación Doble",
+  "ala": "Ala Diagonal",
+  "ubic": "Ala Diagonal Sur · Vista Jardín Interior",
+  "camas": "2 Camas Dobles (1600×2000 mm) + Poltrona Club Chair + Tapete TA-02",
+  "priv": 26.88,
+  "cons": 30.64,
+  "pmr": "NO"
+ },
+ {
+  "n": "222",
+  "tipo": "Suite Fondo A",
+  "cat": "Suite Ejecutiva",
+  "ala": "Sector Suites Fondo",
+  "ubic": "Esquinera Oriental · Doble Fachada con 3 Ventanas",
+  "camas": "1 Cama King (2000×2000 mm) + Sala Independiente + Comedor + Doble Zona Húmeda",
+  "priv": 54.15,
+  "cons": 61.73,
+  "pmr": "NO"
+ },
+ {
+  "n": "223",
+  "tipo": "Junior Suite C",
+  "cat": "Junior Suite",
+  "ala": "Sector Suites Fondo",
+  "ubic": "Fachada Occidental · 2 Ventanas hacia Jardín",
+  "camas": "1 Cama King (1800×2000 mm) + Zona de Estar Circular + Escritorio",
+  "priv": 29.85,
+  "cons": 34.03,
+  "pmr": "NO"
+ },
+ {
+  "n": "224",
+  "tipo": "Suite C1",
+  "cat": "Suite Ejecutiva",
+  "ala": "Sector Suites Fondo",
+  "ubic": "Esquinera Suroccidental · 8 Ventanas Panorámicas",
+  "camas": "1 Cama King (2000×2000 mm) + Sala Esquinera + Comedor + Baño Mock-Up INT-618",
+  "priv": 48.42,
+  "cons": 55.2,
+  "pmr": "NO"
+ },
+ {
+  "n": "225",
+  "tipo": "Sencilla Especial",
+  "cat": "Habitación Sencilla King",
+  "ala": "Sector Suites Fondo",
+  "ubic": "Fachada Sur · 2 Ventanas con Estar",
+  "camas": "1 Cama King (1800×2000 mm) + 2 Mesas de Noche + Poltrona Club Chair + Tapete TA-02",
+  "priv": 29.56,
+  "cons": 33.7,
+  "pmr": "NO"
+ }
+]

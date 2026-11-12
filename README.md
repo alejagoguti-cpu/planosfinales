@@ -1,19 +1,16 @@
-# HLF — micrositio arquitectónico
+# Hotel La Fontana · Piso 2
 
-Sitio estático inspirado en el lenguaje editorial de Thirty High y la estructura de contenido de HYLO. Está preparado para presentar el edificio del modelo `HLF_P2-P6.rvt`.
+Sitio estático (GitHub Pages) de la remodelación del Piso 2 del Hotel Estelar La Fontana, Bogotá.
+Estética tomada de [Thirty High](https://thirtyhigh.co.uk/) (paleta oliva / lima / lila, serif editorial, selector de pisos)
+y [HYLO](https://hylo-london.com/building/) (ficha técnica en grotesk, planos por nivel, recorridos).
 
-## Uso
+Publicado en https://alejagoguti-cpu.github.io/planosfinales/
 
-Abre `index.html` directamente o sirve la carpeta con cualquier servidor estático.
+## Contenido
 
-## Sustituir placeholders
+- `assets/img/`: visualizaciones del repo `hotel-la-fontana-render` (`assets/hf/`, ilustrativas, generadas con IA desde el modelo).
+- `assets/planos/`: plantas del Piso 2 exportadas de Revit (mobiliario, arquitectónica y acabados).
+- `assets/habitaciones-p2.json`: inventario de las 12 habitaciones (tipología, ala, áreas privada y construida) del `rooms-piso2.json` del mismo repo.
+- `script.js`: menú, selector de pisos (SVG), inventario con filtros y suma de áreas seleccionadas.
 
-Los SVG de `assets/` mantienen la relación de aspecto y pueden reemplazarse por renders finales conservando los mismos nombres, o actualizando las rutas en `index.html`.
-
-- `hero-building.svg`: exterior principal / hero.
-- `panorama-placeholder.svg`: vista panorámica.
-- `gallery-placeholder.svg`: fachada vertical.
-- `floor-placeholder.svg`: plano de nivel.
-
-El selector de plantas se configura en `script.js` y actualmente cubre los niveles 2 a 6 del modelo.
-
+Para agregar la planta de otro piso: añade `plan: true` y sus datos a `FLOORS` en `script.js`.

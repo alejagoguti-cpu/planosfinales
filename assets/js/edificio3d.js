@@ -12,18 +12,12 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
-import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-import { GTAOPass } from 'three/addons/postprocessing/GTAOPass.js';
-import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
-import { ContextoGoogle } from './contexto-google.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 const NAVY = 0x0e3064;
 const GOLD = 0xb59535;
-const BG = 0xc9d3db;                 // tono del horizonte (niebla y fondo de respaldo)
+const BG = 0xdcdedb;                 // tono del horizonte (niebla y fondo de respaldo)
 const MOBILE = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
-const USE_GOOGLE = new URLSearchParams(location.search).get('google') !== '0';
 const P2_Y = 3.0;                    // cota del Piso 2
 const ROOM_H = 2.6;
 const OPEN_FLOOR = 'PISO 2';
@@ -37,7 +31,7 @@ const texCache = new Map();
 function tex(name, metres = 1, rx = null, ry = null) {
   const key = `${name}|${metres}|${rx}|${ry}`;
   if (texCache.has(key)) return texCache.get(key);
-  const t = texLoader.load(`assets/tex/${name}`);
+  const t = texLoader.load(`assets/tex/${name}`, undefined, undefined, () => {});
   t.colorSpace = THREE.SRGBColorSpace;
   t.wrapS = t.wrapT = THREE.RepeatWrapping;
   t.repeat.set(rx ?? 1 / metres, ry ?? 1 / metres);
@@ -169,12 +163,14 @@ export class Edificio3D {
     this.ready = false;
 
     const r = this.renderer = new THREE.WebGLRenderer({ antialias: true });
-    r.setPixelRatio(Math.min(devicePixelRatio, 2));
+    r.setPixelRatio(Math.min(devicePixelRatio, MOBILE ? 1.5 : 2));
     r.outputColorSpace = THREE.SRGBColorSpace;
     r.toneMapping = THREE.ACESFilmicToneMapping;
     r.toneMappingExposure = 1.05;
     r.shadowMap.enabled = true;
     r.shadowMap.type = THREE.PCFSoftShadowMap;
+    r.shadowMap.autoUpdate = false;   // se marcan para actualizar solo cuando el edificio se mueve (_busy)
+    this._busyUntil = 0;
     r.setClearColor(BG);
     container.append(r.domElement);
 
@@ -185,15 +181,17 @@ export class Edificio3D {
 
     this.scene = new THREE.Scene();
     this.scene.background = skyTexture();
-    this.scene.fog = new THREE.Fog(BG, 900, 4200);
-    this.camera = new THREE.PerspectiveCamera(32, 1, 0.5, 9000);
+    this.scene.fog = new THREE.Fog(BG, 380, 1350);   // la ciudad se funde con el horizonte antes del borde del suelo
+    this.camera = new THREE.PerspectiveCamera(32, 1, 0.5, 3000);
     this.controls = new OrbitControls(this.camera, r.domElement);
     this.controls.enableDamping = true;
     this.controls.dampingFactor = 0.07;
     this.controls.maxPolarAngle = Math.PI * 0.47;
     this.controls.minDistance = 8;
     this.controls.maxDistance = 520;
-    this.controls.autoRotateSpeed = -0.35;   // giro lento cuando nadie toca el visor
+    this.controls.autoRotateSpeed = -0.35;
+    this.controls.addEventListener('start', () => { this._dragging = true; });
+    this.controls.addEventListener('end', () => { this._dragging = false; });   // giro lento cuando nadie toca el visor
     const stopIdle = () => { this.controls.autoRotate = false; clearTimeout(this._idleT); this._idleT = setTimeout(() => { if (this.cut == null && !reduced) this.controls.autoRotate = true; }, 7000); };
     r.domElement.addEventListener('pointerdown', stopIdle);
     r.domElement.addEventListener('wheel', stopIdle, { passive: true });
@@ -204,17 +202,6 @@ export class Edificio3D {
     this._home();
     this._bindPointer();
 
-    if (!this.low) {
-      const rt = new THREE.WebGLRenderTarget(1, 1, { type: THREE.HalfFloatType, samples: 4 });
-      this.composer = new EffectComposer(r, rt);
-      this.composer.addPass(new RenderPass(this.scene, this.camera));
-      const ao = this.ao = new GTAOPass(this.scene, this.camera, 1, 1);
-      ao.blendIntensity = 0.9;
-      ao.updateGtaoMaterial({ radius: 1.4, distanceExponent: 1.4, thickness: 1.6, scale: 1.0, samples: 12, distanceFallOff: 1.0 });
-      ao.updatePdMaterial({ lumaPhi: 10, depthPhi: 2, normalPhi: 3, radius: 6, rings: 2, samples: 12 });
-      this.composer.addPass(ao);
-      this.composer.addPass(new OutputPass());
-    }
     new ResizeObserver(() => this._resize()).observe(container);
     this._resize();
 
@@ -224,12 +211,13 @@ export class Edificio3D {
       const dt = Math.min(clock.getDelta(), 0.1);
       const b = container.getBoundingClientRect();
       this.visible = b.bottom > 0 && b.top < innerHeight && b.width > 0;
-      // la ciudad de Google se precarga cuando el visor está a menos de dos pantallas
-      if (!this.visible) { if (b.width > 0 && b.top < innerHeight * 2.5 && b.bottom > -innerHeight) this.city?.update(dt); return; }
+      if (!this.visible) return;
       if (this.ready && !this._assembled && b.top < innerHeight * 0.6) { this._assembled = true; this.assemble(); }
       this.controls.update();
-      this.city?.update(dt);
-      if (this.composer) this.composer.render(dt); else r.render(this.scene, this.camera);
+      // las sombras se recalculan solo mientras algo se mueve; la oclusión ambiental solo con la escena quieta
+      const busy = performance.now() < this._busyUntil || this.layers.some((l) => gsap?.isTweening(l.position));
+      if (busy) r.shadowMap.needsUpdate = true;
+      r.render(this.scene, this.camera);
     });
 
     this._load().catch((e) => console.error('No se pudo cargar el modelo 3D', e));
@@ -242,11 +230,11 @@ export class Edificio3D {
     env.background = skyTexture();
     this.scene.environment = pm.fromScene(env, 0.02).texture;
     this.scene.environmentIntensity = 0.55;
-    this.hemi = new THREE.HemisphereLight(0xdfe8f2, 0x8a8174, 0.75);
+    this.hemi = new THREE.HemisphereLight(0xe4ecf4, 0x9a9282, 0.95);
     this.scene.add(this.hemi);
     // sol de media tarde desde el occidente: sombras largas sobre la plaza y la ciudad
-    const sun = this.sun = new THREE.DirectionalLight(0xffe6c8, 3.1);
-    sun.position.set(-120, 95, 70);
+    const sun = this.sun = new THREE.DirectionalLight(0xfff0dc, 3.2);
+    sun.position.set(-110, 150, 85);
     sun.target.position.set(18, 0, 0);
     sun.castShadow = true;
     sun.shadow.mapSize.set(this.low ? 2048 : 4096, this.low ? 2048 : 4096);
@@ -275,7 +263,13 @@ export class Edificio3D {
         node.traverse((o) => {
           if (!o.isMesh) return;
           const key = `${band}|${o.material.name}`;   // materiales propios de cada piso: así cada uno se desvanece por separado
-          if (!mats.has(key)) { const m = materialFor(o.material); m.userData.baseOpacity = m.transparent ? m.opacity : 1; m.userData.baseTransparent = m.transparent; mats.set(key, m); }
+          if (!mats.has(key)) {
+            const m = materialFor(o.material);
+            m.userData.baseOpacity = m.transparent ? m.opacity : 1; m.userData.baseTransparent = m.transparent;
+            // desvanecido por tramado (alphaHash): el material sigue opaco y no se recompila al animar la opacidad
+            if (!m.transparent) m.alphaHash = true;
+            mats.set(key, m);
+          }
           o.material = mats.get(key);
           o.castShadow = !o.material.transparent;
           o.receiveShadow = true;
@@ -292,44 +286,93 @@ export class Edificio3D {
     this.size = Math.max(bb.max.x - bb.min.x, bb.max.z - bb.min.z);
     this._outlines(mats);
 
-    // contexto: la ciudad real de Google recortada donde está el modelo; la maqueta solo si Google falla
-    const massing = this._context(ctx);
-    if (USE_GOOGLE) {
-      try {
-        this.city = new ContextoGoogle(this.scene, {
-          renderer: this.renderer, camera: this.camera, footprint: this.layers.filter((l) => /PISO 1|CUBIERTA/.test(l.userData.band)), mobile: MOBILE, low: this.low,
-          onReady: () => { massing.visible = false; this.renderer.shadowMap.needsUpdate = true; },   // la maqueta del suelo cubre mientras llega la foto
-        });
-        this.city.onFail = () => { massing.visible = true; };
-        this.city.onAttribution = (t) => { (this._attrib ||= this._makeAttrib()).textContent = t; };
-        this.city.setDaylight(1);
-      } catch (e) { console.warn('Malla de Google no disponible', e); massing.visible = true; }
-    }
+    // contexto inmediato modelado: vías, andenes, separadores y manzanas del barrio en 3D
+    this._context(ctx);
     this._rooms();
     await this._trees(ctx.arboles);
 
     this._home(true);
+    await this._warmUp();
     this.ready = true;
     if (this.cut != null) { this._assembled = true; this._applyCut(this._band(), true); }   // ya eligió un piso: sin animación de llegada
     else if (gsap && !reduced) this.layers.forEach((l) => { l.visible = false; });   // esperan la animación de llegada
     if (this.room) this.selectRoom(this.room, false);
+    this._busy(600);
   }
 
   // ------------------------------------------------------------------ contexto inmediato
+  /** Suelo modelado (sin fotos aéreas): calzadas en asfalto, andenes en adoquín con bordillo de concreto,
+   *  separadores con césped y bordillo, ciclorrutas y una base de concreto. Texturas fotogramétricas con
+   *  relieve (mapa normal) y variación grande para que no se note la repetición. Todo fusionado por material. */
   _context(ctx) {
     const grp = new THREE.Group();
     grp.name = 'Contexto';
-    const ground = flat([[-600, -600], [600, -600], [600, 600], [-600, 600]], -0.05,
-      new THREE.MeshStandardMaterial({ map: tex('loseta-concreto.webp', 3), color: 0xc9c6bf, roughness: 1 }));
-    grp.add(ground);
-    const asf = new THREE.MeshStandardMaterial({ map: tex('asfalto.webp', 5), roughness: 0.95 });
-    const and = new THREE.MeshStandardMaterial({ map: tex('adoquin-arcilla.webp', 1.5), roughness: 0.9 });
-    const sep = new THREE.MeshStandardMaterial({ map: tex('seto-verde.webp', 2), color: 0xb9c7a0, roughness: 1 });
-    const cic = new THREE.MeshStandardMaterial({ color: 0x8c3a2c, roughness: 0.9 });
-    ctx.calzadas.forEach((p) => grp.add(flat(p, 0.0, asf)));
-    ctx.ciclorrutas.forEach((p) => grp.add(flat(p, 0.03, cic)));
-    ctx.andenes.forEach((p) => grp.add(flat(p, 0.06, and)));
-    ctx.separadores.forEach((p) => grp.add(flat(p, 0.08, sep)));
+    const A = this.renderer.capabilities.getMaxAnisotropy();
+    const pbrTex = (id, kind, srgb, metres) => {
+      const t = texLoader.load(`assets/tex/pbr/${id}_${kind}.webp`);
+      t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.setScalar(1 / metres); t.anisotropy = A;
+      if (srgb) t.colorSpace = THREE.SRGBColorSpace;
+      return t;
+    };
+    const pbr = (id, metres, { tint = 0xffffff, rough = 0.95, ns = 1, macro = 0.3 } = {}) => {
+      const m = new THREE.MeshStandardMaterial({ color: tint, roughness: rough, metalness: 0, envMapIntensity: 0.35 });
+      m.map = pbrTex(id, 'diff', true, metres);
+      m.normalMap = pbrTex(id, 'nor_gl', false, metres); m.normalScale.setScalar(ns);
+      triplanar(m, metres, macro);
+      return m;
+    };
+    const asphalt = pbr('asphalt_02', 6, { tint: 0xf2f2f2, ns: 0.9, macro: 0.3 });
+    const base = pbr('concrete_pavement', 4, { ns: 0.7, macro: 0.22 });
+    base.color.setRGB(1.12, 1.15, 1.22);   // concreto claro y neutro (la textura es ocre)
+    const plaza = pbr('concrete_pavement', 3.2, { ns: 0.8, macro: 0.18 });
+    plaza.color.setRGB(1.25, 1.24, 1.26);
+    const curb = pbr('concrete_floor_worn_001', 1.2, { tint: 0xe6e1d9, ns: 0.6, macro: 0 });
+    const grass = pbr('leafy_grass', 2.5, { tint: 0xbfc9a6, ns: 1.1, macro: 0.4 });
+    const pavers = new THREE.MeshStandardMaterial({ color: 0xd8cdc6, roughness: 0.9, envMapIntensity: 0.35 });
+    pavers.map = tex('adoquin-arcilla.webp', 1); pavers.bumpMap = pavers.map; pavers.bumpScale = 1.2;
+    triplanar(pavers, 1.5, 0.25);
+    const bike = pbr('asphalt_02', 4, { tint: 0x9a5546, ns: 0.7, macro: 0.15 });
+
+    // ExtrudeGeometry: grupo 0 = tapas (superficie), grupo 1 = costados (bordillo)
+    const part = (g, idx) => {
+      const { start, count } = g.groups[idx], out = new THREE.BufferGeometry();
+      for (const k of ['position', 'normal', 'uv']) {
+        const a = g.attributes[k];
+        out.setAttribute(k, new THREE.BufferAttribute(a.array.slice(start * a.itemSize, (start + count) * a.itemSize), a.itemSize));
+      }
+      return out;
+    };
+    const slab = (pts, h, y0 = 0) => { const g = new THREE.ExtrudeGeometry(shape2(pts), { depth: h, bevelEnabled: false }); g.rotateX(-Math.PI / 2); g.translate(0, y0, 0); return g; };
+    const plane = (pts, y) => { const g = new THREE.ShapeGeometry(shape2(pts)); g.rotateX(-Math.PI / 2); g.translate(0, y, 0); return g; };
+    const add = (geos, mat) => {
+      if (!geos.length) return;
+      const m = new THREE.Mesh(mergeGeometries(geos, false), mat);
+      m.receiveShadow = true;
+      grp.add(m);
+    };
+
+    add([plane([[-1400, -1400], [1400, -1400], [1400, 1400], [-1400, 1400]], -0.03)], base);
+    add(ctx.calzadas.map((p) => plane(p, 0.0)), asphalt);
+    const andTop = [], andSide = [], sepTop = [], sepSide = [];
+    for (const p of ctx.andenes) { const g = slab(p, 0.15); andTop.push(part(g, 0)); andSide.push(part(g, 1)); g.dispose(); }
+    for (const p of ctx.separadores) { const g = slab(p, 0.2); sepTop.push(part(g, 0)); sepSide.push(part(g, 1)); g.dispose(); }
+    add(andTop, pavers); add(andSide, curb);
+    add(sepTop, grass); add(sepSide, curb);
+    const bk = new THREE.Mesh(mergeGeometries(ctx.ciclorrutas.map((p) => plane(p, 0.152)), false), bike);
+    bike.polygonOffset = true; bike.polygonOffsetFactor = -2; bk.receiveShadow = true;
+    if (ctx.ciclorrutas.length) grp.add(bk);
+
+    // resto del hotel (no hace parte del modelo de Revit): volúmenes neutros claros, como maqueta del existente,
+    // sobre un patio en placas de concreto; así el predio no queda como un lote vacío
+    const hotelMat = new THREE.MeshStandardMaterial({ color: 0xe9e4dc, roughness: 0.92, envMapIntensity: 0.4 });
+    const lot = [], hotel = [];
+    // se omite lo que cae sobre el ala modelada (su centro dentro de la huella del modelo)
+    const mb = new THREE.Box3(); this.layers.forEach((l) => mb.expandByObject(l)); mb.expandByScalar(0.5);
+    const onModel = (pts) => { const c = pts.reduce((s, [x, z]) => [s[0] + x / pts.length, s[1] + z / pts.length], [0, 0]); return c[0] > mb.min.x && c[0] < mb.max.x && c[1] > mb.min.z && c[1] < mb.max.z; };
+    for (const b of ctx.hotelBloques || []) { lot.push(plane(b.p, 0.012)); if (!onModel(b.p)) hotel.push(slab(b.p, Math.max(3, b.h))); }
+    for (const a of ctx.hotelAlas || []) if (!onModel(a.footprint)) hotel.push(slab(a.footprint, Math.max(3, a.wallTop)));
+    add(lot, plaza);
+    if (hotel.length) { const hm = new THREE.Mesh(mergeGeometries(hotel, false), hotelMat); hm.castShadow = hm.receiveShadow = true; hm.name = 'HotelExistente'; grp.add(hm); }
 
     this.scene.add(grp);
     this._buildings(ctx.edificios);
@@ -374,13 +417,6 @@ export class Edificio3D {
     add(caps, roof);
     this.scene.add(grp);
     return grp;
-  }
-
-  _makeAttrib() {
-    const el = document.createElement('p');
-    el.className = 'viewer-attrib';
-    this.el.parentElement.append(el);
-    return el;
   }
 
   // ------------------------------------------------------------------ árboles escaneados (instanciados)
@@ -519,16 +555,44 @@ export class Edificio3D {
     }
   }
 
+  /** Precarga en la tarjeta gráfica (texturas, geometría, sombreadores, sombras y posproceso) mientras la página
+   *  carga, para que al llegar al visor o al abrir el Piso 2 no haya ningún congelamiento. */
+  async _warmUp() {
+    const r = this.renderer;
+    this.layers.forEach((l) => { l.visible = true; });
+    // espera a que terminen de descargarse todas las texturas
+    const texs = new Set();
+    this.scene.traverse((o) => {
+      if (!o.isMesh) return;
+      for (const m of [].concat(o.material)) for (const k of ['map', 'normalMap', 'bumpMap', 'roughnessMap', 'emissiveMap', 'alphaMap']) if (m?.[k]) texs.add(m[k]);
+    });
+    await Promise.all([...texs].map((t) => (t.image ? null : new Promise((res) => {
+      const iv = setInterval(() => { if (t.image) { clearInterval(iv); res(); } }, 50);
+      setTimeout(() => { clearInterval(iv); res(); }, 8000);
+    }))));
+    try { await r.compileAsync?.(this.scene, this.camera); } catch { /* sin compilación previa */ }
+    const idle = () => new Promise((res) => (window.requestIdleCallback ? requestIdleCallback(res, { timeout: 600 }) : setTimeout(res, 30)));
+    for (const t of texs) { await idle(); r.initTexture?.(t); }
+    // un cuadro completo (todos los pisos, con sombras y oclusión ambiental) y otro con el Piso 2 abierto
+    await idle();
+    r.shadowMap.needsUpdate = true;
+    r.render(this.scene, this.camera);
+    this.layers.forEach((l, i) => { if (i > BANDS.indexOf(OPEN_FLOOR)) l.visible = false; });
+    await idle();
+    r.shadowMap.needsUpdate = true;
+    r.render(this.scene, this.camera);
+    this.layers.forEach((l) => { l.visible = true; });
+    r.shadowMap.needsUpdate = true;
+  }
+
+  _busy(ms = 250) { this._busyUntil = Math.max(this._busyUntil, performance.now() + ms); }
+
   /** Opacidad de un piso entero (0..1) respetando la transparencia propia del vidrio. */
   _fade(layer, a) {
-    for (const m of this.layerMats?.get(layer) || []) {
-      const base = m.userData.baseOpacity ?? 1;
-      const t = a < 0.999 || !!m.userData.baseTransparent;
-      if (m.transparent !== t) { m.transparent = t; m.needsUpdate = true; }
-      m.opacity = base * a;
-      m.depthWrite = !t;
-    }
+    // solo cambia la opacidad (alphaHash en los opacos, transparencia normal en el vidrio): sin recompilar nada
+    for (const m of this.layerMats?.get(layer) || []) m.opacity = (m.userData.baseOpacity ?? 1) * a;
     layer.userData.alpha = a;
+    this._busy();
   }
 
   /** Llegada: el edificio aparece explotado (cada piso flotando con su contorno dorado), se sostiene
@@ -596,7 +660,7 @@ export class Edificio3D {
       this.layers.forEach((l) => { if (shows(l) && !coming.includes(l)) { l.visible = true; l.position.y = 0; this._fade(l, 1); } });
     }
     // con un piso abierto entra más luz al interior
-    this.hemi.intensity = band ? 1.3 : 0.75;
+    this.hemi.intensity = band ? 1.35 : 0.95;
   }
 
   /** Abre el Piso 2 (2) o vuelve al edificio completo (null). */
@@ -668,10 +732,6 @@ export class Edificio3D {
     const { clientWidth: w, clientHeight: h } = this.el;
     if (!w || !h) return;
     this.renderer.setSize(w, h, false);
-    if (this.composer) {
-      const pr = this.renderer.getPixelRatio();
-      this.composer.setPixelRatio(pr); this.composer.setSize(w, h);
-    }
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
     if (this.cut == null && !this._moved) this._home(true);

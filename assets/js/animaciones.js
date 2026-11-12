@@ -96,8 +96,14 @@ if (bars) new MutationObserver(() => {
   $$('button', bars).forEach((b) => { if (b.getAttribute('aria-selected') === 'true') { b.classList.remove('run'); void b.offsetWidth; b.classList.add('run'); } else b.classList.remove('run'); });
 }).observe(bars, { attributes: true, subtree: true, attributeFilter: ['aria-selected'], childList: true });
 
+/* ---------- línea de progreso de lectura ---------- */
+const progress = document.createElement('div');
+progress.className = 'progress';
+progress.setAttribute('aria-hidden', 'true');
+document.body.append(progress);
+
 /* ---------- parallax suave (portada, franja de bienvenida y titular con imagen) ---------- */
-if (!reduce) {
+{
   const heroImg = $('.hero > img'), ghost = $('.ghost'), stImg = $('.statement img'), welcome = $('.welcome'), statement = $('.statement');
   let pending = false;
   const onScroll = () => {
@@ -105,6 +111,10 @@ if (!reduce) {
     requestAnimationFrame(() => {
       pending = false;
       const y = scrollY, h = innerHeight;
+      progress.style.setProperty('--p', (y / Math.max(1, document.documentElement.scrollHeight - h)).toFixed(4));
+      // la foto del titular se abre de un marco a pantalla completa mientras entra
+      if (stImg) { const r = stImg.getBoundingClientRect(); const k = Math.min(1, Math.max(0, (h - r.top) / (h * 0.85))); stImg.style.setProperty('--inset', `${((1 - k) * 8).toFixed(2)}%`); }
+      if (reduce) return;
       if (heroImg && y < h * 1.2) heroImg.style.translate = `0 ${y * 0.28}px`;
       if (ghost && welcome) { const r = welcome.getBoundingClientRect(); if (r.bottom > 0 && r.top < h) ghost.style.translate = `-50% calc(-50% + ${(r.top - h / 2) * -0.12}px)`; }
       if (stImg && statement) { const r = statement.getBoundingClientRect(); if (r.bottom > 0 && r.top < h) stImg.style.setProperty('--py', `${(r.top + r.height - h) * -0.12}px`); }

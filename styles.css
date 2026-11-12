@@ -334,3 +334,124 @@ h1, h2, h3, h4 { margin: 0; font-family: var(--head); font-weight: 400; letter-s
   .btn-dark { width: 100%; font-size: 1.05rem; }
   .viewer-attrib { max-width: 70%; }
 }
+/* =====================================================================
+   Diseño editorial (capa final): serif de display, paleta piedra/marfil, filetes dorados,
+   numeración discreta de secciones y enlaces con flecha. Solo presentación.
+   ===================================================================== */
+:root {
+  --grey: #ebe6de;          /* piedra cálida en vez del gris frío */
+  --grey-2: #7a746b;
+  --dark: #15171a;
+  --ink: #16181b;
+  --paper: #f7f4ef;
+  --line: rgba(22, 24, 27, .14);
+  --serif: "Fraunces", "Cormorant Garamond", Georgia, "Times New Roman", serif;
+}
+body { background: var(--paper); color: var(--ink); }
+h1, h2 { font-family: var(--serif); font-weight: 300; letter-spacing: -.02em; font-variation-settings: "opsz" 144, "SOFT" 30; }
+h3, h4 { font-family: var(--head); }
+::selection { background: var(--red); color: var(--white); }
+
+/* línea de progreso de lectura */
+.progress { position: fixed; z-index: 60; top: 0; left: 0; right: 0; height: 2px; background: var(--gold); transform-origin: 0 50%; transform: scaleX(var(--p, 0)); pointer-events: none; }
+
+/* numeración discreta de secciones (decorativa) */
+main { counter-reset: sec; }
+.types-l h2, .statement h2, .levels-h, .detail h2, .tours h2 { counter-increment: sec; }
+.types-l h2::before, .statement h2::before, .levels-h::before, .detail h2::before, .tours h2::before {
+  content: counter(sec, decimal-leading-zero); display: block; margin-bottom: 1.2rem;
+  font: 500 .72rem/1 var(--head); letter-spacing: .28em; color: var(--gold);
+  padding-left: 2.6rem; position: relative;
+}
+.types-l h2::after, .levels-h::after, .detail h2::after, .tours h2::after { content: none; }
+.types-l h2::before, .statement h2::before, .levels-h::before, .detail h2::before, .tours h2::before { background: linear-gradient(var(--gold), var(--gold)) 0 50% / 1.8rem 1px no-repeat; }
+.statement h2::before { padding-left: 0; background: none; }
+
+/* marca */
+.brand { box-shadow: none; }
+
+/* portada: título grande abajo a la izquierda, enlace con flecha */
+.hero { align-items: end; }
+.hero-in { padding-bottom: clamp(4.5rem, 11vh, 8rem); }
+.hero h1 { font-family: var(--serif); font-weight: 300; font-size: clamp(3.8rem, 1.6rem + 9.5vw, 11.5rem); line-height: .9; letter-spacing: -.035em; }
+.btn-line { border: 0; border-radius: 0; padding: .4rem 0; margin-top: 2.6rem; display: inline-flex; align-items: center; gap: .9rem; font: 500 .82rem/1 var(--head); letter-spacing: .22em; text-transform: uppercase; }
+.btn-line::before { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: currentColor; transform-origin: right; transition: transform .6s var(--ease); }
+.btn-line::after { content: ""; width: 2.6rem; height: 1px; background: currentColor; transition: width .5s var(--ease); }
+.btn-line:hover { background: none; color: var(--white); }
+.btn-line:hover::before { transform: scaleX(0); }
+.btn-line:hover::after { width: 4rem; }
+
+/* bienvenida: piedra cálida y la dirección de fondo en contorno */
+.welcome { background: var(--grey); padding-top: clamp(7rem, 11vw, 10rem); }
+.welcome h2 { font-family: var(--serif); font-weight: 300; font-size: clamp(2.2rem, 1.1rem + 3.3vw, 4.4rem); line-height: 1.12; letter-spacing: -.02em; }
+.welcome h2 .red { font-style: italic; }
+.ghost { color: transparent; -webkit-text-stroke: 1px rgba(22, 24, 27, .16); opacity: 1; font-family: var(--serif); font-weight: 300; }
+
+/* introducción: filete dorado desplazado en vez de la sombra gris */
+.intro-txt h3 { font-family: var(--serif); font-weight: 300; font-size: clamp(1.6rem, 1.2rem + .9vw, 2.1rem); line-height: 1.28; letter-spacing: -.01em; }
+.intro-txt p { color: #4a4740; }
+.shadow-img::before { background: none; border: 1px solid var(--gold); }
+
+/* carrusel: pie editorial en versalitas sobre la foto */
+.slides figcaption { background: none; color: var(--white); padding: 0; font: 500 .74rem/1.4 var(--head); letter-spacing: .24em; text-transform: uppercase; bottom: 4.6rem; }
+.slides figcaption::before { content: ""; display: inline-block; width: 2rem; height: 1px; background: var(--gold); vertical-align: middle; margin-right: .9rem; }
+
+/* tipologías: piedra, cifras en serif y pestañas subrayadas en vez de píldoras */
+.types { background: var(--grey); }
+.types-l h2 { font-size: clamp(2.4rem, 1.6rem + 2.4vw, 3.8rem); line-height: 1.04; }
+.types-c .big { font-family: var(--serif); font-weight: 300; letter-spacing: -.02em; }
+.types-c p:not(.big) { font: 500 .74rem/1.4 var(--head); letter-spacing: .22em; text-transform: uppercase; }
+.types-c p[data-t-cap] { text-transform: none; letter-spacing: .02em; font: 400 .95rem/1.5 var(--body); color: #4a4740; }
+.pills { gap: 0; border-left: 1px solid var(--line); }
+.pills button { background: none; color: var(--grey-2); border-radius: 0; padding: .7rem 1.2rem; font: 400 1.05rem/1.2 var(--body); position: relative; box-shadow: none !important; }
+.pills button::before { content: ""; position: absolute; left: -1px; top: 0; bottom: 0; width: 2px; background: var(--red); transform: scaleY(0); transition: transform .45s var(--ease); }
+.pills button:hover { background: none; color: var(--ink); transform: none; }
+.pills button[aria-pressed="true"] { background: none; color: var(--red); }
+.pills button[aria-pressed="true"]::before { transform: scaleY(1); }
+.plan .slab { fill: #fbf9f6; }
+
+/* titular: la foto se abre de un marco a pantalla completa con el scroll */
+.statement h2 { font-family: var(--serif); font-weight: 300; font-size: clamp(2.8rem, 1.4rem + 5vw, 6.4rem); letter-spacing: -.03em; }
+.statement h2 .red { font-style: italic; }
+.statement img { clip-path: inset(var(--inset, 8%) var(--inset, 8%) 0 var(--inset, 8%)); transition: none; }
+.js-anim .statement.wipe img, .js-anim .statement.wipe.in img { clip-path: inset(var(--inset, 8%) var(--inset, 8%) 0 var(--inset, 8%)); }
+
+/* pantalla dividida */
+.levels { background: var(--dark); }
+.levels-h { font-size: clamp(2.2rem, 1.5rem + 2.2vw, 3.4rem); }
+.levels tr { border-top-color: rgba(255, 255, 255, .14); }
+.levels tr:last-child { border-bottom-color: rgba(255, 255, 255, .14); }
+.levels td:first-child { font-family: var(--serif); font-weight: 300; }
+.levels tr.lvl td:first-child { font-size: 1.5rem; }
+.levels tr:hover { background: rgba(255, 255, 255, .04); }
+.levels tr[aria-selected="true"] { background: rgba(181, 149, 53, .14); }
+.panel-top h3 { font-family: var(--serif); font-weight: 300; }
+.btn-reset { border-radius: 0; font: 500 .74rem/1 var(--head); letter-spacing: .2em; text-transform: uppercase; padding: .75rem 1.1rem; }
+
+/* detalle */
+.detail h2 { font-size: clamp(2.4rem, 1.6rem + 2.4vw, 3.8rem); line-height: 1.04; margin-bottom: 2.6rem; }
+.cols { gap: clamp(1.25rem, 2.4vw, 2.5rem); }
+.cols p { font-size: 1rem; color: #4a4740; border-top: 1px solid var(--line); padding-top: 1.1rem; }
+.cols b { color: var(--ink); font-weight: 500; }
+.facts dt { font-family: var(--serif); font-weight: 300; letter-spacing: -.03em; }
+.facts dd { font: 500 .72rem/1.4 var(--head); letter-spacing: .22em; }
+.facts > div { border-left: 1px solid var(--line); padding-left: 1.2rem; }
+
+/* recorridos y pie */
+.tours h2 { font-size: clamp(2.4rem, 1.6rem + 2.4vw, 3.8rem); }
+.tours h2::before { color: var(--gold); }
+.foot { background: var(--dark); }
+.foot-main p { font-family: var(--serif); font-weight: 300; font-size: 1.45rem; }
+.foot h4 { font: 500 .72rem/1.4 var(--head); letter-spacing: .22em; text-transform: uppercase; }
+.foot-bottom { border-top: 1px solid rgba(255, 255, 255, .12); padding-top: 1.6rem; opacity: .6; }
+
+/* menú a pantalla completa en serif */
+.menu a { font-family: var(--serif); font-weight: 300; letter-spacing: -.02em; }
+
+@media (max-width: 720px) {
+  .hero-in { padding-bottom: 5.5rem; }
+  .pills { border-left: 0; border-top: 1px solid var(--line); flex-direction: row; flex-wrap: wrap; }
+  .pills button::before { left: 0; right: 0; top: -1px; bottom: auto; width: auto; height: 2px; transform: scaleX(0); }
+  .pills button[aria-pressed="true"]::before { transform: scaleX(1); }
+  .facts > div { border-left: 0; padding-left: 0; border-top: 1px solid var(--line); padding-top: 1rem; }
+}

@@ -217,3 +217,120 @@ h1, h2, h3, h4 { margin: 0; font-family: var(--head); font-weight: 400; letter-s
 .brand img { width: 100%; height: 100%; object-fit: contain; }
 .foot-logos { display: flex; gap: 1.5rem; align-items: center; margin-bottom: 3rem; }
 .foot-logos img { width: 6.5rem; height: 6.5rem; object-fit: contain; background: var(--white); border-radius: 50%; padding: .4rem; }
+
+/* =====================================================================
+   Animación y pulido (assets/js/animaciones.js). Solo presentación: ningún texto cambia.
+   ===================================================================== */
+:root { --ease: cubic-bezier(.22, .61, .36, 1); --ease-io: cubic-bezier(.65, 0, .35, 1); }
+
+/* telón de entrada */
+.curtain { position: fixed; inset: 0; z-index: 200; background: var(--red); display: grid; place-items: center; align-content: center; gap: 1.6rem; transition: clip-path 1.1s var(--ease-io); clip-path: inset(0 0 0 0); }
+.curtain img { width: 7rem; height: 7rem; object-fit: contain; background: var(--white); padding: .7rem; animation: curtainLogo 1s var(--ease) both; }
+.curtain-bar { width: 9rem; height: 2px; background: rgba(255, 255, 255, .2); overflow: hidden; }
+.curtain-bar i { display: block; height: 100%; background: var(--gold); animation: curtainBar 1.1s var(--ease) both; }
+.curtain.out { clip-path: inset(0 0 100% 0); }
+@keyframes curtainLogo { from { opacity: 0; transform: translateY(14px) scale(.96); } }
+@keyframes curtainBar { from { transform: translateX(-100%); } }
+
+/* portada: zoom lento de la foto, título por palabras, botón y señal de scroll */
+.hero > img { transform-origin: 60% 55%; animation: kenburns 22s linear both; will-change: transform, translate; }
+@keyframes kenburns { from { transform: scale(1.12); } to { transform: scale(1.0); } }
+.hero::after { background: linear-gradient(90deg, rgba(0, 0, 0, .5), rgba(0, 0, 0, 0) 62%), linear-gradient(0deg, rgba(0, 0, 0, .45), rgba(0, 0, 0, 0) 40%); }
+.hero::before { content: ""; position: absolute; z-index: 1; left: 50%; bottom: 1.6rem; width: 1px; height: 3.5rem; background: linear-gradient(var(--white), transparent); transform-origin: top; animation: cue 2.2s var(--ease-io) 2.4s infinite both; opacity: .8; }
+@keyframes cue { 0% { transform: scaleY(0); } 45% { transform: scaleY(1); transform-origin: top; } 55% { transform: scaleY(1); transform-origin: bottom; } 100% { transform: scaleY(0); transform-origin: bottom; } }
+.js-anim .hero .btn-line { opacity: 0; transform: translateY(16px); transition: opacity .9s var(--ease) 1.25s, transform .9s var(--ease) 1.25s, background .25s, color .25s; }
+.js-anim.ready .hero .btn-line { opacity: 1; transform: none; }
+.btn-line { position: relative; overflow: hidden; }
+
+/* palabras que suben desde una máscara */
+.split .w { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: .08em; margin-bottom: -.08em; }
+.split .wi { display: inline-block; transform: translateY(105%); transition: transform 1.05s var(--ease); transition-delay: calc(var(--i) * 55ms); }
+.split.in .wi, .hero .split .wi { transform: none; }
+.js-anim:not(.ready) .hero .split .wi { transform: translateY(105%); }
+.js-anim.ready .hero .split .wi { transition-delay: calc(.35s + var(--i) * 90ms); transition-duration: 1.2s; }
+
+/* bloques que aparecen */
+.js-anim .rv { opacity: 0; transform: translateY(28px); transition: opacity .95s var(--ease), transform .95s var(--ease); transition-delay: var(--d, 0ms); }
+.js-anim .rv.in { opacity: 1; transform: none; }
+
+/* imágenes que se descubren de abajo hacia arriba, con un leve zoom de salida */
+.js-anim .wipe img { clip-path: inset(100% 0 0 0); transform: scale(1.08); transition: clip-path 1.3s var(--ease-io), transform 1.8s var(--ease); }
+.js-anim .wipe.in img { clip-path: inset(0 0 0 0); transform: scale(1); }
+.js-anim .statement.wipe img { transform: translateY(var(--py, 0px)) scale(1.12); }
+.js-anim .statement.wipe.in img { transform: translateY(var(--py, 0px)) scale(1.06); }
+.statement { background: var(--white); }
+.shadow-img::before { transition: inset 1.2s var(--ease) .4s; }
+.js-anim .shadow-img:not(.in)::before { inset: 0; }
+
+/* franja de bienvenida: la dirección de fondo más tenue y debajo del texto */
+.ghost { opacity: .75; top: 70%; }
+
+/* carrusel: foto con zoom lento, pie que entra y barra que se llena con el tiempo */
+.slides figure img { transform: scale(1.07); transition: transform 6.5s linear; }
+.slides figure.on img { transform: scale(1); }
+.slides figcaption { opacity: 0; transform: translateY(10px); transition: opacity .7s var(--ease) .5s, transform .7s var(--ease) .5s; letter-spacing: .02em; }
+.slides figure.on figcaption { opacity: 1; transform: none; }
+.slider::after { content: ""; position: absolute; inset: auto 0 0 0; height: 40%; background: linear-gradient(0deg, rgba(0, 0, 0, .45), transparent); pointer-events: none; }
+.bars { z-index: 2; }
+.bars button::before { background: rgba(255, 255, 255, .45); height: 3px; }
+.bars button::after { content: ""; position: absolute; left: 0; right: 0; top: 50%; height: 3px; translate: 0 -50%; background: var(--gold); transform: scaleX(0); transform-origin: left; }
+.bars button[aria-selected="true"]::before { background: rgba(255, 255, 255, .45); }
+.bars button[aria-selected="true"]::after { transform: scaleX(1); }
+.bars button.run::after { animation: barFill 5s linear both; }
+@keyframes barFill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.slides figcaption { z-index: 2; }
+
+/* tipologías: las cifras cambian con un deslizamiento corto */
+.swap { animation: swap .55s var(--ease); }
+@keyframes swap { from { opacity: 0; transform: translateY(10px); } }
+.pills button { transition: background .25s, transform .25s var(--ease), box-shadow .25s; }
+.pills button:hover { transform: translateX(4px); }
+.plan .room, .plan .bath { transition: fill .45s var(--ease); }
+
+/* pantalla dividida: filas con acento dorado y panel con vidrio esmerilado */
+.levels tr { position: relative; }
+.levels tr td:first-child { transition: padding-left .3s var(--ease), color .2s; }
+.levels tr.room:hover td:first-child { padding-left: 3.5rem; }
+.levels tr[aria-selected="true"] { box-shadow: inset 4px 0 0 var(--gold); }
+.panel-top > div { background: rgba(255, 255, 255, .78); backdrop-filter: blur(14px) saturate(1.2); -webkit-backdrop-filter: blur(14px) saturate(1.2); box-shadow: 0 10px 30px rgba(14, 48, 100, .14); border-left: 3px solid var(--gold); transition: opacity .3s; }
+.panel-links, .panel-hint { backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.panel-links a { text-underline-offset: 3px; }
+.panel-links a:hover { color: var(--red); }
+.viewer-attrib { position: absolute; z-index: 2; right: .6rem; bottom: .35rem; margin: 0; max-width: 55%; font-size: .62rem; line-height: 1.2; color: rgba(255, 255, 255, .85); text-shadow: 0 1px 2px rgba(0, 0, 0, .7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; pointer-events: none; }
+
+/* tres columnas: zoom suave al pasar */
+.cols article { overflow: hidden; }
+.cols article img { transition: clip-path 1.3s var(--ease-io), transform 1.2s var(--ease); }
+.cols article:hover img { transform: scale(1.04); }
+.facts { border-top: 1px solid rgba(0, 0, 0, .15); padding-top: 2rem; }
+.facts dt { font-variant-numeric: tabular-nums; }
+
+/* recorridos: fondo azul de la marca y botones con flecha */
+.tours { background: var(--red); color: var(--white); position: relative; overflow: hidden; }
+.tours h2 { color: var(--white); }
+.tours p { color: rgba(255, 255, 255, .85); }
+.tours ul { gap: .8rem; }
+.btn-dark { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; width: min(100%, 26rem); padding: 1rem 1.4rem; border: 1px solid rgba(255, 255, 255, .35); border-radius: 0; background: transparent; box-shadow: none; font-size: 1.2rem; transition: background .35s var(--ease), border-color .35s, color .35s, padding .35s var(--ease); }
+.btn-dark::after { content: ""; width: 1.1rem; height: 1.1rem; flex: none; background: currentColor; -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'%3E%3Cpath d='M7 17 17 7M8 7h9v9'/%3E%3C/svg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'%3E%3Cpath d='M7 17 17 7M8 7h9v9'/%3E%3C/svg%3E") center / contain no-repeat; transition: transform .35s var(--ease); }
+.btn-dark:hover { background: var(--white); color: var(--red); border-color: var(--white); padding-left: 1.8rem; }
+.btn-dark:hover::after { transform: translate(3px, -3px); }
+
+/* pie: logos completos (antes el círculo recortaba "ESTELAR") */
+.foot-logos img { border-radius: 4px; padding: .55rem; width: 5.5rem; height: 5.5rem; }
+.foot a { text-underline-offset: 3px; }
+
+/* menú: enlaces escalonados */
+.menu:not([hidden]) li { animation: menuIn .7s var(--ease) both; animation-delay: calc(.08s + var(--i) * 60ms); }
+@keyframes menuIn { from { opacity: 0; transform: translateY(24px); } }
+.menu { animation: menuBg .5s var(--ease-io) both; }
+@keyframes menuBg { from { clip-path: inset(0 0 100% 0); } to { clip-path: inset(0 0 0 0); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .curtain { display: none; }
+  .js-anim .rv, .js-anim .wipe img, .split .wi, .js-anim .hero .btn-line { opacity: 1 !important; transform: none !important; clip-path: none !important; }
+  .hero::before { display: none; }
+}
+@media (max-width: 720px) {
+  .btn-dark { width: 100%; font-size: 1.05rem; }
+  .viewer-attrib { max-width: 70%; }
+}

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Placeholder del edificio HLF</title><desc id="desc">Composición arquitectónica abstracta para reemplazar con un render exterior del modelo Revit.</desc>
+  <defs><linearGradient id="sky" x2="0" y2="1"><stop stop-color="#8da7b2"/><stop offset=".58" stop-color="#d9c7ac"/><stop offset="1" stop-color="#263c31"/></linearGradient><linearGradient id="glass" x2="1" y2="1"><stop stop-color="#31504d"/><stop offset="1" stop-color="#101f1b"/></linearGradient><filter id="grain"><feTurbulence baseFrequency=".85" numOctaves="2" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/><feComponentTransfer><feFuncA type="table" tableValues="0 .12"/></feComponentTransfer></filter></defs>
+  <rect width="1600" height="1000" fill="url(#sky)"/><circle cx="1235" cy="190" r="82" fill="#f1ddaa" opacity=".75"/>
+  <path d="M0 850 330 745 690 805 1040 715 1600 835V1000H0Z" fill="#172b21"/><path d="M310 820V280l740-165 250 155v550Z" fill="url(#glass)"/><path d="M1050 115v604l250 101V270Z" fill="#20372e"/>
+  <g fill="#b9c9c1" opacity=".58"><path d="M360 330h90v420h-90zM500 298h90v452h-90zM640 266h90v484h-90zM780 235h90v515h-90zM920 202h90v548h-90z"/></g>
+  <g fill="#dce6d3" opacity=".36"><path d="m1090 205 42 24v497l-42-17zM1165 225l42 25v501l-42-17zM1240 248l31 18v511l-31-13z"/></g>
+  <g stroke="#c8d5c6" opacity=".5"><path d="M310 420h990M310 545h990M310 670h990"/><path d="M470 245v575M610 215v605M750 185v635M890 150v670"/></g>
+  <rect x="300" y="785" width="1010" height="48" fill="#111f19"/><text x="80" y="920" fill="#f5eee3" font-family="Arial" font-size="26" letter-spacing="8">HLF / EXTERIOR RENDER PLACEHOLDER</text><rect width="1600" height="1000" filter="url(#grain)" opacity=".55"/>
+</svg>
+

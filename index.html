@@ -4,11 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Hotel La Fontana · Piso 2</title>
-  <meta name="description" content="Hotel Estelar La Fontana, Bogotá. Remodelación del Piso 2: plantas, habitaciones, acabados y recorridos 360°.">
+  <meta name="description" content="Hotel Estelar La Fontana, Bogotá. Remodelación del Piso 2: doce habitaciones, plantas por nivel, acabados y recorridos.">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500&family=Archivo:wght@400;500&display=swap" rel="stylesheet">
   <link rel="preload" as="image" href="assets/img/hero-aerea.webp" fetchpriority="high">
   <link rel="stylesheet" href="styles.css">
   <script type="module" src="script.js"></script>
@@ -16,230 +16,157 @@
 <body>
   <a class="skip" href="#main">Saltar al contenido</a>
 
-  <header class="hdr" data-hdr>
-    <a class="logo" href="#top" aria-label="Hotel La Fontana, inicio">
-      <b>La Fontana</b><small>Hotel · Bogotá</small>
-    </a>
-    <nav class="nav" aria-label="Principal">
-      <a href="#edificio">Edificio</a>
-      <a href="#plantas">Plantas</a>
-      <a href="#habitaciones">Habitaciones</a>
-      <a href="#acabados">Acabados</a>
-      <a href="#recorridos">Recorridos</a>
-      <a href="#ubicacion">Ubicación</a>
-    </nav>
-    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu" data-menu-btn>
-      <span>Menú</span><i aria-hidden="true"></i>
-    </button>
-  </header>
+  <a class="brand" href="#top" aria-label="Hotel La Fontana, inicio"><span>La</span><span>Fontana</span><small>Piso 2</small></a>
+  <button class="burger" type="button" aria-expanded="false" aria-controls="menu" aria-label="Abrir menú" data-burger><i></i><i></i><i></i></button>
 
-  <div class="menu" id="menu" hidden data-menu>
-    <ol>
-      <li><a href="#edificio"><span>01</span>Edificio</a></li>
-      <li><a href="#plantas"><span>02</span>Plantas</a></li>
-      <li><a href="#habitaciones"><span>03</span>Habitaciones</a></li>
-      <li><a href="#acabados"><span>04</span>Acabados</a></li>
-      <li><a href="#recorridos"><span>05</span>Recorridos 360°</a></li>
-      <li><a href="#ubicacion"><span>06</span>Ubicación</a></li>
-    </ol>
-    <p>Av. Calle 127 # 15A-10 · Usaquén, Bogotá</p>
-  </div>
+  <nav class="menu" id="menu" aria-label="Principal" hidden data-menu>
+    <ul>
+      <li><a href="#edificio">Edificio</a></li>
+      <li><a href="#tipologias">Tipologías</a></li>
+      <li><a href="#plantas">Plantas</a></li>
+      <li><a href="#detalle">Acabados</a></li>
+      <li><a href="#recorridos">Recorridos</a></li>
+      <li><a href="#contacto">Ubicación</a></li>
+    </ul>
+  </nav>
 
   <main id="main">
-    <!-- HERO -->
+    <!-- 1 · Portada -->
     <section class="hero" id="top">
-      <img class="hero-img" src="assets/img/hero-aerea.webp" alt="Vista aérea nocturna del Hotel La Fontana con su plaza de acceso y la fuente" fetchpriority="high">
-      <div class="hero-txt">
-        <p class="kicker">Hotel Estelar La Fontana · Remodelación Piso 2</p>
-        <h1>Un clásico de Bogotá,<br><em>reimaginado</em></h1>
+      <img src="assets/img/hero-aerea.webp" alt="Vista aérea nocturna del Hotel La Fontana y su plaza de acceso" fetchpriority="high">
+      <div class="hero-in">
+        <h1>Un nuevo<br>Piso 2</h1>
+        <a class="btn-line" href="#edificio">Conocer más</a>
       </div>
-      <a class="scroll" href="#edificio"><span aria-hidden="true"></span>Desliza para descubrir</a>
-      <a class="pill pill-float" href="#plantas">Explorar plantas <b aria-hidden="true">+</b></a>
     </section>
 
-    <!-- INTRO + CIFRAS -->
+    <!-- 2 · Franja gris con dirección de fondo -->
+    <section class="welcome" aria-labelledby="welcome-t">
+      <p class="ghost" aria-hidden="true">CL 127</p>
+      <h2 id="welcome-t">Bienvenido al Piso 2 renovado del Hotel <span class="red">La Fontana</span>, Calle 127, Bogotá</h2>
+    </section>
+
+    <!-- 3 · Texto + imagen con sombra -->
     <section class="intro" id="edificio">
-      <div class="wrap">
-        <p class="label reveal">01 — El edificio</p>
-        <div class="intro-grid">
-          <h2 class="reveal">Ladrillo, teja de barro y jardines interiores en el corazón de Santa Bárbara.</h2>
-          <div class="intro-copy reveal">
-            <p class="lede">El Piso 2 se rediseña habitación por habitación: doce unidades en tres alas, con acabados nuevos, baños renovados y suites esquineras con vistas a los jardines.</p>
-            <p>Todo el contenido de esta página sale del modelo Revit del hotel: las áreas, las tipologías y los planos se extraen de él y se publican sin ajustes.</p>
-            <a class="link" href="#plantas">Ver el selector de plantas <span aria-hidden="true">↗</span></a>
-          </div>
-        </div>
-        <dl class="figures" data-figures>
-          <div class="reveal"><dt>Habitaciones · Piso 2</dt><dd data-fig="rooms">12</dd></div>
-          <div class="reveal"><dt>Tipologías</dt><dd data-fig="types">7</dd></div>
-          <div class="reveal"><dt>Área privada total</dt><dd><span data-fig="area">—</span><small>m²</small></dd></div>
-          <div class="reveal"><dt>Altitud</dt><dd>2.552<small>msnm</small></dd></div>
-        </dl>
+      <div class="intro-txt">
+        <h3>El Piso 2 reúne <b data-fig="rooms">12</b> habitaciones y <b><span data-fig="area">396</span> m²</b> privados repartidos en tres alas.</h3>
+        <p>Es un edificio de ladrillo y teja de barro en Santa Bárbara, con una torre esquinera y una plaza con fuente en el acceso. La remodelación trabaja hacia adentro: los corredores, los baños y cada habitación se rediseñan sin tocar el carácter de la fachada.</p>
       </div>
+      <figure class="shadow-img"><img src="assets/img/plaza.webp" loading="lazy" alt="Fachada de ladrillo y acceso principal del hotel junto a la plaza de la fuente"></figure>
     </section>
 
-    <!-- PANORAMA -->
-    <section class="pano" aria-labelledby="pano-t">
-      <img src="assets/img/barrio.webp" loading="lazy" alt="Vista aérea al atardecer del hotel en el barrio Santa Bárbara con los cerros orientales al fondo">
-      <div class="pano-txt">
-        <p class="kicker">Una perspectiva más alta</p>
-        <h2 id="pano-t">Usaquén, desde arriba</h2>
+    <!-- 4 · Carrusel a sangre con barras -->
+    <section class="slider" aria-roledescription="carrusel" aria-label="Galería" data-slider>
+      <div class="slides">
+        <figure class="on"><img src="assets/img/suite.webp" alt="Alcoba de la Suite D"><figcaption>Suite D · Ala Recta Norte</figcaption></figure>
+        <figure><img src="assets/img/sala.webp" loading="lazy" alt="Sala de una suite"><figcaption>Sala de suite · Sector Suites Fondo</figcaption></figure>
+        <figure><img src="assets/img/doble.webp" loading="lazy" alt="Habitación doble"><figcaption>Habitación doble</figcaption></figure>
+        <figure><img src="assets/img/bano.webp" loading="lazy" alt="Baño con mesón de mármol"><figcaption>Baño · mármol Antik Silver Blue</figcaption></figure>
+        <figure><img src="assets/img/cut.webp" loading="lazy" alt="Corte 3D del Piso 2"><figcaption>Corte del Piso 2 · modelo 3D</figcaption></figure>
+        <figure><img src="assets/img/barrio.webp" loading="lazy" alt="El hotel en el barrio Santa Bárbara"><figcaption>Santa Bárbara · Usaquén</figcaption></figure>
       </div>
+      <div class="bars" role="tablist" aria-label="Elegir imagen" data-bars></div>
+      <p class="ai-note">Visualizaciones ilustrativas generadas con IA desde el modelo.</p>
     </section>
 
-    <!-- HISTORIA -->
-    <section class="story">
-      <div class="wrap story-grid">
-        <figure class="story-img reveal"><img src="assets/img/plaza.webp" loading="lazy" alt="Fachada de ladrillo y acceso principal del hotel junto a la plaza de la fuente al atardecer"></figure>
-        <div class="story-copy">
-          <p class="label reveal">De la plaza a la habitación</p>
-          <h2 class="reveal">Una arquitectura que se reconoce desde la calle.</h2>
-          <p class="reveal">Volúmenes de ladrillo con cubiertas de teja, una torre esquinera y una plaza con fuente que ordena la llegada. La remodelación respeta ese carácter y trabaja hacia adentro: corredores, baños y habitaciones.</p>
-          <ol class="steps">
-            <li class="reveal"><span>01</span><div><h3>Ala Recta Norte</h3><p>Cinco habitaciones, desde la Suite D esquinera hasta las dobles sobre la Calle 124.</p></div></li>
-            <li class="reveal"><span>02</span><div><h3>Ala Diagonal</h3><p>Tres habitaciones abiertas al jardín interior y a la plazoleta.</p></div></li>
-            <li class="reveal"><span>03</span><div><h3>Sector Suites Fondo</h3><p>Cuatro unidades con doble fachada, entre ellas la Suite C1 con ocho ventanas.</p></div></li>
-          </ol>
-        </div>
+    <!-- 5 · Tipologías: cifras grandes + píldoras + planta -->
+    <section class="types" id="tipologias">
+      <div class="types-l">
+        <h2>Tipologías a la <span class="red">medida</span></h2>
+        <p>Siete tipologías en un mismo piso: suites esquineras, junior suite, dobles y sencillas. Elige una categoría para ver sus áreas y dónde queda en la planta.</p>
       </div>
+      <div class="types-c" aria-live="polite">
+        <p>Desde:</p>
+        <p class="big" data-t-min>—</p>
+        <p>Hasta:</p>
+        <p class="big red" data-t-max>—</p>
+        <p data-t-cap>—</p>
+      </div>
+      <div class="types-r pills" role="group" aria-label="Categoría" data-pills></div>
+      <div class="types-plan"><svg class="plan" data-plan-types aria-label="Planta del Piso 2 con la categoría resaltada" role="img"></svg></div>
     </section>
 
-    <!-- SELECTOR DE PLANTAS -->
-    <section class="floors" id="plantas">
-      <div class="wrap">
-        <div class="floors-head">
+    <!-- 6 · Titular -->
+    <section class="statement">
+      <h2>Del jardín a la <span class="red">ventana</span></h2>
+      <img src="assets/img/entorno.webp" loading="lazy" alt="Entorno del hotel en Usaquén">
+    </section>
+
+    <!-- 7 · Pantalla dividida: niveles / plano en rojo -->
+    <section class="levels" id="plantas">
+      <div class="levels-list">
+        <h2 class="levels-h">Recorre las <span class="red">plantas</span></h2>
+        <table>
+          <thead class="sr"><tr><th>Nivel o habitación</th><th>Área</th><th>Tipología</th><th>Ala</th></tr></thead>
+          <tbody data-levels></tbody>
+        </table>
+      </div>
+      <aside class="levels-panel" aria-live="polite">
+        <div class="panel-top">
           <div>
-            <p class="label reveal">02 — Plantas</p>
-            <h2 class="reveal">Del piso 2 al piso 6</h2>
+            <h3 data-p-title>Piso 2</h3>
+            <p data-p-area>—</p>
+            <p class="panel-sub" data-p-sub></p>
           </div>
-          <p class="reveal">Haz clic en el edificio para recorrerlo nivel por nivel. El Piso 2 tiene planta e inventario completos; los demás niveles se publicarán a medida que avance el modelo.</p>
+          <ul class="key">
+            <li><i class="k-sel"></i>Selección</li>
+            <li><i class="k-room"></i>Habitaciones</li>
+            <li><i class="k-circ"></i>Circulación</li>
+          </ul>
         </div>
-
-        <div class="stack-layout">
-          <div class="stacker">
-            <svg viewBox="0 0 360 330" role="group" aria-label="Niveles del edificio" data-stack></svg>
-            <ul class="stack-list" data-stack-list></ul>
-          </div>
-
-          <article class="floor-card" aria-live="polite">
-            <div class="floor-top">
-              <div>
-                <p class="label">Nivel seleccionado</p>
-                <div class="floor-num" data-floor-num>02</div>
-              </div>
-              <dl class="floor-meta">
-                <div><dt>Uso</dt><dd data-floor-use>Habitaciones</dd></div>
-                <div><dt>Estado</dt><dd data-floor-state>Remodelación</dd></div>
-                <div><dt>Unidades</dt><dd data-floor-units>12</dd></div>
-              </dl>
-            </div>
-            <div class="plan" data-plan>
-              <div class="plan-tabs" role="tablist" aria-label="Tipo de plano">
-                <button type="button" role="tab" aria-selected="true" data-plan-src="assets/planos/p2-mobiliario.png">Mobiliario</button>
-                <button type="button" role="tab" aria-selected="false" data-plan-src="assets/planos/p2-arquitectonica.png">Arquitectónica</button>
-                <button type="button" role="tab" aria-selected="false" data-plan-src="assets/planos/p2-acabados.png">Acabados</button>
-              </div>
-              <a class="plan-img" href="assets/planos/p2-mobiliario.png" target="_blank" rel="noopener" data-plan-link>
-                <img src="assets/planos/p2-mobiliario.png" loading="lazy" alt="Planta del Piso 2" data-plan-img>
-                <span>Ampliar plano ↗</span>
-              </a>
-            </div>
-            <div class="plan-empty" data-plan-empty hidden>
-              <p>Planta en desarrollo en el modelo <b>HLF_P2-P6</b>.</p>
-            </div>
-          </article>
+        <svg class="plan plan-red" data-plan-levels role="img" aria-label="Planta del Piso 2"></svg>
+        <p class="panel-empty" data-p-empty hidden>Planta en modelado en el archivo HLF_P2-P6.</p>
+        <div class="panel-links">
+          <a href="assets/planos/p2-mobiliario.png" target="_blank" rel="noopener">Plano de mobiliario</a>
+          <a href="assets/planos/p2-arquitectonica.png" target="_blank" rel="noopener">Plano arquitectónico</a>
+          <a href="assets/planos/p2-acabados.png" target="_blank" rel="noopener">Plano de acabados</a>
         </div>
-
-        <div class="rooms" data-rooms>
-          <div class="rooms-bar">
-            <h3>Inventario · Piso 2</h3>
-            <div class="chips" role="group" aria-label="Filtrar por categoría" data-chips></div>
-          </div>
-          <div class="table-scroll" tabindex="0" role="region" aria-label="Habitaciones del Piso 2">
-            <table>
-              <thead><tr><th scope="col">Hab.</th><th scope="col">Tipología</th><th scope="col">Ala</th><th scope="col">Configuración</th><th scope="col" class="num">Privada m²</th><th scope="col" class="num">Construida m²</th><th scope="col"><span class="sr">Seleccionar</span></th></tr></thead>
-              <tbody data-rooms-body></tbody>
-            </table>
-          </div>
-          <p class="total"><span>Total seleccionado</span><b data-total>0 hab. · 0,00 m²</b><button type="button" class="link-btn" data-clear>Limpiar</button></p>
-        </div>
-      </div>
+      </aside>
     </section>
 
-    <!-- HABITACIONES -->
-    <section class="types" id="habitaciones">
-      <div class="wrap">
-        <div class="types-head">
-          <p class="label reveal">03 — Habitaciones</p>
-          <h2 class="reveal">Siete tipologías, una misma calma.</h2>
-        </div>
-        <div class="cards">
-          <figure class="card card-lg reveal"><img src="assets/img/suite.webp" loading="lazy" alt="Alcoba de suite con cabecero tapizado, sofá curvo verde y tapete circular"><figcaption><b>Suite D · Ejecutiva</b><span>51,84 m² privados</span></figcaption></figure>
-          <figure class="card reveal"><img src="assets/img/sala.webp" loading="lazy" alt="Sala de estar de suite"><figcaption><b>Sala de suite</b><span>Suites Fondo</span></figcaption></figure>
-          <figure class="card reveal"><img src="assets/img/doble.webp" loading="lazy" alt="Habitación doble con dos camas"><figcaption><b>Habitación doble</b><span>25–27 m² privados</span></figcaption></figure>
-          <figure class="card reveal"><img src="assets/img/bano.webp" loading="lazy" alt="Baño con mesón de mármol"><figcaption><b>Baño</b><span>Mármol Antik Silver Blue</span></figcaption></figure>
-          <figure class="card reveal"><img src="assets/img/cut.webp" loading="lazy" alt="Corte 3D del Piso 2 con las habitaciones amobladas"><figcaption><b>Corte del Piso 2</b><span>Modelo 3D</span></figcaption></figure>
-        </div>
-        <p class="note">Las visualizaciones son ilustrativas: se generaron con IA a partir de vistas del modelo y pueden diferir en detalles.</p>
+    <!-- 8 · Tres columnas -->
+    <section class="detail" id="detalle">
+      <h2>Diseñado hasta el último detalle</h2>
+      <div class="cols">
+        <article><img src="assets/img/suite.webp" loading="lazy" alt="Cabecero y muro con papel de colgadura"><p><b>Acabados</b> – Piso vinílico de madera con la veta hacia la ventana, papel de colgadura Tessera de Vescom y paneles en melamina Sikuani con luz indirecta.</p></article>
+        <article><img src="assets/img/bano.webp" loading="lazy" alt="Baño con mesón de mármol"><p><b>Baños</b> – Mesones en mármol Antik Silver Blue, porcelanato Mos The Dream 30×30 y Santorini Bone 120×60, con nichos iluminados en las suites.</p></article>
+        <article><img src="assets/img/cut.webp" loading="lazy" alt="Corte 3D del Piso 2"><p><b>Modelo BIM</b> – Cada área, muro y mueble de esta página sale del modelo Revit del hotel, con 3,00 m entre pisos y 421 piezas de mobiliario modeladas.</p></article>
       </div>
+      <dl class="facts">
+        <div><dt>12</dt><dd>Habitaciones</dd></div>
+        <div><dt>7</dt><dd>Tipologías</dd></div>
+        <div><dt>3</dt><dd>Alas</dd></div>
+        <div><dt>2.552</dt><dd>m sobre el nivel del mar</dd></div>
+      </dl>
     </section>
 
-    <!-- ACABADOS (ficha técnica, estilo HYLO) -->
-    <section class="specs" id="acabados">
-      <div class="wrap">
-        <div class="specs-head">
-          <p class="label reveal">04 — Acabados</p>
-          <h2 class="reveal">Ficha técnica</h2>
-        </div>
-        <dl class="spec-list">
-          <div class="reveal"><dt>Piso habitaciones</dt><dd>REF 01 · Piso vinílico madera 5 mm, veta hacia la ventana</dd></div>
-          <div class="reveal"><dt>Piso baños</dt><dd>REF 02 · Porcelanato Mos The Dream 30×30 blanco · REF 28 Santorini Bone</dd></div>
-          <div class="reveal"><dt>Muros</dt><dd>REF 03 · Papel de colgadura Tessera Vescom · REF 04 panel melamínico Sikuani</dd></div>
-          <div class="reveal"><dt>Cabeceros</dt><dd>REF 08 · Melamina Sikuani con iluminación indirecta</dd></div>
-          <div class="reveal"><dt>Mesones</dt><dd>REF 14 · Mármol Antik Silver Blue</dd></div>
-          <div class="reveal"><dt>Tapetes</dt><dd>TA-01 circular tejido · TA-02 alcoba · TA-04 sala curva</dd></div>
-          <div class="reveal"><dt>Camas</dt><dd>King 2000×2000 en suites · King 1800×2000 · Dobles 1600×2000</dd></div>
-          <div class="reveal"><dt>Altura entre pisos</dt><dd>3,00 m</dd></div>
-        </dl>
-      </div>
-    </section>
-
-    <!-- RECORRIDOS -->
+    <!-- 9 · Recorridos (gris) -->
     <section class="tours" id="recorridos">
-      <div class="wrap">
-        <div class="tours-head">
-          <p class="label reveal">05 — Recorridos</p>
-          <h2 class="reveal">Recórrelo en 360°</h2>
-        </div>
-        <ul class="tour-list">
-          <li class="reveal"><a href="https://alejagoguti-cpu.github.io/hotel-la-fontana-render/masterplan.html" target="_blank" rel="noopener"><span>01</span><b>Gemelo digital 3D</b><em>Exterior, corte del Piso 2 y planta interactiva</em><i aria-hidden="true">↗</i></a></li>
-          <li class="reveal"><a href="https://alejagoguti-cpu.github.io/TLF-360/" target="_blank" rel="noopener"><span>02</span><b>Panorámicas 360°</b><em>El hotel y Unicentro desde el aire</em><i aria-hidden="true">↗</i></a></li>
-          <li class="reveal"><a href="https://alejagoguti-cpu.github.io/la-fontana/" target="_blank" rel="noopener"><span>03</span><b>Recorrido aéreo</b><em>Avanza y gira sobre el barrio</em><i aria-hidden="true">↗</i></a></li>
-          <li class="reveal"><a href="https://alejagoguti-cpu.github.io/TLF/" target="_blank" rel="noopener"><span>04</span><b>Giro alrededor del hotel</b><em>Vistas fotorrealistas en órbita</em><i aria-hidden="true">↗</i></a></li>
-        </ul>
+      <div>
+        <h2>Recorridos</h2>
+        <p>Explora el hotel en 3D y en 360° desde el navegador: el gemelo digital con el corte del Piso 2, panorámicas aéreas y un recorrido sobre el barrio.</p>
       </div>
-    </section>
-
-    <!-- UBICACIÓN -->
-    <section class="loc" id="ubicacion">
-      <img src="assets/img/entorno.webp" loading="lazy" alt="Entorno urbano del hotel en Usaquén">
-      <div class="loc-card">
-        <p class="label">06 — Ubicación</p>
-        <h2>Santa Bárbara · Usaquén</h2>
-        <p>Avenida Calle 127 # 15A-10<br>Costado Calle 124 con Carrera 15<br>Bogotá D.C., Colombia</p>
-        <p class="coords">4.7046° N · 74.0437° O</p>
-        <a class="pill" href="https://www.google.com/maps?q=4.704585254832645,-74.04369633465852" target="_blank" rel="noopener">Ver en el mapa <b aria-hidden="true">↗</b></a>
-      </div>
+      <ul>
+        <li><a class="btn-dark" href="https://alejagoguti-cpu.github.io/hotel-la-fontana-render/masterplan.html" target="_blank" rel="noopener">Gemelo digital 3D</a></li>
+        <li><a class="btn-dark" href="https://alejagoguti-cpu.github.io/TLF-360/" target="_blank" rel="noopener">Panorámicas 360°</a></li>
+        <li><a class="btn-dark" href="https://alejagoguti-cpu.github.io/la-fontana/" target="_blank" rel="noopener">Recorrido aéreo</a></li>
+        <li><a class="btn-dark" href="https://alejagoguti-cpu.github.io/TLF/" target="_blank" rel="noopener">Giro alrededor del hotel</a></li>
+      </ul>
     </section>
   </main>
 
-  <footer class="foot">
-    <div class="foot-big">La Fontana</div>
-    <div class="foot-row">
-      <p>Hotel Estelar La Fontana · Remodelación Piso 2</p>
-      <p>Modelo Revit HLF_P2-P6 · 2026</p>
-      <a href="#top">Volver arriba ↑</a>
+  <!-- 10 · Pie oscuro -->
+  <footer class="foot" id="contacto">
+    <div class="foot-cols">
+      <div class="foot-main">
+        <p>Hotel Estelar La Fontana<br>Av. Calle 127 # 15A-10<br>Bogotá D.C., Colombia</p>
+        <p class="foot-lead">Remodelación del Piso 2.</p>
+      </div>
+      <div><h4>Ubicación</h4><p>Santa Bárbara · Usaquén<br>Costado Calle 124 con Carrera 15<br>4.7046° N, 74.0437° O</p><p><a href="https://www.google.com/maps?q=4.704585254832645,-74.04369633465852" target="_blank" rel="noopener">Ver en el mapa</a></p></div>
+      <div><h4>Proyecto</h4><p>Modelo Revit HLF_P2-P6<br>12 habitaciones · 3 alas<br>Altura entre pisos 3,00 m</p></div>
+      <div><h4>Planos</h4><p><a href="assets/planos/p2-mobiliario.png" target="_blank" rel="noopener">Mobiliario</a><br><a href="assets/planos/p2-arquitectonica.png" target="_blank" rel="noopener">Arquitectónica</a><br><a href="assets/planos/p2-acabados.png" target="_blank" rel="noopener">Acabados</a></p></div>
     </div>
+    <p class="foot-bottom">© 2026 Hotel La Fontana · Piso 2 | Visualizaciones ilustrativas generadas con IA desde el modelo</p>
   </footer>
 </body>
 </html>

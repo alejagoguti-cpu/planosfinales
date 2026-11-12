@@ -1,170 +1,157 @@
 const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
-const m2 = (n) => n.toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const m2 = (n) => `${n.toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m²`;
 
-/* ---------- header + menú ---------- */
-const hdr = $('[data-hdr]');
+/* ---------- menú ---------- */
+const burger = $('[data-burger]');
 const menu = $('[data-menu]');
-const menuBtn = $('[data-menu-btn]');
-const onScroll = () => hdr.classList.toggle('solid', scrollY > innerHeight * 0.6 || !menu.hidden);
-addEventListener('scroll', onScroll, { passive: true });
-onScroll();
-
 function setMenu(open) {
   menu.hidden = !open;
-  menuBtn.setAttribute('aria-expanded', String(open));
-  menuBtn.querySelector('span').textContent = open ? 'Cerrar' : 'Menú';
+  burger.setAttribute('aria-expanded', String(open));
+  burger.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
   document.body.style.overflow = open ? 'hidden' : '';
-  onScroll();
 }
-menuBtn.addEventListener('click', () => setMenu(menu.hidden));
+burger.addEventListener('click', () => setMenu(menu.hidden));
 $$('a', menu).forEach((a) => a.addEventListener('click', () => setMenu(false)));
 addEventListener('keydown', (e) => { if (e.key === 'Escape' && !menu.hidden) setMenu(false); });
 
-/* ---------- aparición al hacer scroll ---------- */
-if ('IntersectionObserver' in window) {
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach((en) => { if (en.isIntersecting) { en.target.classList.add('in'); io.unobserve(en.target); } });
-  }, { rootMargin: '0px 0px -10% 0px' });
-  $$('.reveal').forEach((el) => io.observe(el));
-} else {
-  document.documentElement.classList.add('no-js');
-}
-
-/* ---------- parallax suave del panorama ---------- */
-const panoImg = $('.pano img');
-const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-if (panoImg && !reduce) {
-  const pano = panoImg.parentElement;
-  const tick = () => {
-    const r = pano.getBoundingClientRect();
-    if (r.bottom > 0 && r.top < innerHeight) {
-      const p = (innerHeight - r.top) / (innerHeight + r.height); // 0..1
-      panoImg.style.transform = `translateY(${(p - 0.5) * -12}%)`;
-    }
-  };
-  addEventListener('scroll', () => requestAnimationFrame(tick), { passive: true });
-  tick();
-}
-
-/* ---------- selector de plantas ---------- */
-const FLOORS = {
-  6: { use: 'Planta tipo', state: 'En modelado', units: '—' },
-  5: { use: 'Planta tipo', state: 'En modelado', units: '—' },
-  4: { use: 'Planta tipo', state: 'En modelado', units: '—' },
-  3: { use: 'Planta tipo', state: 'En modelado', units: '—' },
-  2: { use: 'Habitaciones', state: 'Remodelación', units: '12', plan: true },
+// hamburguesa blanca sobre fotos y zonas oscuras, roja sobre fondos claros
+const darkZones = $$('.hero, .slider, .levels, .foot');
+const tintBurger = () => {
+  const y = 40;
+  const onDark = darkZones.some((z) => { const r = z.getBoundingClientRect(); return r.top <= y && r.bottom >= y; });
+  burger.classList.toggle('on-dark', onDark);
 };
-const order = [6, 5, 4, 3, 2];
-const svg = $('[data-stack]');
-const list = $('[data-stack-list]');
+addEventListener('scroll', tintBurger, { passive: true });
+tintBurger();
+
+/* ---------- carrusel con barras ---------- */
+const slider = $('[data-slider]');
+const slides = $$('figure', slider);
+const bars = $('[data-bars]');
+let cur = 0;
+let timer;
+slides.forEach((_, i) => {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.setAttribute('role', 'tab');
+  b.setAttribute('aria-label', `Imagen ${i + 1}`);
+  b.setAttribute('aria-selected', String(i === 0));
+  b.addEventListener('click', () => { show(i); restart(); });
+  bars.append(b);
+});
+function show(i) {
+  cur = (i + slides.length) % slides.length;
+  slides.forEach((s, k) => s.classList.toggle('on', k === cur));
+  $$('button', bars).forEach((b, k) => b.setAttribute('aria-selected', String(k === cur)));
+}
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+function restart() { clearInterval(timer); if (!reduce) timer = setInterval(() => show(cur + 1), 5000); }
+restart();
+
+/* ---------- plano vectorial del Piso 2 ---------- */
 const NS = 'http://www.w3.org/2000/svg';
+const pathOf = (loop) => `M${loop.map(([x, y]) => `${x} ${-y}`).join('L')}Z`;
+const centroid = (loop) => {
+  let a = 0, cx = 0, cy = 0;
+  loop.forEach(([x0, y0], i) => {
+    const [x1, y1] = loop[(i + 1) % loop.length];
+    const f = x0 * y1 - x1 * y0;
+    a += f; cx += (x0 + x1) * f; cy += (y0 + y1) * f;
+  });
+  return [cx / (3 * a), -cy / (3 * a)];
+};
 
-// losas en proyección oblicua (se dibujan de abajo hacia arriba para que no se tapen)
-[...order].reverse().forEach((f) => {
-  const i = f - 2;
-  const y = 290 - i * 55, h = 26, x0 = 50, w = 190, dx = 60, dy = 40;
-  const g = document.createElementNS(NS, 'g');
-  g.setAttribute('class', 'slab');
-  g.setAttribute('tabindex', '0');
-  g.setAttribute('role', 'button');
-  g.setAttribute('aria-label', `Piso ${f}`);
-  g.dataset.floor = f;
-  g.innerHTML = `
-    <path class="side" d="M${x0 + w} ${y}L${x0 + w + dx} ${y - dy}V${y - dy + h}L${x0 + w} ${y + h}Z"/>
-    <path class="front" d="M${x0} ${y}H${x0 + w}V${y + h}H${x0}Z"/>
-    <path class="top" d="M${x0} ${y}H${x0 + w}L${x0 + w + dx} ${y - dy}H${x0 + dx}Z"/>
-    <text x="${x0 + 14}" y="${y + 17}">PISO 0${f}</text>`;
-  svg.append(g);
-});
-order.forEach((f) => {
-  const li = document.createElement('li');
-  li.innerHTML = `<button type="button" data-floor="${f}" aria-pressed="false"><b>0${f}</b><span>${FLOORS[f].use}</span><small>${FLOORS[f].state}</small></button>`;
-  list.append(li);
-});
-
-const roomsBox = $('[data-rooms]');
-function selectFloor(f) {
-  const d = FLOORS[f];
-  $$('.slab', svg).forEach((s) => s.classList.toggle('on', s.dataset.floor == f));
-  $$('button', list).forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.floor == f)));
-  $('[data-floor-num]').textContent = String(f).padStart(2, '0');
-  $('[data-floor-use]').textContent = d.use;
-  $('[data-floor-state]').textContent = d.state;
-  $('[data-floor-units]').textContent = d.units;
-  $('[data-plan]').hidden = !d.plan;
-  $('[data-plan-empty]').hidden = !!d.plan;
-  roomsBox.hidden = !d.plan;
+function drawPlan(svg, geo) {
+  const xs = geo.walls.flatMap((w) => [w[0], w[2]]);
+  const ys = geo.walls.flatMap((w) => [-w[1], -w[3]]);
+  const m = 60;
+  const x0 = Math.min(...xs) - m, y0 = Math.min(...ys) - m;
+  svg.setAttribute('viewBox', `${x0} ${y0} ${Math.max(...xs) - x0 + m} ${Math.max(...ys) - y0 + m}`);
+  let html = geo.slab.map((l) => `<path class="slab" d="${pathOf(l)}"/>`).join('');
+  html += geo.corridor.map((l) => `<path class="circ" d="${pathOf(l)}"/>`).join('');
+  html += geo.rooms.map((r) => `<g data-room="${r.n}"><path class="room" d="${pathOf(r.main)}"/>${r.bath.map((b) => `<path class="bath" d="${pathOf(b)}"/>`).join('')}</g>`).join('');
+  html += geo.stairs.map(([a, b, c, d]) => `<rect class="stair" x="${a}" y="${-d}" width="${c - a}" height="${d - b}"/>`).join('');
+  html += geo.walls.map(([a, b, c, d, t]) => `<line class="wall" x1="${a}" y1="${-b}" x2="${c}" y2="${-d}" stroke-width="${t}"/>`).join('');
+  html += geo.columns.map(([a, b, c, d]) => `<rect class="col" x="${a}" y="${-d}" width="${c - a}" height="${d - b}"/>`).join('');
+  html += geo.rooms.map((r) => { const [cx, cy] = centroid(r.main); return `<text class="num" data-num="${r.n}" x="${cx}" y="${cy}">${r.n}</text>`; }).join('');
+  svg.innerHTML = html;
 }
-svg.addEventListener('click', (e) => { const s = e.target.closest('.slab'); if (s) selectFloor(+s.dataset.floor); });
-svg.addEventListener('keydown', (e) => {
-  const s = e.target.closest('.slab');
-  if (s && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); selectFloor(+s.dataset.floor); }
-});
-list.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) selectFloor(+b.dataset.floor); });
-selectFloor(2);
-
-// pestañas de plano
-const planImg = $('[data-plan-img]');
-const planLink = $('[data-plan-link]');
-$$('[data-plan-src]').forEach((tab) => tab.addEventListener('click', () => {
-  $$('[data-plan-src]').forEach((t) => t.setAttribute('aria-selected', String(t === tab)));
-  planImg.src = tab.dataset.planSrc;
-  planLink.href = tab.dataset.planSrc;
-  planImg.alt = `Planta del Piso 2 · ${tab.textContent}`;
-}));
-
-/* ---------- inventario de habitaciones ---------- */
-const body = $('[data-rooms-body]');
-const chips = $('[data-chips]');
-const totalEl = $('[data-total]');
-const selected = new Set();
-let rooms = [];
-let filter = 'Todas';
-
-function renderRooms() {
-  body.innerHTML = rooms
-    .filter((r) => filter === 'Todas' || r.cat === filter)
-    .map((r) => `
-      <tr class="${selected.has(r.n) ? 'sel' : ''}">
-        <th scope="row">${r.n}</th>
-        <td>${r.tipo}<small>${r.cat}</small></td>
-        <td>${r.ala}<small>${r.ubic}</small></td>
-        <td>${r.camas}</td>
-        <td class="num">${m2(r.priv)}</td>
-        <td class="num">${m2(r.cons)}</td>
-        <td><button type="button" class="check" data-n="${r.n}" aria-pressed="${selected.has(r.n)}" aria-label="Seleccionar habitación ${r.n}">${selected.has(r.n) ? '✓' : '+'}</button></td>
-      </tr>`).join('');
-  const sel = rooms.filter((r) => selected.has(r.n));
-  const area = sel.reduce((a, r) => a + r.priv, 0);
-  totalEl.textContent = `${sel.length} hab. · ${m2(area)} m²`;
+function highlight(svg, nums) {
+  $$('[data-room]', svg).forEach((g) => $$('path', g).forEach((p) => p.classList.toggle('hl', nums.includes(g.dataset.room))));
+  $$('[data-num]', svg).forEach((t) => t.classList.toggle('hl', nums.includes(t.dataset.num)));
 }
 
-body.addEventListener('click', (e) => {
-  const b = e.target.closest('.check');
-  if (!b) return;
-  selected.has(b.dataset.n) ? selected.delete(b.dataset.n) : selected.add(b.dataset.n);
-  renderRooms();
-});
-$('[data-clear]').addEventListener('click', () => { selected.clear(); renderRooms(); });
-chips.addEventListener('click', (e) => {
-  const b = e.target.closest('button');
-  if (!b) return;
-  filter = b.dataset.cat;
-  $$('button', chips).forEach((c) => c.setAttribute('aria-pressed', String(c === b)));
-  renderRooms();
-});
+/* ---------- datos ---------- */
+const [rooms, geo] = await Promise.all([
+  fetch('assets/habitaciones-p2.json').then((r) => r.json()),
+  fetch('assets/p2-plano.json').then((r) => r.json()),
+]);
 
-fetch('assets/habitaciones-p2.json')
-  .then((r) => r.json())
-  .then((data) => {
-    rooms = data;
-    const cats = ['Todas', ...new Set(rooms.map((r) => r.cat))];
-    chips.innerHTML = cats.map((c, i) => `<button type="button" data-cat="${c}" aria-pressed="${i === 0}">${c}</button>`).join('');
-    renderRooms();
-    // cifras de la intro
-    $('[data-fig="rooms"]').textContent = rooms.length;
-    $('[data-fig="types"]').textContent = new Set(rooms.map((r) => r.tipo)).size;
-    $('[data-fig="area"]').textContent = Math.round(rooms.reduce((a, r) => a + r.priv, 0));
-  })
-  .catch(() => { body.innerHTML = '<tr><td colspan="7">No se pudo cargar el inventario.</td></tr>'; });
+$('[data-fig="rooms"]').textContent = rooms.length;
+$('[data-fig="area"]').textContent = Math.round(rooms.reduce((a, r) => a + r.priv, 0));
+
+/* ---------- tipologías: cifras + píldoras ---------- */
+const typesPlan = $('[data-plan-types]');
+drawPlan(typesPlan, geo);
+const CATS = ['Suite Ejecutiva', 'Junior Suite', 'Habitación Doble', 'Habitación Sencilla King'];
+const pills = $('[data-pills]');
+pills.innerHTML = CATS.map((c, i) => `<button type="button" data-cat="${c}" aria-pressed="${i === 0}">${c.replace('Habitación ', '')}</button>`).join('');
+function showCat(cat) {
+  const list = rooms.filter((r) => r.cat === cat);
+  const areas = list.map((r) => r.priv);
+  $('[data-t-min]').textContent = m2(Math.min(...areas));
+  $('[data-t-max]').textContent = m2(Math.max(...areas));
+  $('[data-t-cap]').textContent = `${list.length} ${list.length === 1 ? 'habitación' : 'habitaciones'} en el Piso 2: ${list.map((r) => r.n).join(', ')}`;
+  $$('button', pills).forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.cat === cat)));
+  highlight(typesPlan, list.map((r) => r.n));
+}
+pills.addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) showCat(b.dataset.cat); });
+showCat(CATS[0]);
+
+/* ---------- pantalla dividida: niveles y habitaciones ---------- */
+const levelsPlan = $('[data-plan-levels]');
+drawPlan(levelsPlan, geo);
+const tbody = $('[data-levels]');
+const upper = [6, 5, 4, 3].map((f) => `<tr class="lvl muted" data-lvl="${f}" tabindex="0" aria-selected="false"><td>Piso ${f}</td><td>—</td><td>En modelado</td><td></td></tr>`).join('');
+const total = rooms.reduce((a, r) => a + r.priv, 0);
+const p2 = `<tr class="lvl" data-lvl="2" tabindex="0" aria-selected="false"><td>Piso 2</td><td>${m2(total)}</td><td>12 habitaciones</td><td>3 alas</td></tr>`;
+const roomRows = rooms.map((r) => `<tr class="room" data-n="${r.n}" tabindex="0" aria-selected="false"><td>Hab. ${r.n}</td><td>${m2(r.priv)}</td><td>${r.tipo}</td><td>${r.ala}</td></tr>`).join('');
+tbody.innerHTML = upper + p2 + roomRows;
+
+function selectRow(tr) {
+  $$('tr', tbody).forEach((t) => t.setAttribute('aria-selected', String(t === tr)));
+  const empty = tr.dataset.lvl && tr.dataset.lvl !== '2';
+  levelsPlan.hidden = empty;
+  $('[data-p-empty]').hidden = !empty;
+  if (empty) {
+    $('[data-p-title]').textContent = `Piso ${tr.dataset.lvl}`;
+    $('[data-p-area]').textContent = 'En modelado';
+    $('[data-p-sub]').textContent = '';
+    return;
+  }
+  if (tr.dataset.lvl === '2') {
+    $('[data-p-title]').textContent = 'Piso 2';
+    $('[data-p-area]').textContent = m2(total);
+    $('[data-p-sub]').textContent = 'Ala Recta Norte, Ala Diagonal y Sector Suites Fondo.';
+    highlight(levelsPlan, rooms.map((r) => r.n));
+    return;
+  }
+  const r = rooms.find((x) => x.n === tr.dataset.n);
+  $('[data-p-title]').textContent = `Habitación ${r.n} · ${r.tipo}`;
+  $('[data-p-area]').textContent = `${m2(r.priv)} privados · ${m2(r.cons)} construidos`;
+  $('[data-p-sub]').textContent = `${r.ubic}. ${r.camas}.`;
+  highlight(levelsPlan, [r.n]);
+}
+tbody.addEventListener('click', (e) => { const tr = e.target.closest('tr'); if (tr) selectRow(tr); });
+tbody.addEventListener('keydown', (e) => {
+  const tr = e.target.closest('tr');
+  if (tr && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); selectRow(tr); }
+});
+selectRow($('tr[data-lvl="2"]', tbody));
+
+// clic en una habitación del plano rojo → selecciona su fila
+levelsPlan.addEventListener('click', (e) => {
+  const g = e.target.closest('[data-room]');
+  if (g) selectRow($(`tr[data-n="${g.dataset.room}"]`, tbody));
+});

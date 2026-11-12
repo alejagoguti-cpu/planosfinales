@@ -215,7 +215,8 @@ export class Edificio3D {
 
     this._home(true);
     this.ready = true;
-    if (this.cut != null) this._applyCut(this.cut, true);
+    if (this.cut != null) { this._assembled = true; this._applyCut(this._band(), true); }   // ya eligió un piso: sin animación de llegada
+    else if (gsap && !reduced) this.layers.forEach((l) => { l.visible = l.userData.band === 'PISO 1'; });   // esperan la animación
     if (this.room) this.selectRoom(this.room, false);
   }
 
@@ -367,12 +368,14 @@ export class Edificio3D {
     this._assembling = true;
     layers.forEach((l) => { l.visible = false; l.position.y = 0; });
     const step = 0.5;
-    const tl = gsap.timeline({ delay: 0.2, onComplete: () => { this._assembling = false; this._applyCut(this.cut, true); } });
+    const tl = this._tl = gsap.timeline({ delay: 0.2, onComplete: () => { this._assembling = false; this._applyCut(this._band(), true); } });
     layers.forEach((l, i) => {
       tl.call(() => { l.visible = true; }, null, i * step)
         .fromTo(l.position, { y: 14 }, { y: 0, duration: 1.5, ease: 'power3.out' }, i * step);
     });
   }
+
+  _band() { return this.cut == null ? null : OPEN_FLOOR; }
 
   _applyCut(band, instant = false) {
     const order = BANDS.indexOf(band);
@@ -404,7 +407,8 @@ export class Edificio3D {
     if (band == null) this.selectRoom(null, false);
     if (floor === this.cut) return;
     this.cut = floor;
-    if (this.ready && !this._assembling) this._applyCut(band);
+    if (this._assembling) { this._tl?.kill(); this._assembling = false; }   // elegir un piso corta la animación de llegada
+    if (this.ready) { this._assembled = true; this._applyCut(band); }
     if (band == null) { this.flyTo(this.homePos, this.homeTarget, 1.6); return; }
     const c = this.center.clone().setY(P2_Y);
     const d = this._fit(0.85);

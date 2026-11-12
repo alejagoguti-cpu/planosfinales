@@ -38,6 +38,8 @@ function tex(name, metres = 1, rx = null, ry = null) {
   return t;
 }
 
+// el edificio se muestra tal cual viene de Revit (sin reemplazar materiales)
+const USE_RULES = false;
 // material del modelo según su nombre en Revit → textura real y tamaño en metros que cubre
 const RULES = [
   [/LADRILLO|MAMPOSTER/i, { map: ['ladrillo.webp', 1.2], roughness: 0.9 }],
@@ -68,7 +70,7 @@ const RULES = [
 ];
 function materialFor(src) {
   const name = src.name || '';
-  for (const [re, def] of RULES) {
+  for (const [re, def] of (USE_RULES ? RULES : [])) {
     if (!re.test(name)) continue;
     const m = new THREE.MeshStandardMaterial({ name, roughness: def.roughness ?? 0.85, metalness: def.metalness ?? 0 });
     if (def.map) { m.map = tex(def.map[0], def.map[1]); m.color.set(0xffffff); } else m.color.set(def.color ?? src.color);
@@ -237,32 +239,6 @@ export class Edificio3D {
     const city = new THREE.MeshStandardMaterial({ color: 0xece9e2, roughness: 0.95 });
     for (const b of ctx.edificios) grp.add(prism(b.p, Math.max(3, b.h), city));
 
-    // el resto del hotel: ladrillo con ventanas y cubierta de teja
-    const brick = new THREE.MeshStandardMaterial({ map: tex('fachada-ladrillo.jpg', 1, 1 / 15, 1 / 3.1), roughness: 0.85 });
-    const roofTop = new THREE.MeshStandardMaterial({ color: 0x8f877c, roughness: 0.95 });
-    const teja = new THREE.MeshStandardMaterial({ map: tex('teja.webp', 1, 0.5, 0.5), roughness: 0.8, side: THREE.DoubleSide });
-    for (const a of ctx.hotelAlas) {
-      grp.add(prism(a.footprint, a.wallTop, brick));
-      const g = new THREE.BufferGeometry();
-      g.setAttribute('position', new THREE.Float32BufferAttribute(a.roof.p, 3));
-      g.setAttribute('uv', new THREE.Float32BufferAttribute(a.roof.uv, 2));
-      g.setIndex(a.roof.i);
-      g.computeVertexNormals();
-      const roof = new THREE.Mesh(g, teja);
-      roof.castShadow = roof.receiveShadow = true;
-      grp.add(roof);
-      if (a.flat) {
-        const fg = new THREE.BufferGeometry();
-        fg.setAttribute('position', new THREE.Float32BufferAttribute(a.flat.p, 3));
-        fg.setIndex(a.flat.i);
-        fg.computeVertexNormals();
-        grp.add(new THREE.Mesh(fg, roofTop));
-      }
-    }
-    for (const b of ctx.hotelBloques) {
-      grp.add(prism(b.p, Math.max(3, b.h), brick));
-      grp.add(flat(b.p, Math.max(3, b.h) + 0.02, roofTop));
-    }
     this.scene.add(grp);
   }
 

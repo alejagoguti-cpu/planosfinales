@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="HLF, una nueva experiencia de hotel urbano. Proyecto arquitectónico desarrollado desde el modelo Revit HLF_P2-P6.">
+    <title>HLF — Hotel urbano reimaginado</title>
+    <link rel="preload" as="image" href="assets/hero-building.svg" fetchpriority="high" type="image/svg+xml">
+    <style>
+      :root { color-scheme: light; --ink:#12261d; --paper:#f3e9f4; --acid:#dfff2f; }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body { margin: 0; color: var(--ink); background: #f7f5ef; font-family: Arial, Helvetica, sans-serif; }
+      .hero { min-block-size: calc(100dvh - 5.75rem); }
+    </style>
+    <link rel="stylesheet" href="styles.css">
+    <script type="module" src="script.js"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Saltar al contenido</a>
+
+    <header class="site-header" id="top">
+      <div class="header-inner">
+        <a class="brand" href="#top" aria-label="HLF, inicio">
+          <span>HLF</span><small>HOTEL / 06</small>
+        </a>
+        <nav class="site-nav" aria-label="Navegación principal">
+          <button class="menu-button" type="button" popovertarget="site-menu" popovertargetaction="toggle" aria-controls="site-menu">
+            <span>Menú</span><i aria-hidden="true"></i>
+          </button>
+          <ul id="site-menu" class="site-menu" popover="auto">
+            <li><a href="#edificio" aria-current="page">Edificio</a></li>
+            <li><a href="#experiencia">Experiencia</a></li>
+            <li><a href="#plantas">Plantas</a></li>
+            <li><a href="#galeria">Galería</a></li>
+            <li><a href="#contacto">Contacto</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="hero" aria-labelledby="hero-title">
+        <img class="hero-media" src="assets/hero-building.svg" width="1600" height="1000" fetchpriority="high" alt="Placeholder del render exterior del edificio HLF al atardecer">
+        <div class="hero-shade" aria-hidden="true"></div>
+        <div class="hero-copy">
+          <p class="eyebrow">HLF · Hotel urbano</p>
+          <h1 id="hero-title">Una nueva forma<br>de habitar la ciudad</h1>
+        </div>
+        <a class="scroll-cue" href="#edificio"><span aria-hidden="true">↓</span> Explorar el proyecto</a>
+        <button class="floating-cta" type="button" data-scroll-target="#contacto">Solicitar dossier <span aria-hidden="true">＋</span></button>
+      </section>
+
+      <section class="intro section-pad" id="edificio" aria-labelledby="intro-title">
+        <p class="section-index">01 / Edificio</p>
+        <div class="intro-grid">
+          <h2 id="intro-title">Un destino vertical pensado para quedarse</h2>
+          <div>
+            <p class="lede">HLF reúne arquitectura, hospitalidad y vida urbana en seis niveles conectados por una identidad única.</p>
+            <p>La propuesta toma el modelo <strong>HLF_P2-P6.rvt</strong> como base para presentar el edificio con la claridad editorial de un proyecto inmobiliario contemporáneo. Las imágenes actuales son placeholders listos para ser reemplazados por renders definitivos.</p>
+            <a class="text-link" href="#plantas">Descubrir las plantas <span aria-hidden="true">↗</span></a>
+          </div>
+        </div>
+      </section>
+
+      <section class="panorama" id="experiencia" aria-labelledby="panorama-title">
+        <img src="assets/panorama-placeholder.svg" width="1600" height="760" loading="lazy" fetchpriority="low" alt="Placeholder de una vista panorámica desde el edificio HLF">
+        <div class="panorama-label">
+          <p>Una perspectiva superior</p>
+          <h2 id="panorama-title">Vista desde el nivel 6</h2>
+        </div>
+      </section>
+
+      <section class="story section-pad" aria-labelledby="story-title">
+        <p class="section-index">02 / Experiencia</p>
+        <div class="story-grid">
+          <h2 id="story-title">De modelo BIM a destino de hospitalidad</h2>
+          <div class="story-cards">
+            <article><span>01</span><h3>Arquitectura clara</h3><p>Una fachada con ritmo vertical y una llegada reconocible desde la calle.</p></article>
+            <article><span>02</span><h3>Interiores flexibles</h3><p>Plantas preparadas para habitaciones, áreas sociales y servicios.</p></article>
+            <article><span>03</span><h3>Vistas abiertas</h3><p>Los niveles superiores convierten el horizonte en parte de la experiencia.</p></article>
+          </div>
+        </div>
+      </section>
+
+      <section class="floors section-pad" id="plantas" aria-labelledby="floors-title">
+        <div class="floors-heading">
+          <div><p class="section-index">03 / Plantas</p><h2 id="floors-title">Selector de niveles</h2></div>
+          <p>Explora del piso 2 al piso 6. Las áreas y planos se actualizarán al integrar la información final del modelo.</p>
+        </div>
+        <div class="floor-layout">
+          <div class="stacker" role="list" aria-label="Niveles del edificio">
+            <button class="floor-button is-active" type="button" data-floor="6" aria-pressed="true"><span>06</span><small>Sky lounge</small></button>
+            <button class="floor-button" type="button" data-floor="5" aria-pressed="false"><span>05</span><small>Habitaciones</small></button>
+            <button class="floor-button" type="button" data-floor="4" aria-pressed="false"><span>04</span><small>Habitaciones</small></button>
+            <button class="floor-button" type="button" data-floor="3" aria-pressed="false"><span>03</span><small>Habitaciones</small></button>
+            <button class="floor-button" type="button" data-floor="2" aria-pressed="false"><span>02</span><small>Podium</small></button>
+          </div>
+          <article class="floor-detail" aria-live="polite">
+            <p>Nivel seleccionado</p>
+            <div class="floor-number" data-floor-number>06</div>
+            <div class="floor-meta"><span data-floor-use>Sky lounge</span><span>Área por confirmar</span></div>
+            <img data-floor-image src="assets/floor-placeholder.svg" width="900" height="560" loading="lazy" alt="Placeholder del plano del nivel 6">
+          </article>
+        </div>
+        <div class="table-wrapper" tabindex="0" role="region" aria-labelledby="floor-table-caption">
+          <table>
+            <caption id="floor-table-caption">Resumen de niveles del edificio HLF</caption>
+            <thead><tr><th>Nivel</th><th>Uso propuesto</th><th>Área</th><th>Estado</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">06</th><td>Sky lounge</td><td>Por confirmar</td><td>Modelo disponible</td></tr>
+              <tr><th scope="row">05</th><td>Habitaciones</td><td>Por confirmar</td><td>Modelo disponible</td></tr>
+              <tr><th scope="row">04</th><td>Habitaciones</td><td>Por confirmar</td><td>Modelo disponible</td></tr>
+              <tr><th scope="row">03</th><td>Habitaciones</td><td>Por confirmar</td><td>Modelo disponible</td></tr>
+              <tr><th scope="row">02</th><td>Podium</td><td>Por confirmar</td><td>Modelo disponible</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="gallery section-pad" id="galeria" aria-labelledby="gallery-title">
+        <div class="gallery-heading"><p class="section-index">04 / Galería</p><h2 id="gallery-title">Espacios con identidad</h2></div>
+        <div class="gallery-grid">
+          <figure class="gallery-tall"><img src="assets/gallery-placeholder.svg" width="900" height="1200" loading="lazy" alt="Placeholder de render de la fachada HLF"><figcaption>Fachada / Próximo render</figcaption></figure>
+          <figure><img src="assets/panorama-placeholder.svg" width="1200" height="800" loading="lazy" alt="Placeholder de render del lobby HLF"><figcaption>Lobby / Próximo render</figcaption></figure>
+          <figure><img src="assets/floor-placeholder.svg" width="1200" height="800" loading="lazy" alt="Placeholder de plano arquitectónico HLF"><figcaption>Planta tipo / Modelo Revit</figcaption></figure>
+        </div>
+      </section>
+
+      <section class="contact section-pad" id="contacto" aria-labelledby="contact-title">
+        <p class="section-index">05 / Contacto</p>
+        <div class="contact-grid">
+          <h2 id="contact-title">Conoce HLF<br>desde una nueva altura.</h2>
+          <div><p>Proyecto arquitectónico en desarrollo.</p><a href="mailto:proyecto@example.com">proyecto@example.com</a><p>Material visual provisional · Modelo HLF_P2-P6</p></div>
+        </div>
+      </section>
+    </main>
+
+    <footer><a class="brand brand-footer" href="#top"><span>HLF</span><small>HOTEL / 06</small></a><p>© 2026 HLF. Concepto digital.</p><a href="#top">Volver arriba ↑</a></footer>
+  </body>
+</html>
+

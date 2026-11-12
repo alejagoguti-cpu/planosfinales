@@ -1,48 +1,107 @@
-// Visor 3D del edificio por pisos: el edificio se arma piso por piso al aparecer; al abrir un piso los de
-// arriba suben en abanico y desaparecen, y la cámara vuela hasta él; al elegir una habitación solo esa se
-// colorea. Unidades en metros: x = x del modelo, z = -y del modelo, y = altura.
+// Visor 3D del Hotel La Fontana: el ala del modelo Revit HLF_P2-P6 (exportada piso por piso) sobre su
+// contexto inmediato (alas del hotel con cubierta de teja, edificios del catastro, calzadas, andenes y
+// arbolado con árboles escaneados).
+//
+// Transición: al llegar, los pisos caen uno sobre otro; al abrir el Piso 2 los pisos de arriba suben en
+// abanico y desaparecen mientras la cámara vuela hasta él; al volver, bajan a su sitio. Al elegir una
+// habitación solo esa se colorea (azul con contorno dorado).
+//
+// Unidades: metros. x = este, y = altura, z = -norte (sistema local del proyecto).
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 
-const FLOOR_H = 3.0;
-const FLOORS = [2, 3, 4, 5, 6];
-const RED = 0x0e3064;
+const NAVY = 0x0e3064;
 const GOLD = 0xb59535;
+const BG = 0xd1d2d2;
+const P2_Y = 3.0;                    // cota del Piso 2
+const ROOM_H = 2.6;
+const OPEN_FLOOR = 'PISO 2';
+const BANDS = ['PISO 1', 'PISO 2', 'PISO 3', 'PISO 4', 'PISO 5', 'PISO 6', 'CUBIERTA'];
 const gsap = window.gsap;
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-const v2 = ([x, y]) => new THREE.Vector2(x / 100, y / 100);
-const shapeOf = (loop) => new THREE.Shape(loop.map(v2));
-
-const loader = new THREE.TextureLoader();
-function tex(src, rx = 1, ry = 1) {
-  const t = loader.load(src);
+// ------------------------------------------------------------------ texturas reales
+const texLoader = new THREE.TextureLoader();
+const texCache = new Map();
+function tex(name, metres = 1, rx = null, ry = null) {
+  const key = `${name}|${metres}|${rx}|${ry}`;
+  if (texCache.has(key)) return texCache.get(key);
+  const t = texLoader.load(`assets/tex/${name}`);
   t.colorSpace = THREE.SRGBColorSpace;
   t.wrapS = t.wrapT = THREE.RepeatWrapping;
-  t.repeat.set(rx, ry);
+  t.repeat.set(rx ?? 1 / metres, ry ?? 1 / metres);
   t.anisotropy = 8;
+  texCache.set(key, t);
   return t;
 }
 
-// teja de barro: filas de tejas con variación de tono (no hay foto de cubierta entre las texturas)
-function roofTexture() {
-  const c = document.createElement('canvas');
-  c.width = c.height = 512;
-  const g = c.getContext('2d');
-  g.fillStyle = '#8f3b25'; g.fillRect(0, 0, 512, 512);
-  for (let y = 0; y < 512; y += 32) for (let x = (y / 32) % 2 ? -16 : 0; x < 512; x += 32) {
-    const l = 30 + Math.random() * 12;
-    const grd = g.createLinearGradient(x, 0, x + 32, 0);
-    grd.addColorStop(0, `hsl(14,52%,${l - 8}%)`); grd.addColorStop(0.5, `hsl(15,55%,${l + 4}%)`); grd.addColorStop(1, `hsl(14,52%,${l - 10}%)`);
-    g.fillStyle = grd; g.fillRect(x + 1, y, 30, 30);
-    g.fillStyle = 'rgba(0,0,0,.25)'; g.fillRect(x, y + 28, 32, 4);
+// material del modelo según su nombre en Revit → textura real y tamaño en metros que cubre
+const RULES = [
+  [/LADRILLO|MAMPOSTER/i, { map: ['ladrillo.webp', 1.2], roughness: 0.9 }],
+  [/TEJA|Default Roof/i, { map: ['teja.webp', 2.0], roughness: 0.8 }],
+  [/VINIL|VETA/i, { map: ['piso-madera.webp', 1.6], roughness: 0.6 }],
+  [/SANTORINI/i, { map: ['santorini.webp', 1.2], roughness: 0.35 }],
+  [/MOS THE DREAM/i, { map: ['mosaico.webp', 0.6], roughness: 0.4 }],
+  [/ALFOMBRA/i, { map: ['alfombra-hall.webp', 2.0], roughness: 1 }],
+  [/MARMOL|PHANTOM|Amazonico|SINTERIZADA/i, { map: ['piedra-phantom.webp', 1.2], roughness: 0.25 }],
+  [/SIKUANI|Sikuani|MELAMINA|FORMICA|ALERO|Madera Negra|CABECERO/i, { map: ['nogal.webp', 1.2], roughness: 0.55 }],
+  [/PAPEL|Lismore/i, { map: ['papel-tessera.webp', 1.0], roughness: 0.9 }],
+  [/TEJIDO OLIVA/i, { map: ['tejido-oliva.webp', 0.5], roughness: 1 }],
+  [/TEJIDO TERRACOTA/i, { map: ['tejido-terracota.webp', 0.5], roughness: 1 }],
+  [/TA-01|Carpet/i, { map: ['tapete-lana.webp', 2.0], roughness: 1 }],
+  [/TAPETE|TA-04/i, { map: ['tapete-puntos.webp', 2.0], roughness: 1 }],
+  [/PLAZA ABANICO/i, { map: ['plaza-abanico.webp', 4.0], roughness: 0.85 }],
+  [/ANDEN ADOQUIN/i, { map: ['adoquin-arcilla.webp', 1.5], roughness: 0.9 }],
+  [/ASFALTO/i, { map: ['asfalto.webp', 4.0], roughness: 0.95 }],
+  [/LOSETA CONCRETO/i, { map: ['loseta-concreto.webp', 2.0], roughness: 0.9 }],
+  [/PODOTACTIL/i, { map: ['podotactil.webp', 1.0], roughness: 0.9 }],
+  [/hlf_adoquin/i, { map: ['adoquin-vehicular.webp', 2.0], roughness: 0.9 }],
+  [/HIEDRA/i, { map: ['seto-verde.webp', 1.5], roughness: 1 }],
+  [/VIDRIO LUZ CALIDA/i, { color: 0xffe2a8, emissive: 0xffc870, emissiveIntensity: 0.9, roughness: 0.2 }],
+  [/VIDRIO|Glass/i, { color: 0x9fb8c2, roughness: 0.05, metalness: 0.1, transparent: true, opacity: 0.35, envMapIntensity: 1.4 }],
+  [/Mirror|Aluminum|Stainless|Acero|Sthal/i, { color: 0xd8dadc, roughness: 0.15, metalness: 0.9 }],
+  [/DORADO|BRONCE|LATON/i, { color: 0xb59535, roughness: 0.3, metalness: 0.85 }],
+  [/LED|Luz/i, { color: 0xfff1d8, emissive: 0xffe2b0, emissiveIntensity: 1 }],
+];
+function materialFor(src) {
+  const name = src.name || '';
+  for (const [re, def] of RULES) {
+    if (!re.test(name)) continue;
+    const m = new THREE.MeshStandardMaterial({ name, roughness: def.roughness ?? 0.85, metalness: def.metalness ?? 0 });
+    if (def.map) { m.map = tex(def.map[0], def.map[1]); m.color.set(0xffffff); } else m.color.set(def.color ?? src.color);
+    if (def.emissive) { m.emissive.set(def.emissive); m.emissiveIntensity = def.emissiveIntensity; }
+    if (def.transparent) { m.transparent = true; m.opacity = def.opacity; m.depthWrite = false; }
+    if (def.envMapIntensity) m.envMapIntensity = def.envMapIntensity;
+    return m;
   }
-  const t = new THREE.CanvasTexture(c);
-  t.colorSpace = THREE.SRGBColorSpace;
-  t.wrapS = t.wrapT = THREE.RepeatWrapping;
-  t.repeat.set(10, 10);
-  return t;
+  const m = src.clone();   // sin regla: conserva el color del material de Revit
+  m.roughness = 0.85; m.metalness = 0;
+  if (src.color.r + src.color.g + src.color.b < 0.02) m.color.set(0x3a3a3a);
+  return m;
+}
+
+// ------------------------------------------------------------------ utilidades de geometría
+const shape2 = (pts) => new THREE.Shape(pts.map(([x, z]) => new THREE.Vector2(x, -z)));
+function flat(pts, y, mat) {
+  const g = new THREE.ShapeGeometry(shape2(pts));
+  g.rotateX(-Math.PI / 2);
+  const uv = g.attributes.uv, pos = g.attributes.position;
+  for (let i = 0; i < pos.count; i++) uv.setXY(i, pos.getX(i), pos.getZ(i));   // UV en metros
+  const m = new THREE.Mesh(g, mat);
+  m.position.y = y;
+  m.receiveShadow = true;
+  return m;
+}
+function prism(pts, h, mat, y0 = 0) {
+  const g = new THREE.ExtrudeGeometry(shape2(pts), { depth: h, bevelEnabled: false });
+  g.rotateX(-Math.PI / 2);
+  const m = new THREE.Mesh(g, mat);
+  m.position.y = y0;
+  m.castShadow = m.receiveShadow = true;
+  return m;
 }
 
 export class Edificio3D {
@@ -53,228 +112,265 @@ export class Edificio3D {
     this.onPickRoom = onPickRoom;
     this.cut = null;
     this.room = null;
-    this.hover = null;
+    this.layers = [];
+    this.rooms = new Map();
+    this.ready = false;
 
-    const r = this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    const r = this.renderer = new THREE.WebGLRenderer({ antialias: true });
     r.setPixelRatio(Math.min(devicePixelRatio, 2));
     r.outputColorSpace = THREE.SRGBColorSpace;
     r.toneMapping = THREE.ACESFilmicToneMapping;
-    r.toneMappingExposure = 1.05;
+    r.toneMappingExposure = 1.0;
     r.shadowMap.enabled = true;
     r.shadowMap.type = THREE.PCFSoftShadowMap;
+    r.setClearColor(BG);
     container.append(r.domElement);
 
     this.scene = new THREE.Scene();
-    this.camera = new THREE.PerspectiveCamera(32, 1, 1, 2000);
+    this.scene.fog = new THREE.Fog(BG, 220, 520);
+    this.camera = new THREE.PerspectiveCamera(32, 1, 0.5, 2000);
     this.controls = new OrbitControls(this.camera, r.domElement);
     this.controls.enableDamping = true;
-    this.controls.maxPolarAngle = Math.PI * 0.47;
-    this.controls.minDistance = 12;
+    this.controls.maxPolarAngle = Math.PI * 0.48;
+    this.controls.minDistance = 8;
     this.controls.maxDistance = 420;
 
     this._lights();
-    this._build();
+    this.center = new THREE.Vector3(18, 0, 0);
+    this.size = 70;
     this._home();
     this._bindPointer();
-
     new ResizeObserver(() => this._resize()).observe(container);
     this._resize();
+
     // solo dibuja cuando el visor está en pantalla; la primera vez el edificio se arma piso por piso
     r.setAnimationLoop(() => {
       const b = container.getBoundingClientRect();
       this.visible = b.bottom > 0 && b.top < innerHeight && b.width > 0;
       if (!this.visible) return;
-      if (!this._assembled && b.top < innerHeight * 0.6) { this._assembled = true; this.assemble(); }
+      if (this.ready && !this._assembled && b.top < innerHeight * 0.6) { this._assembled = true; this.assemble(); }
       this.controls.update();
       r.render(this.scene, this.camera);
     });
+
+    this._load().catch((e) => console.error('No se pudo cargar el modelo 3D', e));
   }
 
   _lights() {
-    // reflejos de ambiente para que los materiales no se vean planos
     const pm = new THREE.PMREMGenerator(this.renderer);
     this.scene.environment = pm.fromScene(new RoomEnvironment(), 0.04).texture;
-    this.scene.add(new THREE.HemisphereLight(0xffffff, 0xb8b2a6, 0.7));
-    const sun = new THREE.DirectionalLight(0xfff1dc, 2.4);
-    sun.position.set(-40, 70, 45);
-    sun.target.position.set(16, 0, 0);
+    this.scene.environmentIntensity = 0.45;
+    this.hemi = new THREE.HemisphereLight(0xf4f1ea, 0x9c9a92, 0.9);
+    this.scene.add(this.hemi);
+    const sun = this.sun = new THREE.DirectionalLight(0xfff0d8, 2.6);
+    sun.position.set(-70, 110, 60);
+    sun.target.position.set(18, 0, 0);
     sun.castShadow = true;
     sun.shadow.mapSize.set(2048, 2048);
-    Object.assign(sun.shadow.camera, { left: -55, right: 55, top: 45, bottom: -45, near: 10, far: 200 });
-    sun.shadow.bias = -0.0005;
+    Object.assign(sun.shadow.camera, { left: -110, right: 110, top: 110, bottom: -110, near: 20, far: 380 });
+    sun.shadow.bias = -0.0004;
+    sun.shadow.normalBias = 0.03;
     this.scene.add(sun, sun.target);
   }
 
-  _build() {
-    const geo = this.geo;
-    const foot = shapeOf(geo.footprint);
-    const pts = geo.footprint.map(v2);
-    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-    pts.forEach((p) => { minX = Math.min(minX, p.x); maxX = Math.max(maxX, p.x); minY = Math.min(minY, p.y); maxY = Math.max(maxY, p.y); });
-    this.center = new THREE.Vector3((minX + maxX) / 2, 0, -(minY + maxY) / 2);
-    this.size = Math.max(maxX - minX, maxY - minY);
+  async _load() {
+    const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
+    const [gltf, ctx] = await Promise.all([
+      loader.loadAsync('assets/modelo/hlf.glb'),
+      fetch('assets/modelo/contexto.json').then((r) => r.json()),
+    ]);
 
-    // suelo
-    const ground = new THREE.Mesh(new THREE.CircleGeometry(160, 64), new THREE.MeshStandardMaterial({ map: tex('assets/tex/concreto.jpg', 40, 40), color: 0xf2f1ee, roughness: 0.95 }));
-    ground.rotation.x = -Math.PI / 2;
-    ground.position.set(this.center.x, -0.02, this.center.z);
-    ground.receiveShadow = true;
-    this.scene.add(ground);
-
-    const slabMat = new THREE.MeshStandardMaterial({ map: tex('assets/tex/concreto.jpg', 0.12, 0.12), color: 0xe8e6e2, roughness: 0.9 });
-    const facadeMat = new THREE.MeshStandardMaterial({ map: tex('assets/tex/fachada-ladrillo.jpg'), roughness: 0.82, envMapIntensity: 0.6 });
-    const wallMat = new THREE.MeshStandardMaterial({ map: tex('assets/tex/tendido-blanco.jpg', 0.5, 0.5), color: 0xf6f3ec, roughness: 0.92 });
-    const emptyMat = new THREE.MeshStandardMaterial({ map: tex('assets/tex/concreto.jpg', 0.15, 0.15), color: 0xd4d2cd, roughness: 1 });
-
-    const planTex = loader.load(geo.planImage.src);
-    planTex.colorSpace = THREE.SRGBColorSpace;
-    planTex.anisotropy = this.renderer.capabilities.getMaxAnisotropy();
-    const planMat = new THREE.MeshStandardMaterial({ map: planTex, roughness: 0.95 });
-    this.planMat = planMat;
-
-    const slabGeo = new THREE.ExtrudeGeometry(foot, { depth: 0.22, bevelEnabled: false });
-    slabGeo.rotateX(-Math.PI / 2);
-
-    // cara superior con la planta: UV según la extensión de la imagen alineada (en cm del modelo)
-    const pi = geo.planImage;
-    const topGeo = new THREE.ShapeGeometry(foot);
-    const uv = topGeo.attributes.uv, pos = topGeo.attributes.position;
-    for (let i = 0; i < pos.count; i++) {
-      uv.setXY(i, (pos.getX(i) * 100 - pi.xMin) / (pi.xMax - pi.xMin), (pos.getY(i) * 100 - pi.yMin) / (pi.yMax - pi.yMin));
-    }
-    topGeo.rotateX(-Math.PI / 2);
-
-    // fachada: un muro por cada arista del contorno
-    const facade = (group) => {
-      for (let i = 0; i < pts.length; i++) {
-        const a = pts[i], b = pts[(i + 1) % pts.length];
-        const len = a.distanceTo(b);
-        if (len < 0.3) continue;
-        const g = new THREE.BoxGeometry(len, FLOOR_H - 0.22, 0.28);
-        const u = g.attributes.uv;
-        for (let k = 0; k < u.count; k++) u.setX(k, u.getX(k) * (len / 15));
-        const m = new THREE.Mesh(g, facadeMat);
-        m.position.set((a.x + b.x) / 2, 0.22 + (FLOOR_H - 0.22) / 2, -(a.y + b.y) / 2);
-        m.rotation.y = Math.atan2(b.y - a.y, b.x - a.x);
-        m.castShadow = m.receiveShadow = true;
-        m.userData.facade = true;
-        group.add(m);
-      }
-    };
-
-    this.layers = [];
-    for (const f of FLOORS) {
+    // ---------- el ala del modelo Revit, un grupo por piso
+    const mats = new Map();
+    for (const band of BANDS) {
+      const node = gltf.scene.getObjectByName(band) || gltf.scene.getObjectByName(band.replace(/ /g, '_'));
       const g = new THREE.Group();
-      g.userData = { floor: f, base: (f - 2) * FLOOR_H };
-      g.position.y = g.userData.base;
-      const slab = new THREE.Mesh(slabGeo, slabMat);
-      slab.castShadow = slab.receiveShadow = true;
-      g.add(slab);
-      const top = new THREE.Mesh(topGeo, f === 2 ? planMat : emptyMat);
-      top.position.y = 0.225;
-      top.receiveShadow = true;
-      g.add(top);
-      facade(g);
-      if (f === 2) this._interior(g, wallMat);
-      g.traverse((o) => { o.userData.floor = f; });
+      g.name = band;
+      g.userData.band = band;
+      if (node) {
+        node.traverse((o) => {
+          if (!o.isMesh) return;
+          const key = o.material.name;
+          if (!mats.has(key)) mats.set(key, materialFor(o.material));
+          o.material = mats.get(key);
+          o.castShadow = !o.material.transparent;
+          o.receiveShadow = true;
+          o.userData.band = band;
+        });
+        g.add(node);
+      }
       this.scene.add(g);
       this.layers.push(g);
     }
+    const p2 = this.scene.getObjectByName(OPEN_FLOOR);
+    const bb = new THREE.Box3().setFromObject(p2);
+    bb.getCenter(this.center); this.center.y = 0;
+    this.size = Math.max(bb.max.x - bb.min.x, bb.max.z - bb.min.z);
 
-    // cubierta de teja (a dos aguas aproximada con bisel)
-    const roof = new THREE.Group();
-    roof.userData = { floor: 'roof', base: FLOORS.length * FLOOR_H };
-    roof.position.y = roof.userData.base;
-    const rg = new THREE.ExtrudeGeometry(foot, { depth: 0.05, bevelEnabled: true, bevelThickness: 2.2, bevelSize: 3.2, bevelOffset: -3.2, bevelSegments: 1 });
-    rg.rotateX(-Math.PI / 2);
-    const roofMesh = new THREE.Mesh(rg, new THREE.MeshStandardMaterial({ map: roofTexture(), roughness: 0.75 }));
-    roofMesh.position.y = 2.2;
-    roofMesh.castShadow = true;
-    roof.add(new THREE.Mesh(slabGeo, slabMat), roofMesh);
-    roof.traverse((o) => { o.userData.floor = 'roof'; });
-    this.scene.add(roof);
-    this.layers.push(roof);
+    this._context(ctx);
+    this._rooms();
+    await this._trees(ctx.arboles);
+
+    this._home(true);
+    this.ready = true;
+    if (this.cut != null) this._applyCut(this.cut, true);
+    if (this.room) this.selectRoom(this.room, false);
   }
 
-  _interior(group, wallMat) {
-    const H = 2.6;
-    const walls = this.geo.walls;
-    const box = new THREE.BoxGeometry(1, 1, 1);
-    const inst = new THREE.InstancedMesh(box, wallMat, walls.length);
-    const m = new THREE.Matrix4(), q = new THREE.Quaternion(), s = new THREE.Vector3(), p = new THREE.Vector3();
-    walls.forEach(([x1, y1, x2, y2, t], i) => {
-      const a = v2([x1, y1]), b = v2([x2, y2]);
-      const len = Math.max(0.05, a.distanceTo(b));
-      p.set((a.x + b.x) / 2, 0.22 + H / 2, -(a.y + b.y) / 2);
-      q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.atan2(b.y - a.y, b.x - a.x));
-      s.set(len + t / 100, H, Math.max(0.05, t / 100));
-      inst.setMatrixAt(i, m.compose(p, q, s));
-    });
-    inst.castShadow = inst.receiveShadow = true;
-    group.add(inst);
+  // ------------------------------------------------------------------ contexto inmediato
+  _context(ctx) {
+    const grp = new THREE.Group();
+    grp.name = 'Contexto';
+    const ground = flat([[-600, -600], [600, -600], [600, 600], [-600, 600]], -0.05,
+      new THREE.MeshStandardMaterial({ map: tex('loseta-concreto.webp', 3), color: 0xc9c6bf, roughness: 1 }));
+    grp.add(ground);
+    const asf = new THREE.MeshStandardMaterial({ map: tex('asfalto.webp', 5), roughness: 0.95 });
+    const and = new THREE.MeshStandardMaterial({ map: tex('adoquin-arcilla.webp', 1.5), roughness: 0.9 });
+    const sep = new THREE.MeshStandardMaterial({ map: tex('seto-verde.webp', 2), color: 0xb9c7a0, roughness: 1 });
+    const cic = new THREE.MeshStandardMaterial({ color: 0x8c3a2c, roughness: 0.9 });
+    ctx.calzadas.forEach((p) => grp.add(flat(p, 0.0, asf)));
+    ctx.ciclorrutas.forEach((p) => grp.add(flat(p, 0.03, cic)));
+    ctx.andenes.forEach((p) => grp.add(flat(p, 0.06, and)));
+    ctx.separadores.forEach((p) => grp.add(flat(p, 0.08, sep)));
 
-    // habitaciones: piso coloreado + volumen + contorno (ocultos hasta elegirlas) y un volumen invisible para el clic
-    this.rooms = new Map();
-    const edgeGeo = new THREE.BoxGeometry(1, 0.12, 0.09);
+    // edificios del barrio: volumen claro, como una maqueta
+    const city = new THREE.MeshStandardMaterial({ color: 0xece9e2, roughness: 0.95 });
+    for (const b of ctx.edificios) grp.add(prism(b.p, Math.max(3, b.h), city));
+
+    // el resto del hotel: ladrillo con ventanas y cubierta de teja
+    const brick = new THREE.MeshStandardMaterial({ map: tex('fachada-ladrillo.jpg', 1, 1 / 15, 1 / 3.1), roughness: 0.85 });
+    const roofTop = new THREE.MeshStandardMaterial({ color: 0x8f877c, roughness: 0.95 });
+    const teja = new THREE.MeshStandardMaterial({ map: tex('teja.webp', 1, 0.5, 0.5), roughness: 0.8, side: THREE.DoubleSide });
+    for (const a of ctx.hotelAlas) {
+      grp.add(prism(a.footprint, a.wallTop, brick));
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.Float32BufferAttribute(a.roof.p, 3));
+      g.setAttribute('uv', new THREE.Float32BufferAttribute(a.roof.uv, 2));
+      g.setIndex(a.roof.i);
+      g.computeVertexNormals();
+      const roof = new THREE.Mesh(g, teja);
+      roof.castShadow = roof.receiveShadow = true;
+      grp.add(roof);
+      if (a.flat) {
+        const fg = new THREE.BufferGeometry();
+        fg.setAttribute('position', new THREE.Float32BufferAttribute(a.flat.p, 3));
+        fg.setIndex(a.flat.i);
+        fg.computeVertexNormals();
+        grp.add(new THREE.Mesh(fg, roofTop));
+      }
+    }
+    for (const b of ctx.hotelBloques) {
+      grp.add(prism(b.p, Math.max(3, b.h), brick));
+      grp.add(flat(b.p, Math.max(3, b.h) + 0.02, roofTop));
+    }
+    this.scene.add(grp);
+  }
+
+  // ------------------------------------------------------------------ árboles escaneados (instanciados)
+  async _trees(all) {
+    // solo el contexto inmediato: los árboles a menos de 170 m del hotel
+    const points = all.filter(([x, z]) => Math.hypot(x - this.center.x, z - this.center.z) < 170);
+    const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
+    const species = [
+      { name: 'jacaranda', h: 12 }, { name: 'island_tree_01', h: 10 }, { name: 'island_tree_02', h: 9 },
+    ];
+    const parts = await Promise.all(species.flatMap((s) => ['hojas', 'madera'].map((k) =>
+      loader.loadAsync(`assets/modelo/arboles/${s.name}_L1_${k}.glb`).then((g) => ({ s, k, scene: g.scene })).catch(() => null))));
+    // altura y base de cada especie a partir de su madera + hojas
+    const bySp = new Map();
+    for (const p of parts.filter(Boolean)) {
+      p.scene.updateMatrixWorld(true);
+      const e = bySp.get(p.s.name) || { s: p.s, meshes: [], box: new THREE.Box3() };
+      p.scene.traverse((o) => { if (o.isMesh) { e.meshes.push(o); e.box.expandByObject(o); } });
+      bySp.set(p.s.name, e);
+    }
+    const sp = [...bySp.values()];
+    if (!sp.length) return;
+    // reparto estable por posición
+    const hash = (x, z) => { const s = Math.sin(x * 12.9898 + z * 78.233) * 43758.5453; return s - Math.floor(s); };
+    const buckets = sp.map(() => []);
+    for (const [x, z] of points) buckets[Math.floor(hash(x, z) * sp.length) % sp.length].push([x, z]);
+    const m = new THREE.Matrix4(), q = new THREE.Quaternion(), s = new THREE.Vector3(), p = new THREE.Vector3(), up = new THREE.Vector3(0, 1, 0);
+    sp.forEach((e, i) => {
+      const pts = buckets[i];
+      if (!pts.length) return;
+      const hNat = e.box.max.y - e.box.min.y || 1;
+      for (const mesh of e.meshes) {
+        const inst = new THREE.InstancedMesh(mesh.geometry, mesh.material, pts.length);
+        pts.forEach(([x, z], k) => {
+          const r = hash(z, x);
+          const k2 = (e.s.h / hNat) * (0.8 + 0.45 * r);
+          q.setFromAxisAngle(up, r * Math.PI * 2);
+          s.setScalar(k2);
+          p.set(x, -e.box.min.y * k2, z);
+          m.compose(p, q, s).multiply(mesh.matrixWorld);
+          inst.setMatrixAt(k, m);
+        });
+        inst.castShadow = true;
+        inst.receiveShadow = true;
+        if (mesh.material) { mesh.material.side = THREE.DoubleSide; mesh.material.alphaTest = Math.max(mesh.material.alphaTest || 0, 0.4); }
+        this.scene.add(inst);
+      }
+    });
+  }
+
+  // ------------------------------------------------------------------ habitaciones del Piso 2
+  _rooms() {
+    const p2 = this.layers.find((l) => l.userData.band === OPEN_FLOOR);
+    const shapeOf = (loop) => new THREE.Shape(loop.map(([x, y]) => new THREE.Vector2(x / 100, y / 100)));
+    const fillMat = new THREE.MeshBasicMaterial({ color: NAVY, transparent: true, opacity: 0.55, depthWrite: false });
+    const volMat = new THREE.MeshBasicMaterial({ color: NAVY, transparent: true, opacity: 0.18, depthWrite: false });
     const goldMat = new THREE.MeshBasicMaterial({ color: GOLD });
-    const fillMat = () => new THREE.MeshBasicMaterial({ color: RED, transparent: true, opacity: 0.55, depthWrite: false });
+    const edgeGeo = new THREE.BoxGeometry(1, 0.1, 0.08);
     for (const r of this.geo.rooms) {
-      const loops = [r.main, ...r.bath];
       const fill = new THREE.Group();
-      for (const l of loops) {
-        const sg = new THREE.ShapeGeometry(shapeOf(l));
-        sg.rotateX(-Math.PI / 2);
-        const mesh = new THREE.Mesh(sg, fillMat());
-        mesh.position.y = 0.235;
-        fill.add(mesh);
-        const vol = new THREE.ExtrudeGeometry(shapeOf(l), { depth: H, bevelEnabled: false });
-        vol.rotateX(-Math.PI / 2);
-        const vm = new THREE.Mesh(vol, new THREE.MeshBasicMaterial({ color: RED, transparent: true, opacity: 0.22, depthWrite: false }));
-        vm.position.y = 0.23;
-        fill.add(vm);
-        // contorno dorado grueso (abajo y arriba del volumen): las líneas de WebGL miden 1 px
+      for (const l of [r.main, ...r.bath]) {
+        const sg = new THREE.ShapeGeometry(shapeOf(l)); sg.rotateX(-Math.PI / 2);
+        const f = new THREE.Mesh(sg, fillMat); f.position.y = P2_Y + 0.05; fill.add(f);
+        const vg = new THREE.ExtrudeGeometry(shapeOf(l), { depth: ROOM_H, bevelEnabled: false }); vg.rotateX(-Math.PI / 2);
+        const v = new THREE.Mesh(vg, volMat); v.position.y = P2_Y + 0.04; fill.add(v);
+        // contorno dorado grueso abajo y arriba (las líneas de WebGL miden 1 px)
         for (let i = 0; i < l.length; i++) {
-          const a = v2(l[i]), b = v2(l[(i + 1) % l.length]);
-          const len = a.distanceTo(b);
+          const a = l[i], b = l[(i + 1) % l.length];
+          const ax = a[0] / 100, az = -a[1] / 100, bx = b[0] / 100, bz = -b[1] / 100;
+          const len = Math.hypot(bx - ax, bz - az);
           if (len < 0.05) continue;
-          for (const y of [0.3, 0.23 + H]) {
+          for (const y of [P2_Y + 0.08, P2_Y + ROOM_H]) {
             const e = new THREE.Mesh(edgeGeo, goldMat);
-            e.scale.set(len + 0.09, 1, 1);
-            e.position.set((a.x + b.x) / 2, y, -(a.y + b.y) / 2);
-            e.rotation.y = Math.atan2(b.y - a.y, b.x - a.x);
+            e.scale.x = len + 0.08;
+            e.position.set((ax + bx) / 2, y, (az + bz) / 2);
+            e.rotation.y = -Math.atan2(bz - az, bx - ax);
             fill.add(e);
           }
         }
       }
       fill.visible = false;
-      group.add(fill);
-      const pickGeo = new THREE.ExtrudeGeometry(shapeOf(r.main), { depth: H, bevelEnabled: false });
-      pickGeo.rotateX(-Math.PI / 2);
-      const pick = new THREE.Mesh(pickGeo, new THREE.MeshBasicMaterial({ visible: false }));
-      pick.position.y = 0.23;
+      p2.add(fill);
+      const pg = new THREE.ExtrudeGeometry(shapeOf(r.main), { depth: ROOM_H, bevelEnabled: false }); pg.rotateX(-Math.PI / 2);
+      const pick = new THREE.Mesh(pg, new THREE.MeshBasicMaterial({ visible: false }));
+      pick.position.y = P2_Y;
       pick.userData.room = r.n;
-      group.add(pick);
+      p2.add(pick);
       const c = new THREE.Box3().setFromObject(pick).getCenter(new THREE.Vector3());
       this.rooms.set(r.n, { fill, pick, center: c });
     }
   }
 
   // ------------------------------------------------------------------ cámara
-  /** Distancia para que el edificio quepa en el visor según su tamaño y el ancho del lienzo. */
   _fit(k = 1) {
     const t = Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2));
-    return (this.size * 0.55 * k) / t / Math.min(1, this.camera.aspect);
+    return (this.size * 0.62 * k) / t / Math.min(1, this.camera.aspect);
   }
 
-  _home() {
-    const c = this.center.clone().setY(7);
+  _home(apply = false) {
+    const c = this.center.clone().setY(8);
     this.homeTarget = c;
-    this.homePos = c.clone().add(new THREE.Vector3(-0.55, 0.52, 0.65).normalize().multiplyScalar(this._fit(1)));
-    this.camera.position.copy(this.homePos);
-    this.controls.target.copy(c);
+    this.homePos = c.clone().add(new THREE.Vector3(-0.62, 0.5, 0.6).normalize().multiplyScalar(this._fit(1.15)));
+    if (apply || !this._moved) { this.camera.position.copy(this.homePos); this.controls.target.copy(c); }
   }
 
-  flyTo(pos, target, dur = 1.5, ease = 'power2.inOut') {
+  flyTo(pos, target, dur = 1.4, ease = 'power2.inOut') {
+    this._moved = true;
     if (!gsap || reduced) { this.camera.position.copy(pos); this.controls.target.copy(target); return; }
     gsap.killTweensOf(this.camera.position);
     gsap.killTweensOf(this.controls.target);
@@ -284,72 +380,74 @@ export class Edificio3D {
 
   _back() {
     const b = this.camera.position.clone().sub(this.controls.target).setY(0).normalize();
-    return b.lengthSq() < 0.1 ? new THREE.Vector3(-0.6, 0, 0.8) : b;
+    return b.lengthSq() < 0.1 ? new THREE.Vector3(-0.7, 0, 0.7) : b;
   }
 
   // ------------------------------------------------------------------ transición
-  /** El edificio se arma piso por piso: cada uno cae desde arriba sobre el anterior. */
+  /** Llegada: cada piso cae desde arriba sobre el anterior y al final la cubierta. */
   assemble() {
     if (!gsap || reduced) return;
+    const layers = this.layers.filter((l) => l.userData.band !== 'PISO 1');
     this._assembling = true;
-    this.layers.forEach((l) => { l.visible = false; });
-    const tl = gsap.timeline({ onComplete: () => { this._assembling = false; this._applyCut(this.cut, true); } });
-    this.layers.forEach((l, i) => {
-      tl.call(() => { l.visible = true; }, null, i * 0.42)
-        .fromTo(l.position, { y: l.userData.base + 16 }, { y: l.userData.base, duration: 1.4, ease: 'power3.out' }, i * 0.42);
+    layers.forEach((l) => { l.visible = false; l.position.y = 0; });
+    const step = 0.5;
+    const tl = gsap.timeline({ delay: 0.2, onComplete: () => { this._assembling = false; this._applyCut(this.cut, true); } });
+    layers.forEach((l, i) => {
+      tl.call(() => { l.visible = true; }, null, i * step)
+        .fromTo(l.position, { y: 14 }, { y: 0, duration: 1.5, ease: 'power3.out' }, i * step);
     });
   }
 
-  _applyCut(floor, instant = false) {
-    const shows = (l) => floor == null || (l.userData.floor !== 'roof' && l.userData.floor <= floor);
+  _applyCut(band, instant = false) {
+    const order = BANDS.indexOf(band);
+    const shows = (l) => band == null || BANDS.indexOf(l.userData.band) <= order;
     if (instant || !gsap || reduced) {
-      this.layers.forEach((l) => { l.visible = shows(l); l.position.y = l.userData.base; });
+      this.layers.forEach((l) => { l.visible = shows(l); l.position.y = 0; });
     } else {
-      // los pisos que se van suben en abanico y desaparecen; los que vuelven bajan a su sitio
+      // los pisos que se van se levantan en abanico y desaparecen; los que vuelven bajan a su sitio
       const leaving = this.layers.filter((l) => l.visible && !shows(l));
       const coming = this.layers.filter((l) => !l.visible && shows(l));
       gsap.killTweensOf(this.layers.map((l) => l.position));
       leaving.forEach((l, k) => gsap.to(l.position, {
-        y: l.userData.base + 9 + k * 3, duration: 0.6, delay: (leaving.length - 1 - k) * 0.06, ease: 'power2.in',
-        onComplete: () => { l.visible = false; l.position.y = l.userData.base; },
+        y: 7 + k * 2.2, duration: 0.55, delay: (leaving.length - 1 - k) * 0.05, ease: 'power2.in',
+        onComplete: () => { l.visible = false; l.position.y = 0; },
       }));
       coming.forEach((l, k) => {
         l.visible = true;
-        gsap.fromTo(l.position, { y: l.userData.base + 8 + k * 2 }, { y: l.userData.base, duration: 0.75, delay: 0.08 * k, ease: 'power3.out' });
+        gsap.fromTo(l.position, { y: 6 + k * 1.6 }, { y: 0, duration: 0.7, delay: 0.08 * k, ease: 'power3.out' });
       });
-      this.layers.forEach((l) => { if (shows(l) && !coming.includes(l)) { l.visible = true; l.position.y = l.userData.base; } });
+      this.layers.forEach((l) => { if (shows(l) && !coming.includes(l)) { l.visible = true; l.position.y = 0; } });
     }
-    // con el piso abierto la fachada de ese piso baja a media altura para ver adentro
-    this.layers.forEach((l) => l.children.forEach((o) => {
-      if (o.userData.facade) { o.scale.y = floor === l.userData.floor ? 0.35 : 1; o.position.y = 0.22 + (FLOOR_H - 0.22) * o.scale.y / 2; }
-    }));
+    // con un piso abierto entra más luz al interior
+    this.hemi.intensity = band ? 1.5 : 0.9;
   }
 
-  /** Abre un piso (o el edificio completo con null). */
+  /** Abre el Piso 2 (2) o vuelve al edificio completo (null). */
   setFloor(floor) {
-    if (floor !== 2) this.selectRoom(null, false);
+    const band = floor == null ? null : OPEN_FLOOR;
+    if (band == null) this.selectRoom(null, false);
     if (floor === this.cut) return;
     this.cut = floor;
-    if (!this._assembling) this._applyCut(floor);
-    if (floor == null) { this.flyTo(this.homePos, this.homeTarget, 1.6); return; }
-    const y = (floor - 2) * FLOOR_H;
-    const c = this.center.clone().setY(y);
-    const d = this._fit(0.9);
-    this.flyTo(c.clone().addScaledVector(this._back(), d * 0.55).setY(y + d * 0.83), c, 1.5);
+    if (this.ready && !this._assembling) this._applyCut(band);
+    if (band == null) { this.flyTo(this.homePos, this.homeTarget, 1.6); return; }
+    const c = this.center.clone().setY(P2_Y);
+    const d = this._fit(0.85);
+    this.flyTo(c.clone().addScaledVector(this._back(), d * 0.5).setY(P2_Y + d * 0.86), c, 1.4);
   }
 
   /** Colorea solo la habitación elegida y acerca la cámara. */
   selectRoom(n, fly = true) {
-    if (this.room) this.rooms?.get(this.room)?.fill && (this.rooms.get(this.room).fill.visible = false);
+    if (this.room && this.rooms.has(this.room)) this.rooms.get(this.room).fill.visible = false;
     this.room = n;
-    if (!n || !this.rooms?.has(n)) return;
+    if (!n) return;
     if (this.cut !== 2) this.setFloor(2);
+    if (!this.rooms.has(n)) return;              // aún cargando: se aplica al terminar
     const r = this.rooms.get(n);
     r.fill.visible = true;
     if (fly) {
-      const c = r.center.clone().setY(0.2);
-      const d = 20 / Math.min(1, this.camera.aspect);
-      this.flyTo(c.clone().addScaledVector(this._back(), d * 0.6).setY(c.y + d * 0.8), c, 1.3);
+      const c = r.center.clone().setY(P2_Y);
+      const d = 22 / Math.min(1, this.camera.aspect);
+      this.flyTo(c.clone().addScaledVector(this._back(), d * 0.55).setY(P2_Y + d * 0.8), c, 1.3);
     }
   }
 
@@ -360,18 +458,16 @@ export class Edificio3D {
     const ndc = new THREE.Vector2();
     let down = null;
     const pick = (e) => {
+      if (!this.ready) return null;
       const b = el.getBoundingClientRect();
       ndc.set(((e.clientX - b.left) / b.width) * 2 - 1, -((e.clientY - b.top) / b.height) * 2 + 1);
       ray.setFromCamera(ndc, this.camera);
       if (this.cut === 2) {
-        const picks = [...this.rooms.values()].map((r) => r.pick);
-        const hit = ray.intersectObjects(picks, false)[0];
+        const hit = ray.intersectObjects([...this.rooms.values()].map((r) => r.pick), false)[0];
         if (hit) return { room: hit.object.userData.room };
       }
       const hit = ray.intersectObjects(this.layers.filter((l) => l.visible), true)[0];
-      if (!hit) return null;
-      const f = hit.object.userData.floor;
-      return { floor: f === 'roof' ? 6 : f };
+      return hit ? { floor: 2 } : null;
     };
     el.addEventListener('pointerdown', (e) => { down = [e.clientX, e.clientY]; });
     el.addEventListener('pointerup', (e) => {
@@ -379,11 +475,13 @@ export class Edificio3D {
       const p = pick(e);
       if (!p) return;
       if (p.room) this.onPickRoom?.(p.room);
-      else if (p.floor !== this.cut) this.onPickFloor?.(p.floor);
+      else if (this.cut !== 2) this.onPickFloor?.(2);
     });
+    let last = 0;
     el.addEventListener('pointermove', (e) => {
-      const p = e.buttons ? null : pick(e);
-      el.style.cursor = p ? 'pointer' : 'grab';
+      if (e.buttons || performance.now() - last < 80) return;
+      last = performance.now();
+      el.style.cursor = pick(e) ? 'pointer' : 'grab';
     });
   }
 
@@ -393,11 +491,6 @@ export class Edificio3D {
     this.renderer.setSize(w, h, false);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
-    // el encuadre inicial depende del ancho real del lienzo
-    const first = !this._sized;
-    this._sized = true;
-    const pos = this.camera.position.clone(), tgt = this.controls.target.clone();
-    this._home();
-    if (!first || this.cut != null) { this.camera.position.copy(pos); this.controls.target.copy(tgt); }
+    if (this.cut == null && !this._moved) this._home(true);
   }
 }

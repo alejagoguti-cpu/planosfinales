@@ -125,6 +125,7 @@ const viewer = new Edificio3D($('[data-viewer]'), geo, {
   onPickRoom: (n) => openRoom(n),
 });
 
+window.edificio3d = viewer; // acceso desde la consola del navegador
 function openFloor(f) {
   viewer.setFloor(f);
   reset.hidden = f == null;

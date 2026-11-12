@@ -3,6 +3,7 @@
 // colorea. Unidades en metros: x = x del modelo, z = -y del modelo, y = altura.
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 const FLOOR_H = 3.0;
 const FLOORS = [2, 3, 4, 5, 6];
@@ -14,23 +15,33 @@ const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const v2 = ([x, y]) => new THREE.Vector2(x / 100, y / 100);
 const shapeOf = (loop) => new THREE.Shape(loop.map(v2));
 
-function facadeTexture() {
-  // ladrillo con ventanas y jardineras verdes, como la fachada del hotel
+const loader = new THREE.TextureLoader();
+function tex(src, rx = 1, ry = 1) {
+  const t = loader.load(src);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.repeat.set(rx, ry);
+  t.anisotropy = 8;
+  return t;
+}
+
+// teja de barro: filas de tejas con variación de tono (no hay foto de cubierta entre las texturas)
+function roofTexture() {
   const c = document.createElement('canvas');
-  c.width = 256; c.height = 256;
+  c.width = c.height = 512;
   const g = c.getContext('2d');
-  g.fillStyle = '#9b4a32'; g.fillRect(0, 0, 256, 256);
-  for (let y = 0; y < 256; y += 8) for (let x = (y / 8) % 2 ? -12 : 0; x < 256; x += 24) {
-    g.fillStyle = `hsl(${12 + Math.random() * 8},${42 + Math.random() * 10}%,${30 + Math.random() * 8}%)`;
-    g.fillRect(x + 1, y + 1, 22, 6);
+  g.fillStyle = '#8f3b25'; g.fillRect(0, 0, 512, 512);
+  for (let y = 0; y < 512; y += 32) for (let x = (y / 32) % 2 ? -16 : 0; x < 512; x += 32) {
+    const l = 30 + Math.random() * 12;
+    const grd = g.createLinearGradient(x, 0, x + 32, 0);
+    grd.addColorStop(0, `hsl(14,52%,${l - 8}%)`); grd.addColorStop(0.5, `hsl(15,55%,${l + 4}%)`); grd.addColorStop(1, `hsl(14,52%,${l - 10}%)`);
+    g.fillStyle = grd; g.fillRect(x + 1, y, 30, 30);
+    g.fillStyle = 'rgba(0,0,0,.25)'; g.fillRect(x, y + 28, 32, 4);
   }
-  g.fillStyle = '#20302a'; g.fillRect(78, 40, 100, 150);           // vidrio
-  g.fillStyle = '#e9e4d8'; g.fillRect(74, 36, 108, 6); g.fillRect(74, 36, 6, 158); g.fillRect(176, 36, 6, 158); g.fillRect(126, 40, 4, 150);
-  g.fillStyle = '#2f4a2c'; g.fillRect(70, 190, 116, 18);           // jardinera
   const t = new THREE.CanvasTexture(c);
   t.colorSpace = THREE.SRGBColorSpace;
   t.wrapS = t.wrapT = THREE.RepeatWrapping;
-  t.anisotropy = 4;
+  t.repeat.set(10, 10);
   return t;
 }
 
@@ -80,7 +91,10 @@ export class Edificio3D {
   }
 
   _lights() {
-    this.scene.add(new THREE.HemisphereLight(0xffffff, 0xb8b2a6, 1.6));
+    // reflejos de ambiente para que los materiales no se vean planos
+    const pm = new THREE.PMREMGenerator(this.renderer);
+    this.scene.environment = pm.fromScene(new RoomEnvironment(), 0.04).texture;
+    this.scene.add(new THREE.HemisphereLight(0xffffff, 0xb8b2a6, 0.7));
     const sun = new THREE.DirectionalLight(0xfff1dc, 2.4);
     sun.position.set(-40, 70, 45);
     sun.target.position.set(16, 0, 0);
@@ -101,21 +115,21 @@ export class Edificio3D {
     this.size = Math.max(maxX - minX, maxY - minY);
 
     // suelo
-    const ground = new THREE.Mesh(new THREE.CircleGeometry(160, 64), new THREE.MeshStandardMaterial({ color: 0xe4e3df, roughness: 1 }));
+    const ground = new THREE.Mesh(new THREE.CircleGeometry(160, 64), new THREE.MeshStandardMaterial({ map: tex('assets/tex/concreto.jpg', 40, 40), color: 0xf2f1ee, roughness: 0.95 }));
     ground.rotation.x = -Math.PI / 2;
     ground.position.set(this.center.x, -0.02, this.center.z);
     ground.receiveShadow = true;
     this.scene.add(ground);
 
-    const slabMat = new THREE.MeshStandardMaterial({ color: 0xd8d6d0, roughness: 0.9 });
-    const facadeMat = new THREE.MeshStandardMaterial({ map: facadeTexture(), roughness: 0.85 });
-    const wallMat = new THREE.MeshStandardMaterial({ color: 0xf3efe6, roughness: 0.8 });
-    const emptyMat = new THREE.MeshStandardMaterial({ color: 0xc9c7c1, roughness: 1 });
+    const slabMat = new THREE.MeshStandardMaterial({ map: tex('assets/tex/concreto.jpg', 0.12, 0.12), color: 0xe8e6e2, roughness: 0.9 });
+    const facadeMat = new THREE.MeshStandardMaterial({ map: tex('assets/tex/fachada-ladrillo.jpg'), roughness: 0.82, envMapIntensity: 0.6 });
+    const wallMat = new THREE.MeshStandardMaterial({ map: tex('assets/tex/tendido-blanco.jpg', 0.5, 0.5), color: 0xf6f3ec, roughness: 0.92 });
+    const emptyMat = new THREE.MeshStandardMaterial({ map: tex('assets/tex/concreto.jpg', 0.15, 0.15), color: 0xd4d2cd, roughness: 1 });
 
-    const tex = new THREE.TextureLoader().load(geo.planImage.src);
-    tex.colorSpace = THREE.SRGBColorSpace;
-    tex.anisotropy = this.renderer.capabilities.getMaxAnisotropy();
-    const planMat = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.95 });
+    const planTex = loader.load(geo.planImage.src);
+    planTex.colorSpace = THREE.SRGBColorSpace;
+    planTex.anisotropy = this.renderer.capabilities.getMaxAnisotropy();
+    const planMat = new THREE.MeshStandardMaterial({ map: planTex, roughness: 0.95 });
     this.planMat = planMat;
 
     const slabGeo = new THREE.ExtrudeGeometry(foot, { depth: 0.22, bevelEnabled: false });
@@ -138,7 +152,7 @@ export class Edificio3D {
         if (len < 0.3) continue;
         const g = new THREE.BoxGeometry(len, FLOOR_H - 0.22, 0.28);
         const u = g.attributes.uv;
-        for (let k = 0; k < u.count; k++) u.setX(k, u.getX(k) * Math.max(1, Math.round(len / 2.2)));
+        for (let k = 0; k < u.count; k++) u.setX(k, u.getX(k) * (len / 15));
         const m = new THREE.Mesh(g, facadeMat);
         m.position.set((a.x + b.x) / 2, 0.22 + (FLOOR_H - 0.22) / 2, -(a.y + b.y) / 2);
         m.rotation.y = Math.atan2(b.y - a.y, b.x - a.x);
@@ -173,7 +187,7 @@ export class Edificio3D {
     roof.position.y = roof.userData.base;
     const rg = new THREE.ExtrudeGeometry(foot, { depth: 0.05, bevelEnabled: true, bevelThickness: 2.2, bevelSize: 3.2, bevelOffset: -3.2, bevelSegments: 1 });
     rg.rotateX(-Math.PI / 2);
-    const roofMesh = new THREE.Mesh(rg, new THREE.MeshStandardMaterial({ color: 0xa8492f, roughness: 0.8 }));
+    const roofMesh = new THREE.Mesh(rg, new THREE.MeshStandardMaterial({ map: roofTexture(), roughness: 0.75 }));
     roofMesh.position.y = 2.2;
     roofMesh.castShadow = true;
     roof.add(new THREE.Mesh(slabGeo, slabMat), roofMesh);

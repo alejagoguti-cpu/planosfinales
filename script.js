@@ -94,7 +94,7 @@ $('[data-fig="area"]').textContent = Math.round(rooms.reduce((a, r) => a + r.pri
 /* ---------- tipologías: cifras + píldoras ---------- */
 const typesPlan = $('[data-plan-types]');
 drawPlan(typesPlan, geo);
-const CATS = ['Suite Ejecutiva', 'Junior Suite', 'Habitación Doble', 'Habitación Sencilla King'];
+const CATS = ['Suite Ejecutiva', 'Junior Suite', 'Habitación Doble'];
 const pills = $('[data-pills]');
 pills.innerHTML = CATS.map((c, i) => `<button type="button" data-cat="${c}" aria-pressed="${i === 0}">${c.replace('Habitación ', '')}</button>`).join('');
 function showCat(cat) {

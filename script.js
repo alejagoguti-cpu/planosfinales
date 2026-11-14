@@ -91,6 +91,10 @@ const [rooms, geo] = await Promise.all([
 $('[data-fig="rooms"]').textContent = rooms.length;
 $('[data-fig="area"]').textContent = Math.round(rooms.reduce((a, r) => a + r.priv, 0));
 
+/* ---------- planos as built ---------- */
+const { initAsBuilt } = await import('./assets/js/asbuilt.js');
+initAsBuilt({ rooms, geo });
+
 /* ---------- tipologías: cifras + píldoras ---------- */
 const typesPlan = $('[data-plan-types]');
 drawPlan(typesPlan, geo);

@@ -29,6 +29,7 @@
       <li><a href="#edificio">Edificio</a></li>
       <li><a href="#tipologias">Tipologías</a></li>
       <li><a href="#plantas">Plantas</a></li>
+      <li><a href="#as-built">Planos As Built</a></li>
       <li><a href="#detalle">Acabados</a></li>
       <li><a href="#recorridos">Recorridos</a></li>
       <li><a href="#contacto">Ubicación</a></li>
@@ -91,10 +92,15 @@
       <div class="types-plan"><svg class="plan" data-plan-types aria-label="Planta del Piso 2 con la categoría resaltada" role="img"></svg></div>
     </section>
 
-    <!-- 6 · Titular -->
-    <section class="statement">
-      <h2>Del jardín a la <span class="red">ventana</span></h2>
-      <img src="assets/img/entorno.webp" loading="lazy" alt="Entorno del hotel en Usaquén">
+    <!-- 6 · Planos As Built -->
+    <section class="asbuilt-section" id="as-built">
+      <div class="asbuilt-head">
+        <span class="asbuilt-badge-sup">Ingeniería & Planimetría Final Conforme a Obra</span>
+        <h2>Planos <span class="red">As Built</span></h2>
+        <p>Selecciona una especialidad técnica para activar la planta interactiva del Piso 2 y haz clic sobre cualquier habitación para abrir su plano de detalle.</p>
+      </div>
+
+      <div id="asbuilt-container"></div>
     </section>
 
     <!-- 7 · Pantalla dividida: niveles / plano en rojo -->
@@ -118,12 +124,18 @@
         </div>
         <p class="panel-hint">Arrastra para girar · rueda para acercar</p>
         <div class="panel-links">
-          <a href="assets/planos/p2-mobiliario.png" target="_blank" rel="noopener">Plano de mobiliario</a>
+          <a href="#as-built" class="tech-link-tag">1. Eléctrico As-Built</a>
+          <a href="#as-built" class="tech-link-tag">2. Agua Fría y Caliente</a>
+          <a href="#as-built" class="tech-link-tag">3. Desagües</a>
+          <a href="#as-built" class="tech-link-tag">4. Contra Incendios</a>
           <a href="assets/planos/p2-arquitectonica.png" target="_blank" rel="noopener">Plano arquitectónico</a>
           <a href="assets/planos/p2-acabados.png" target="_blank" rel="noopener">Plano de acabados</a>
+          <a href="assets/planos/p2-mobiliario.png" target="_blank" rel="noopener">Plano de mobiliario</a>
         </div>
       </aside>
     </section>
+
+    
 
     <!-- 8 · Tres columnas -->
     <section class="detail" id="detalle">
@@ -166,7 +178,16 @@
       </div>
       <div><h4>Ubicación</h4><p>Santa Bárbara · Usaquén<br>Costado Calle 124 con Carrera 15<br>4.7046° N, 74.0437° O</p><p><a href="https://www.google.com/maps?q=4.704585254832645,-74.04369633465852" target="_blank" rel="noopener">Ver en el mapa</a></p></div>
       <div><h4>Proyecto</h4><p>Modelo Revit HLF_P2-P6<br>12 habitaciones · 3 alas<br>Altura entre pisos 3,00 m</p></div>
-      <div><h4>Planos</h4><p><a href="assets/planos/p2-mobiliario.png" target="_blank" rel="noopener">Mobiliario</a><br><a href="assets/planos/p2-arquitectonica.png" target="_blank" rel="noopener">Arquitectónica</a><br><a href="assets/planos/p2-acabados.png" target="_blank" rel="noopener">Acabados</a></p></div>
+      <div><h4>Planos Técnicos</h4><p>
+        <button type="button" class="tech-foot-link" data-open-carousel="electrica">Red Eléctrica (IE-02)</button><br>
+        <button type="button" class="tech-foot-link" data-open-carousel="hidrosanitaria">Hidrosanitaria (IS-02)</button><br>
+        <button type="button" class="tech-foot-link" data-open-carousel="hvac">Climatización HVAC (IM-02)</button><br>
+        <button type="button" class="tech-foot-link" data-open-carousel="contraincendios">Contra Incendios (ICI-02)</button><br>
+        <button type="button" class="tech-foot-link" data-open-carousel="telecomunicaciones">Telecom & Datos (IT-02)</button><br>
+        <button type="button" class="tech-foot-link" data-open-carousel="arquitectonico">Arquitectónico (ARQ-02)</button><br>
+        <button type="button" class="tech-foot-link" data-open-carousel="acabados">Acabados (AC-02)</button><br>
+        <button type="button" class="tech-foot-link" data-open-carousel="mobiliario">Mobiliario (MOB-02)</button>
+      </p></div>
     </div>
     <p class="foot-bottom">© 2026 Hotel La Fontana · Piso 2 | Visualizaciones ilustrativas generadas con IA desde el modelo</p>
   </footer>

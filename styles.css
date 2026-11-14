@@ -457,3 +457,927 @@ main { counter-reset: sec; }
 }
 /* foto del titular: nítida (sin escalarla de más) */
 .statement img { image-rendering: auto; backface-visibility: hidden; }
+
+
+
+/* ---------- SECCIÓN PLANOS AS-BUILT (PISO 2) ---------- */
+.asbuilt-section {
+  background: #090d16;
+  background-image: radial-gradient(circle at 50% 0%, rgba(30, 58, 138, 0.18) 0%, transparent 65%);
+  color: #f1f5f9;
+  padding: clamp(4rem, 6vw, 6rem) var(--pad);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+}
+
+.asbuilt-head {
+  max-width: 64rem;
+  margin-bottom: 2.5rem;
+}
+
+.asbuilt-badge-sup {
+  display: inline-block;
+  font: 600 0.8rem/1 var(--head);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.85rem;
+  padding: 0.3rem 0.75rem;
+  background: rgba(181, 149, 53, 0.12);
+  border: 1px solid rgba(181, 149, 53, 0.35);
+  border-radius: 4px;
+}
+
+.asbuilt-head h2 {
+  font-size: clamp(2.4rem, 1.6rem + 2.4vw, 3.8rem);
+  line-height: 1.1;
+  margin-bottom: 1rem;
+}
+
+.asbuilt-head p {
+  font-size: 1.15rem;
+  line-height: 1.55;
+  color: #94a3b8;
+  margin: 0;
+}
+
+/* 4 Pestañas / Especialidades técnicas (SIN EMOJIS, FLAT ICONS) */
+.asb-disciplines-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.asb-disc-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding: 1.05rem 1.15rem;
+  background: #101624;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: #cbd5e1;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.asb-disc-btn:hover {
+  background: #162035;
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-2px);
+}
+
+.asb-disc-btn.active {
+  background: #0f2752;
+  color: #fff;
+  border-color: #38bdf8;
+  box-shadow: 0 10px 28px rgba(56, 189, 248, 0.25);
+}
+
+.asb-disc-num-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  font: 700 0.9rem/1 var(--head);
+  color: var(--gold);
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.asb-disc-btn.active .asb-disc-num-badge {
+  background: #38bdf8;
+  color: #000;
+  border-color: #38bdf8;
+}
+
+.asb-disc-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.asb-disc-text-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.asb-disc-title {
+  font: 600 0.98rem/1.2 var(--head);
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.asb-disc-sub {
+  font-size: 0.78rem;
+  line-height: 1.25;
+  color: #94a3b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Banner de especificaciones técnicas */
+.asb-info-banner {
+  background: #0d1320;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 1.15rem 1.5rem;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.asb-banner-left {
+  flex: 1;
+  min-width: 280px;
+}
+
+.asb-disc-tag {
+  display: inline-block;
+  font: 700 0.72rem/1 var(--head);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.55rem;
+  border-radius: 4px;
+  margin-bottom: 0.4rem;
+}
+
+.asb-banner-title {
+  font: 600 1.25rem/1.2 var(--head);
+  color: #fff;
+  margin: 0 0 0.25rem;
+}
+
+.asb-banner-desc {
+  font-size: 0.88rem;
+  color: #94a3b8;
+  margin: 0;
+  line-height: 1.45;
+}
+
+.asb-banner-specs {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.asb-spec-chip {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 6px;
+  padding: 0.45rem 0.75rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.asb-spec-val {
+  font: 700 0.85rem/1 var(--head);
+  color: var(--gold);
+  margin-bottom: 0.2rem;
+}
+
+.asb-spec-lbl {
+  font-size: 0.7rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Grilla principal de 2 columnas */
+.asb-main-grid {
+  display: grid;
+  grid-template-columns: 1.08fr 0.92fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.asb-plan-col, .asb-room-viewer-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.asb-col-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.25rem;
+}
+
+.asb-col-header h3 {
+  font: 600 1.25rem/1.2 var(--head);
+  color: #fff;
+  margin: 0 0 0.25rem;
+}
+
+.asb-col-sub {
+  font-size: 0.84rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.asb-live-badge {
+  font: 700 0.72rem/1 var(--head);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.6rem;
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  border-radius: 99px;
+}
+
+/* Selector rápido de habitaciones */
+.asb-room-selector-strip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.85rem;
+  background: #0f1523;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.asb-strip-lbl {
+  font: 600 0.78rem/1 var(--head);
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.asb-strip-buttons {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.asb-strip-btn {
+  padding: 0.35rem 0.65rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: #cbd5e1;
+  font: 600 0.82rem/1 var(--head);
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.asb-strip-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+.asb-strip-btn.active {
+  background: var(--gold);
+  color: #000;
+  border-color: #fff;
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+}
+
+/* Canvas SVG de la planta interactiva */
+.asb-svg-wrapper {
+  position: relative;
+  background: #050811;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 0.75rem;
+  overflow: hidden;
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.6);
+}
+
+.asb-floor-svg {
+  width: 100%;
+  height: auto;
+  max-height: 540px;
+  display: block;
+}
+
+.asb-room-polygon-g {
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.asb-room-polygon-g:hover .asb-room-bg {
+  fill: rgba(255, 255, 255, 0.14) !important;
+  stroke: #fff !important;
+  stroke-width: 3 !important;
+}
+
+.asb-room-polygon-g.selected .asb-room-bg {
+  filter: drop-shadow(0 0 10px rgba(234, 179, 8, 0.5));
+}
+
+.asb-label-group {
+  cursor: pointer;
+  user-select: none;
+  transition: transform 0.2s;
+}
+
+.asb-label-group:hover {
+  transform: scale(1.1);
+  transform-origin: center;
+}
+
+.asb-plan-tooltip {
+  position: absolute;
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.8rem;
+  line-height: 1.35;
+  color: #fff;
+  pointer-events: none;
+  z-index: 10;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+/* Leyenda técnica flat */
+.asb-legend-strip {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: #0f1523;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  flex-wrap: wrap;
+}
+
+.asb-leg-title {
+  font: 700 0.75rem/1 var(--head);
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.asb-leg-items {
+  display: flex;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.asb-leg-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  color: #cbd5e1;
+}
+
+.asb-leg-swatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid;
+  flex-shrink: 0;
+}
+
+.asb-leg-swatch.line {
+  height: 3px;
+  border: none;
+  background-color: var(--c);
+}
+
+.asb-leg-swatch.circle {
+  border-radius: 50%;
+}
+
+.asb-leg-swatch.square, .asb-leg-swatch.box {
+  border-radius: 2px;
+}
+
+.asb-leg-swatch.dash {
+  height: 3px;
+  border: none;
+  background: repeating-linear-gradient(90deg, var(--c), var(--c) 4px, transparent 4px, transparent 8px);
+}
+
+/* Tarjeta del visor de habitación */
+.asb-viewer-card {
+  background: #0d121c;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.asb-viewer-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 0.85rem;
+}
+
+.asb-room-badge {
+  display: inline-block;
+  font: 700 0.82rem/1 var(--head);
+  letter-spacing: 0.08em;
+  padding: 0.35rem 0.65rem;
+  border-radius: 4px;
+  margin-bottom: 0.4rem;
+}
+
+.asb-v-title-wrap h4 {
+  font: 600 1.35rem/1.2 var(--head);
+  color: #fff;
+  margin: 0 0 0.25rem;
+}
+
+.asb-room-type {
+  color: var(--gold);
+}
+
+.asb-room-meta {
+  font-size: 0.86rem;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.asb-v-disc-tag {
+  font: 700 0.78rem/1 var(--head);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.75rem;
+  border: 1px solid;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  white-space: nowrap;
+}
+
+.asb-room-bedding {
+  font-size: 0.84rem;
+  color: #cbd5e1;
+  margin: 0;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.asb-plan-frame {
+  position: relative;
+  background: #060911;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.asb-img-canvas-wrap {
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  min-height: 380px;
+}
+
+.asb-sheet-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.asb-img-canvas-wrap:hover .asb-sheet-img {
+  transform: scale(1.02);
+}
+
+.asb-frame-controls {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  display: flex;
+  gap: 0.4rem;
+  z-index: 5;
+}
+
+.asb-f-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.7rem;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  color: #fff;
+  font: 500 0.78rem/1 var(--head);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.asb-f-btn:hover {
+  background: var(--red);
+  border-color: #ef4444;
+}
+
+.asb-click-hint {
+  position: absolute;
+  bottom: 0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 99px;
+  padding: 0.35rem 0.85rem;
+  font-size: 0.75rem;
+  color: #fff;
+  pointer-events: none;
+}
+
+.asb-sheet-footer-info {
+  background: #0f1523;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.85rem 1rem;
+}
+
+.asb-sheet-views-badge {
+  display: inline-block;
+  font: 700 0.72rem/1 var(--head);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--gold);
+  margin-bottom: 0.35rem;
+}
+
+.asb-sheet-footer-info p {
+  font-size: 0.82rem;
+  color: #cbd5e1;
+  margin: 0 0 0.5rem;
+  line-height: 1.4;
+}
+
+.asb-sheet-meta-row {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.76rem;
+  color: #94a3b8;
+  flex-wrap: wrap;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 0.4rem;
+}
+
+.asb-sheet-meta-row b {
+  color: #fff;
+}
+
+/* Esquemas técnicos SVG para especialidades 2, 3 y 4 */
+.asb-schematic-wrap {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: #080d17;
+}
+
+.asb-schem-badge-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.asb-schem-tag {
+  font: 700 0.8rem/1 var(--head);
+  padding: 0.3rem 0.65rem;
+  border-radius: 4px;
+}
+
+.asb-schem-scale {
+  font-size: 0.78rem;
+  color: #94a3b8;
+}
+
+.asb-schem-diagram {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.asb-detail-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.asb-schem-specs-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+}
+
+.asb-schem-specs-table td {
+  padding: 0.4rem 0.6rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  color: #94a3b8;
+}
+
+.asb-schem-specs-table td:nth-child(2) {
+  color: #fff;
+  text-align: right;
+}
+
+/* Barra inferior de navegación de habitaciones */
+.asb-viewer-nav-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.asb-v-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.85rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  color: #fff;
+  font: 600 0.82rem/1 var(--head);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.asb-v-nav-btn:hover {
+  background: var(--red);
+  border-color: #ef4444;
+}
+
+.asb-v-room-pills {
+  display: flex;
+  gap: 0.3rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.asb-v-pill {
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+  font: 600 0.78rem/1 var(--head);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.asb-v-pill:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.asb-v-pill.active {
+  background: var(--gold);
+  color: #000;
+  border-color: #fff;
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.35);
+}
+
+/* Modal Lightbox de Pantalla Completa */
+.asb-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.asb-modal[hidden] {
+  display: none;
+}
+
+.asb-modal-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(4, 7, 13, 0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.asb-modal-content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  max-width: 1600px;
+  max-height: 94vh;
+  background: #090e18;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.75);
+  z-index: 10;
+}
+
+.asb-modal-header {
+  background: #0f1624;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.85rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.asb-modal-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.asb-modal-badge {
+  font: 700 0.8rem/1 var(--head);
+  color: #000;
+  padding: 0.35rem 0.65rem;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+}
+
+.asb-modal-header h3 {
+  font: 600 1.15rem/1.2 var(--head);
+  color: #fff;
+  margin: 0;
+}
+
+.asb-modal-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.asb-icon-btn, .asb-close-btn {
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.asb-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border-color: #38bdf8;
+}
+
+.asb-close-btn:hover {
+  background: var(--red);
+  color: #fff;
+  border-color: #ef4444;
+  transform: rotate(90deg);
+}
+
+.asb-modal-body {
+  flex: 1;
+  position: relative;
+  background: #050811;
+  overflow: hidden;
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+}
+
+.asb-modal-body:active {
+  cursor: grabbing;
+}
+
+.asb-modal-img {
+  max-width: 95%;
+  max-height: 95%;
+  object-fit: contain;
+  transform-origin: center center;
+  transition: transform 0.05s ease-out;
+  pointer-events: none;
+}
+
+.asb-modal-footer {
+  background: #0f1624;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.asb-nav-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.95rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 99px;
+  color: #fff;
+  font: 500 0.82rem/1 var(--head);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.asb-nav-pill-btn:hover {
+  background: var(--red);
+  border-color: #ef4444;
+}
+
+.asb-modal-hint {
+  font-size: 0.78rem;
+  color: #64748b;
+}
+
+/* Enlaces del visor 3D */
+.tech-link-tag {
+  display: inline-block;
+  padding: 0.4rem 0.85rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  color: var(--gold);
+  font: 500 0.82rem/1 var(--head);
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.tech-link-tag:hover {
+  background: var(--gold);
+  color: #000;
+  border-color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .asb-disciplines-bar {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .asb-main-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .asb-disciplines-bar {
+    grid-template-columns: 1fr;
+  }
+  .asb-modal {
+    padding: 0.5rem;
+  }
+  .asb-modal-header h3 {
+    font-size: 0.95rem;
+  }
+  .asb-modal-hint {
+    display: none;
+  }
+  .asb-f-btn span {
+    display: none;
+  }
+} (Planos As Built: 1. Electrico con 12 láminas de habitación, 2. Agua Caliente y fría, 3. Desagües, 4. Red contraincendios e iconos flat)

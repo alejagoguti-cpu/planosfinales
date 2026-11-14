@@ -940,10 +940,20 @@ export class Edificio3D {
     this.flyTo(c.clone().addScaledVector(this._back(), d * 0.5).setY(P2_Y + d * 0.86), c, 1.4);
   }
 
+  /** Corre el encuadre para que la habitación quede fuera del recuadro de información (arriba a la izquierda). */
+  _frame() {
+    const { clientWidth: w, clientHeight: h } = this.el;
+    if (!w || !h) return;
+    if (this.room) this.camera.setViewOffset(w, h, w < 600 ? 0 : -0.12 * w, -0.13 * h, w, h);
+    else this.camera.clearViewOffset();
+    this.camera.updateProjectionMatrix();
+  }
+
   /** Colorea solo la habitación elegida y acerca la cámara. */
   selectRoom(n, fly = true) {
     if (this.room && this.rooms.has(this.room)) this.rooms.get(this.room).fill.visible = false;
     this.room = n;
+    this._frame();
     if (!n) return;
     if (this.cut !== 2) this.setFloor(2);
     if (!this.rooms.has(n)) return;              // aún cargando: se aplica al terminar
@@ -995,7 +1005,7 @@ export class Edificio3D {
     if (!w || !h) return;
     this.renderer.setSize(w, h, false);
     this.camera.aspect = w / h;
-    this.camera.updateProjectionMatrix();
+    this._frame();
     if (this.cut == null && !this._moved) this._home(true);
   }
 }

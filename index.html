@@ -21,8 +21,40 @@
 <body>
   <a class="skip" href="#main">Saltar al contenido</a>
 
-  <a class="brand" href="#top" aria-label="Hotel Estelar La Fontana, inicio"><img src="assets/logos/estelar.png" alt="Estelar" width="300" height="300"></a>
-  <button class="burger" type="button" aria-expanded="false" aria-controls="menu" aria-label="Abrir menú" data-burger><i></i><i></i><i></i></button>
+  <header class="site-header" id="site-header">
+    <div class="header-inner">
+      <a class="brand" href="#top" aria-label="Hotel Estelar La Fontana, inicio">
+        <img src="assets/logos/estelar.png" alt="Estelar" class="brand-img" width="300" height="300">
+        <div class="brand-text">
+          <span class="brand-eyebrow">Hotel Estelar</span>
+          <span class="brand-name">La Fontana</span>
+          <span class="brand-piso">Piso 2</span>
+        </div>
+      </a>
+
+      <nav class="desktop-nav" aria-label="Navegación principal">
+        <a href="#edificio" class="desktop-link">Edificio</a>
+        <a href="#tipologias" class="desktop-link">Tipologías</a>
+        <a href="#plantas" class="desktop-link">Plantas</a>
+        <a href="#as-built" class="desktop-link desktop-link-asbuilt">
+          <span class="nav-glow-dot"></span>
+          Planos As Built
+        </a>
+        <a href="#detalle" class="desktop-link">Acabados</a>
+        <a href="#recorridos" class="desktop-link">Recorridos</a>
+      </nav>
+
+      <div class="header-actions">
+        <a href="#as-built" class="header-cta-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <span>As-Built</span>
+        </a>
+        <button class="burger" type="button" aria-expanded="false" aria-controls="menu" aria-label="Abrir menú" data-burger>
+          <i></i><i></i><i></i>
+        </button>
+      </div>
+    </div>
+  </header>
 
   <nav class="menu" id="menu" aria-label="Principal" hidden data-menu>
     <ul>

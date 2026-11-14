@@ -26,20 +26,306 @@ h1, h2, h3, h4 { margin: 0; font-family: var(--head); font-weight: 400; letter-s
 .skip:focus { translate: 0; }
 :focus-visible { outline: 2px solid var(--red); outline-offset: 3px; }
 
-/* ---------- marca + hamburguesa fijas ---------- */
-.brand { position: fixed; top: 0; left: 0; z-index: 50; width: 6.25rem; height: 6.25rem; padding: .8rem .85rem; background: var(--red); color: var(--black); text-decoration: none; display: flex; flex-direction: column; justify-content: center; font: 500 1.05rem/1 var(--head); letter-spacing: .02em; text-transform: uppercase; }
-.brand small { margin-top: .45rem; font: 500 .62rem/1 var(--head); letter-spacing: .18em; color: var(--white); }
-.burger { position: fixed; top: 1.35rem; right: 1.5rem; z-index: 50; width: 2.6rem; height: 2rem; padding: 0; border: 0; background: none; cursor: pointer; display: grid; align-content: space-between; color: var(--red); }
-.burger i { display: block; height: 3px; background: currentColor; transition: rotate .3s, translate .3s, opacity .3s; }
-.burger.on-dark { color: var(--white); }
-.burger[aria-expanded="true"] { color: var(--white); }
-.burger[aria-expanded="true"] i:nth-child(1) { translate: 0 .9rem; rotate: 45deg; }
-.burger[aria-expanded="true"] i:nth-child(2) { opacity: 0; }
-.burger[aria-expanded="true"] i:nth-child(3) { translate: 0 -.9rem; rotate: -45deg; }
-.menu { position: fixed; inset: 0; z-index: 45; background: var(--red); display: grid; place-items: center; }
-.menu ul { list-style: none; margin: 0; padding: 0; text-align: center; }
-.menu a { display: block; padding: .35rem 1rem; text-decoration: none; color: var(--white); font: 400 clamp(2rem, 5vw, 3.6rem)/1.15 var(--head); }
-.menu a:hover { color: var(--black); }
+/* ---------- NAVBAR PREMIUM DE LUJO (HOTEL ESTELAR) ---------- */
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4.5rem;
+  z-index: 90;
+  background: rgba(9, 13, 22, 0.88);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.header-inner {
+  max-width: 1720px;
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 var(--pad);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+/* Marca / Logo Estelar */
+.brand {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  text-decoration: none;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  cursor: pointer;
+}
+
+.brand-img {
+  height: 2.35rem;
+  width: auto;
+  max-width: 130px;
+  object-fit: contain;
+  /* Logo blanco puro de alta gama sobre fondo oscuro */
+  filter: brightness(0) invert(1);
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.brand:hover .brand-img {
+  transform: scale(1.04);
+  filter: brightness(0) invert(1) drop-shadow(0 0 10px rgba(212, 175, 55, 0.5));
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid rgba(255, 255, 255, 0.16);
+  padding-left: 0.75rem;
+  line-height: 1.15;
+}
+
+.brand-eyebrow {
+  font: 700 0.58rem/1 var(--head);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.brand-name {
+  font: 500 0.92rem/1.2 var(--head);
+  letter-spacing: 0.04em;
+  color: #fff;
+  text-transform: uppercase;
+}
+
+.brand-piso {
+  font: 600 0.65rem/1 var(--head);
+  letter-spacing: 0.12em;
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+
+/* Enlaces Desktop */
+.desktop-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.desktop-link {
+  color: #cbd5e1;
+  text-decoration: none;
+  font: 500 0.78rem/1 var(--head);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  position: relative;
+  padding: 0.4rem 0.2rem;
+  transition: color 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.desktop-link:hover {
+  color: #fff;
+}
+
+.desktop-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 2px;
+  background: var(--gold);
+  transition: width 0.25s ease;
+}
+
+.desktop-link:hover::after {
+  width: 100%;
+}
+
+.desktop-link-asbuilt {
+  color: #fff;
+  padding: 0.4rem 0.85rem;
+  background: rgba(181, 149, 53, 0.12);
+  border: 1px solid rgba(181, 149, 53, 0.35);
+  border-radius: 99px;
+  transition: all 0.25s ease;
+}
+
+.desktop-link-asbuilt:hover {
+  background: rgba(181, 149, 53, 0.25);
+  border-color: var(--gold);
+  color: var(--gold);
+  box-shadow: 0 0 16px rgba(181, 149, 53, 0.3);
+}
+
+.desktop-link-asbuilt::after {
+  content: none;
+}
+
+.nav-glow-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gold);
+  box-shadow: 0 0 8px var(--gold);
+  animation: pulseGold 2s infinite ease-in-out;
+}
+
+@keyframes pulseGold {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
+}
+
+/* Acciones en la derecha */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.header-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.5rem 1.05rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 99px;
+  color: #fff;
+  font: 600 0.78rem/1 var(--head);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.header-cta-btn:hover {
+  background: var(--gold);
+  color: #000;
+  border-color: #fff;
+  box-shadow: 0 6px 20px rgba(181, 149, 53, 0.4);
+  transform: translateY(-1px);
+}
+
+/* Botón Hamburguesa Premium */
+.burger {
+  position: relative !important;
+  top: auto !important;
+  right: auto !important;
+  width: 2.6rem !important;
+  height: 2.6rem !important;
+  border-radius: 8px !important;
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  cursor: pointer;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 5px !important;
+  padding: 0 !important;
+  color: #fff !important;
+  transition: all 0.25s ease !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.burger:hover {
+  background: rgba(255, 255, 255, 0.14) !important;
+  border-color: var(--gold) !important;
+  color: var(--gold) !important;
+  transform: scale(1.05);
+}
+
+.burger i {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: currentColor;
+  border-radius: 2px;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s, background 0.2s;
+}
+
+.burger[aria-expanded="true"] {
+  background: var(--gold) !important;
+  border-color: #fff !important;
+  color: #000 !important;
+}
+
+.burger[aria-expanded="true"] i:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.burger[aria-expanded="true"] i:nth-child(2) {
+  opacity: 0;
+}
+
+.burger[aria-expanded="true"] i:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* Menú a Pantalla Completa Premium */
+.menu {
+  position: fixed;
+  inset: 0;
+  z-index: 85;
+  background: rgba(9, 13, 22, 0.96) !important;
+  backdrop-filter: blur(28px) !important;
+  -webkit-backdrop-filter: blur(28px) !important;
+  display: grid;
+  place-items: center;
+  padding-top: 4.5rem;
+}
+
+.menu ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.menu a {
+  display: block;
+  padding: 0.4rem 1.5rem;
+  text-decoration: none;
+  color: #f1f5f9;
+  font: 300 clamp(1.8rem, 4vw, 3.2rem)/1.2 var(--head);
+  letter-spacing: 0.02em;
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+.menu a:hover {
+  color: var(--gold) !important;
+  transform: scale(1.06);
+}
+
+@media (max-width: 992px) {
+  .desktop-nav {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .brand-text {
+    display: none;
+  }
+  .header-cta-btn {
+    display: none;
+  }
+}
 
 /* ---------- portada ---------- */
 .hero { position: relative; height: 100svh; min-height: 34rem; overflow: hidden; color: var(--white); display: grid; align-items: center; }
@@ -175,7 +461,6 @@ h1, h2, h3, h4 { margin: 0; font-family: var(--head); font-weight: 400; letter-s
 }
 @media (max-width: 720px) {
   body { font-size: 1rem; }
-  .brand { width: 5rem; height: 5rem; font-size: .9rem; padding: .6rem; }
   .intro, .types, .tours { grid-template-columns: 1fr; }
   .intro-txt { justify-self: start; }
   .welcome h2 { text-align: left; }
@@ -213,8 +498,6 @@ h1, h2, h3, h4 { margin: 0; font-family: var(--head); font-weight: 400; letter-s
 .statement h2 .red { color: var(--gold); }
 
 /* ---------- logos ---------- */
-.brand { background: var(--white); padding: .55rem; justify-content: center; align-items: center; box-shadow: 0 0 0 1px rgba(14, 48, 100, .08); }
-.brand img { width: 100%; height: 100%; object-fit: contain; }
 .foot-logos { display: flex; gap: 1.5rem; align-items: center; margin-bottom: 3rem; }
 .foot-logos img { width: 6.5rem; height: 6.5rem; object-fit: contain; background: var(--white); border-radius: 50%; padding: .4rem; }
 
@@ -465,10 +748,10 @@ main { counter-reset: sec; }
   background: #090d16;
   background-image: radial-gradient(circle at 50% 0%, rgba(30, 58, 138, 0.15) 0%, transparent 60%);
   color: #f1f5f9;
-  padding: clamp(3.5rem, 5vw, 5rem) var(--pad);
+  padding: clamp(4.5rem, 6vw, 6rem) var(--pad) clamp(3.5rem, 5vw, 5rem);
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   position: relative;
-  scroll-margin-top: 5.5rem;
+  scroll-margin-top: 5rem;
 }
 
 .asbuilt-head {

@@ -294,22 +294,52 @@ export function initAsBuilt({ rooms, geo }) {
     <div class="asb-modal" id="asb-modal" hidden role="dialog" aria-modal="true" aria-label="Plano de la habitación">
       <div class="asb-modal-overlay" data-close-modal></div>
       <div class="asb-modal-dialog">
-        <!-- Cabecera del Pop-up -->
+        <!-- Cabecera del Pop-up con herramientas de zoom -->
         <div class="asb-modal-bar">
           <div class="asb-modal-title-group">
             <span class="asb-modal-tag" id="asb-modal-tag">HABITACIÓN 215</span>
             <span class="asb-modal-code" id="asb-modal-code">PLANO ELE-215</span>
             <span class="asb-modal-head-txt" id="asb-modal-title">Habitación Doble · Ala Recta Norte · 26.42 m²</span>
           </div>
-          <button type="button" class="asb-modal-close" data-close-modal aria-label="Cerrar plano">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          </button>
+
+          <div class="asb-modal-tools">
+            <div class="asb-zoom-bar">
+              <button type="button" class="asb-tool-btn" id="asb-zoom-out" title="Reducir">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              </button>
+              <span class="asb-zoom-val" id="asb-zoom-val">150%</span>
+              <button type="button" class="asb-tool-btn" id="asb-zoom-in" title="Aumentar">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              </button>
+              <button type="button" class="asb-tool-btn fit" id="asb-zoom-fit" title="Alternar Ajustar / Desplazamiento horizontal">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+                <span>Ajustar</span>
+              </button>
+            </div>
+            <button type="button" class="asb-modal-close" data-close-modal aria-label="Cerrar plano">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
         </div>
 
-        <!-- Escenario del Pop-up: Imagen CAD nítida a resolución completa -->
-        <div class="asb-modal-stage" id="asb-modal-stage">
-          <img src="" alt="Plano As-Built" class="asb-modal-img" id="asb-modal-img">
-          <div id="asb-modal-schem" class="asb-modal-schem-wrap" hidden></div>
+        <!-- Escenario con scroll horizontal, flechas laterales y arrastrar -->
+        <div class="asb-modal-stage" id="asb-modal-stage" tabindex="0" role="region" aria-label="Lienzo de dibujo desplazable">
+          <button type="button" class="asb-stage-arrow left" id="asb-arrow-left" aria-label="Desplazar a la izquierda" title="Desplazar izquierda">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <button type="button" class="asb-stage-arrow right" id="asb-arrow-right" aria-label="Desplazar a la derecha" title="Desplazar derecha">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+
+          <div class="asb-scroll-wrapper" id="asb-scroll-wrapper">
+            <img src="" alt="Plano As-Built" class="asb-modal-img" id="asb-modal-img">
+            <div id="asb-modal-schem" class="asb-modal-schem-wrap" hidden></div>
+          </div>
+
+          <div class="asb-stage-cue">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 8 21 12 17 16"/><polyline points="7 8 3 12 7 16"/><line x1="3" y1="12" x2="21" y2="12"/></svg>
+            <span>Desplaza a la izquierda y derecha o arrastra con el ratón</span>
+          </div>
         </div>
 
         <!-- Pie del Pop-up: Navegación rápida entre habitaciones sin salir del pop-up -->
@@ -321,7 +351,7 @@ export function initAsBuilt({ rooms, geo }) {
           <div class="asb-modal-nav">
             <button type="button" class="asb-modal-nav-btn prev" id="asb-modal-prev">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-              Anterior
+              Hab Anterior
             </button>
             <div class="asb-modal-pills">
               ${geo.rooms.map((rm) => `
@@ -331,7 +361,7 @@ export function initAsBuilt({ rooms, geo }) {
               `).join('')}
             </div>
             <button type="button" class="asb-modal-nav-btn next" id="asb-modal-next">
-              Siguiente
+              Hab Siguiente
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
             </button>
           </div>
@@ -339,20 +369,43 @@ export function initAsBuilt({ rooms, geo }) {
       </div>
     </div>
   `;
-
   const svgEl = document.getElementById('asb-floor-svg');
   const tooltipEl = document.getElementById('asb-plan-tooltip');
   const descEl = document.getElementById('asb-disc-desc');
   const legendEl = document.getElementById('asb-legend-box');
 
-  // Elementos del Pop-up Modal
+  // Elementos del Pop-up Modal y visor desplazable horizontal
   const modalEl = document.getElementById('asb-modal');
+  const stageEl = document.getElementById('asb-modal-stage');
   const modalImg = document.getElementById('asb-modal-img');
   const modalSchem = document.getElementById('asb-modal-schem');
   const modalTag = document.getElementById('asb-modal-tag');
   const modalCode = document.getElementById('asb-modal-code');
   const modalTitle = document.getElementById('asb-modal-title');
   const modalSub = document.getElementById('asb-modal-sub');
+
+  const zoomInBtn = document.getElementById('asb-zoom-in');
+  const zoomOutBtn = document.getElementById('asb-zoom-out');
+  const zoomFitBtn = document.getElementById('asb-zoom-fit');
+  const zoomValEl = document.getElementById('asb-zoom-val');
+  const arrowLeft = document.getElementById('asb-arrow-left');
+  const arrowRight = document.getElementById('asb-arrow-right');
+
+  let currentScale = 1.6; // 160% de escala para permitir scroll horizontal cómodo
+  const defaultWidth = 1700;
+
+  function setStageZoom(widthPx) {
+    if (widthPx === 'fit') {
+      modalImg.style.width = '100%';
+      modalImg.style.maxWidth = '100%';
+      if (zoomValEl) zoomValEl.textContent = 'Ajustar';
+    } else {
+      modalImg.style.width = `${widthPx}px`;
+      modalImg.style.maxWidth = 'none';
+      const pct = Math.round((widthPx / 1024) * 100);
+      if (zoomValEl) zoomValEl.textContent = `${pct}%`;
+    }
+  }
 
   function openModal(roomNum) {
     activeRoom = String(roomNum);
@@ -379,13 +432,14 @@ export function initAsBuilt({ rooms, geo }) {
       modalImg.alt = `Plano As-Built Eléctrico Habitación ${roomNum}`;
       modalImg.hidden = false;
       modalSchem.hidden = true;
+      setStageZoom(defaultWidth);
     } else {
       modalImg.hidden = true;
       modalSchem.hidden = false;
       modalSchem.innerHTML = `
-        <div style="width: 100%; max-width: 900px; margin: 0 auto;">
+        <div style="width: 100%; max-width: 1100px; margin: 0 auto; padding: 1rem;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-            <span style="color: ${disc.color}; font-weight: 700; font-size: 1.1rem; font-family: var(--head);">${disc.title} · Habitación ${roomNum}</span>
+            <span style="color: ${disc.color}; font-weight: 700; font-size: 1.15rem; font-family: var(--head);">${disc.title} · Habitación ${roomNum}</span>
             <span style="font-size: 0.85rem; color: #94a3b8;">Norma: ${disc.norma} · Escala 1:50</span>
           </div>
           ${renderRoomDetailDiagram(disc.id, rInfo)}
@@ -401,6 +455,11 @@ export function initAsBuilt({ rooms, geo }) {
 
     modalEl.hidden = false;
     document.body.style.overflow = 'hidden';
+
+    // Inicia el scroll en el extremo izquierdo
+    setTimeout(() => {
+      if (stageEl) stageEl.scrollLeft = 0;
+    }, 50);
   }
 
   function closeModal() {
@@ -423,8 +482,13 @@ export function initAsBuilt({ rooms, geo }) {
   window.addEventListener('keydown', (e) => {
     if (modalEl.hidden) return;
     if (e.key === 'Escape') closeModal();
-    if (e.key === 'ArrowLeft') navigateModalRoom(-1);
-    if (e.key === 'ArrowRight') navigateModalRoom(1);
+    if (e.key === 'ArrowLeft') {
+      // Si el shift está presionado o stage está en foco, puede moverse lateralmente
+      stageEl.scrollBy({ left: -250, behavior: 'smooth' });
+    }
+    if (e.key === 'ArrowRight') {
+      stageEl.scrollBy({ left: 250, behavior: 'smooth' });
+    }
   });
 
   document.getElementById('asb-modal-prev')?.addEventListener('click', () => navigateModalRoom(-1));
@@ -433,6 +497,79 @@ export function initAsBuilt({ rooms, geo }) {
   modalEl.querySelectorAll('[data-modal-pill]').forEach((b) => {
     b.addEventListener('click', () => openModal(b.dataset.modalPill));
   });
+
+  // Controles de desplazamiento horizontal con flechas
+  arrowLeft?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    stageEl.scrollBy({ left: -450, behavior: 'smooth' });
+  });
+
+  arrowRight?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    stageEl.scrollBy({ left: 450, behavior: 'smooth' });
+  });
+
+  // Controles de zoom
+  let curW = defaultWidth;
+  zoomInBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    curW = Math.min(2600, curW + 250);
+    setStageZoom(curW);
+  });
+
+  zoomOutBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    curW = Math.max(900, curW - 250);
+    setStageZoom(curW);
+  });
+
+  let isFit = false;
+  zoomFitBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    isFit = !isFit;
+    if (isFit) {
+      setStageZoom('fit');
+    } else {
+      curW = defaultWidth;
+      setStageZoom(curW);
+    }
+  });
+
+  // Arrastrar con el ratón para scrollear a izquierda y derecha (Drag to Pan)
+  let isDragging = false;
+  let startX = 0;
+  let startScrollLeft = 0;
+
+  stageEl.addEventListener('mousedown', (e) => {
+    if (e.target.closest('button')) return;
+    isDragging = true;
+    stageEl.classList.add('dragging');
+    startX = e.pageX - stageEl.offsetLeft;
+    startScrollLeft = stageEl.scrollLeft;
+  });
+
+  window.addEventListener('mouseup', () => {
+    if (isDragging) {
+      isDragging = false;
+      stageEl.classList.remove('dragging');
+    }
+  });
+
+  stageEl.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    const x = e.pageX - stageEl.offsetLeft;
+    const walk = (x - startX) * 1.5;
+    stageEl.scrollLeft = startScrollLeft - walk;
+  });
+
+  // Desplazamiento horizontal con la rueda del ratón
+  stageEl.addEventListener('wheel', (e) => {
+    if (e.deltaY !== 0 && stageEl.scrollWidth > stageEl.clientWidth) {
+      e.preventDefault();
+      stageEl.scrollLeft += e.deltaY * 1.2;
+    }
+  }, { passive: false });
 
   function renderDisciplineHeader() {
     const d = DISCIPLINAS_ASBUILT[activeDisc];

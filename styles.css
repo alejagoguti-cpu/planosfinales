@@ -462,18 +462,18 @@ main { counter-reset: sec; }
 
 /* ---------- SECCIÓN PLANOS AS-BUILT (PISO 2) ---------- */
 .asbuilt-section {
-  background: #0d111a;
+  background: #090d16;
   background-image: radial-gradient(circle at 50% 0%, rgba(30, 58, 138, 0.15) 0%, transparent 60%);
   color: #f1f5f9;
-  padding: clamp(4.5rem, 7vw, 6.5rem) var(--pad);
+  padding: clamp(3.5rem, 5vw, 5rem) var(--pad);
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   position: relative;
   scroll-margin-top: 5.5rem;
 }
 
 .asbuilt-head {
-  max-width: 62rem;
-  margin-bottom: 2.5rem;
+  max-width: 100%;
+  margin-bottom: 0.75rem;
 }
 
 .asbuilt-badge-sup {
@@ -482,7 +482,7 @@ main { counter-reset: sec; }
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--gold);
-  margin-bottom: 0.85rem;
+  margin-bottom: 0.75rem;
   padding: 0.35rem 0.8rem;
   background: rgba(181, 149, 53, 0.12);
   border: 1px solid rgba(181, 149, 53, 0.35);
@@ -490,9 +490,9 @@ main { counter-reset: sec; }
 }
 
 .asbuilt-head h2 {
-  font-size: clamp(2.4rem, 1.6rem + 2.4vw, 3.8rem);
+  font-size: clamp(2rem, 1.4rem + 1.8vw, 3rem);
   line-height: 1.1;
-  margin-bottom: 1rem;
+  margin-bottom: 0.65rem;
   color: #fff;
 }
 
@@ -502,37 +502,59 @@ main { counter-reset: sec; }
 }
 
 .asbuilt-head p {
-  font-size: 1.15rem;
-  line-height: 1.55;
+  font-size: 0.98rem;
+  line-height: 1.5;
   color: #94a3b8;
   margin: 0;
 }
 
-/* 4 Especialidades técnicas (sin emojis, flat icons, sin truncamientos) */
-.asb-pills-bar {
+/* Contenedor dividido en 2 columnas: Izquierda (Planta) y Derecha (Plano de Habitación) */
+.asb-split-container {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 2rem;
+  align-items: start;
+}
+
+.asb-left-column {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.85rem;
-  margin-bottom: 1.5rem;
+  flex-direction: column;
+  gap: 1.15rem;
+  min-width: 0;
+}
+
+.asb-right-column {
+  position: sticky;
+  top: 5.5rem;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* 4 Pestañas de especialidades */
+.asb-pills-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.65rem;
 }
 
 .asb-pill-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.85rem 1.35rem;
-  background: #131926;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 10px;
+  gap: 0.65rem;
+  padding: 0.75rem 1.15rem;
+  background: #111726;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
   color: #cbd5e1;
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  font: 500 0.95rem/1 var(--head);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  font: 500 0.88rem/1 var(--head);
   white-space: nowrap;
 }
 
 .asb-pill-btn:hover {
-  background: #1a2336;
+  background: #182238;
   color: #fff;
   border-color: rgba(255, 255, 255, 0.25);
   transform: translateY(-2px);
@@ -542,18 +564,18 @@ main { counter-reset: sec; }
   background: #0f2752;
   color: #fff;
   border-color: #38bdf8;
-  box-shadow: 0 8px 24px rgba(56, 189, 248, 0.25);
+  box-shadow: 0 6px 20px rgba(56, 189, 248, 0.25);
 }
 
 .asb-pill-num {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.75rem;
-  height: 1.75rem;
+  width: 1.65rem;
+  height: 1.65rem;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.08);
-  font: 700 0.85rem/1 var(--head);
+  font: 700 0.8rem/1 var(--head);
   color: var(--gold);
 }
 
@@ -568,56 +590,51 @@ main { counter-reset: sec; }
   justify-content: center;
 }
 
-.asb-pill-label {
-  letter-spacing: 0.02em;
-}
-
 /* Banner descriptivo de la disciplina */
 .asb-discipline-desc {
-  background: #101624;
+  background: #0f1523;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 10px;
-  padding: 1.25rem 1.6rem;
-  margin-bottom: 2rem;
+  padding: 1rem 1.25rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1.5rem;
+  gap: 1.25rem;
   flex-wrap: wrap;
 }
 
 .asb-desc-main {
   flex: 1;
-  min-width: 280px;
+  min-width: 240px;
 }
 
 .asb-tag-pill {
   display: inline-block;
-  font: 700 0.72rem/1 var(--head);
+  font: 700 0.7rem/1 var(--head);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  padding: 0.25rem 0.55rem;
+  padding: 0.2rem 0.5rem;
   border: 1px solid;
   border-radius: 4px;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.35rem;
 }
 
 .asb-desc-main h4 {
-  font: 600 1.25rem/1.2 var(--head);
+  font: 600 1.15rem/1.2 var(--head);
   color: #fff;
-  margin: 0 0 0.25rem;
+  margin: 0 0 0.2rem;
 }
 
 .asb-desc-main p {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: #94a3b8;
   margin: 0;
-  line-height: 1.5;
+  line-height: 1.45;
 }
 
 .asb-desc-specs {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.6rem;
   flex-wrap: wrap;
 }
 
@@ -625,74 +642,72 @@ main { counter-reset: sec; }
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 6px;
-  padding: 0.5rem 0.85rem;
+  padding: 0.4rem 0.75rem;
   display: flex;
   flex-direction: column;
 }
 
 .asb-sp-v {
-  font: 700 0.88rem/1 var(--head);
+  font: 700 0.84rem/1 var(--head);
   color: var(--gold);
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.15rem;
 }
 
 .asb-sp-l {
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   color: #64748b;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
-/* Tarjeta amplia de la Planta General */
+/* Tarjeta de la Planta General (Columna izquierda) */
 .asb-floor-card {
   background: #0f1523;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 14px;
-  padding: 1.5rem;
-  margin-bottom: 2.5rem;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
 }
 
 .asb-floor-card-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1rem;
   flex-wrap: wrap;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding-bottom: 1rem;
+  padding-bottom: 0.85rem;
 }
 
 .asb-kicker {
   display: block;
-  font: 700 0.75rem/1 var(--head);
+  font: 700 0.72rem/1 var(--head);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: var(--gold);
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.25rem;
 }
 
 .asb-floor-card-title h3 {
-  font: 600 1.25rem/1.2 var(--head);
+  font: 600 1.15rem/1.2 var(--head);
   color: #fff;
   margin: 0;
 }
 
-/* Selector horizontal de habitaciones */
 .asb-rooms-nav {
   display: flex;
-  gap: 0.4rem;
+  gap: 0.35rem;
   flex-wrap: wrap;
 }
 
 .asb-room-chip {
-  padding: 0.45rem 0.8rem;
+  padding: 0.35rem 0.65rem;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 6px;
   color: #cbd5e1;
-  font: 600 0.85rem/1 var(--head);
+  font: 600 0.82rem/1 var(--head);
   cursor: pointer;
   transition: all 0.2s;
   white-space: nowrap;
@@ -707,24 +722,23 @@ main { counter-reset: sec; }
   background: var(--gold);
   color: #000;
   border-color: #fff;
-  box-shadow: 0 0 12px rgba(212, 175, 55, 0.45);
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
 }
 
-/* Canvas SVG del plano */
 .asb-svg-box {
   position: relative;
   background: #070a12;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  padding: 1rem;
+  border-radius: 8px;
+  padding: 0.75rem;
   overflow: hidden;
-  box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.7);
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.7);
 }
 
 .asb-floor-svg {
   width: 100%;
   height: auto;
-  max-height: 580px;
+  max-height: 480px;
   display: block;
 }
 
@@ -740,7 +754,7 @@ main { counter-reset: sec; }
 }
 
 .asb-room-polygon-g.selected .asb-room-bg {
-  filter: drop-shadow(0 0 12px rgba(234, 179, 8, 0.5));
+  filter: drop-shadow(0 0 10px rgba(234, 179, 8, 0.5));
 }
 
 .asb-room-lbl-g {
@@ -759,27 +773,25 @@ main { counter-reset: sec; }
   background: rgba(15, 23, 42, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 6px;
-  padding: 0.45rem 0.75rem;
-  font-size: 0.8rem;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.78rem;
   line-height: 1.35;
   color: #fff;
   pointer-events: none;
   z-index: 10;
   backdrop-filter: blur(8px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
 }
 
-/* Leyenda técnica */
 .asb-legend-box {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 1rem 1.25rem 0;
+  gap: 0.85rem;
+  padding: 0.85rem 0.5rem 0;
   flex-wrap: wrap;
 }
 
 .asb-leg-head {
-  font: 700 0.75rem/1 var(--head);
+  font: 700 0.72rem/1 var(--head);
   color: var(--gold);
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -787,7 +799,7 @@ main { counter-reset: sec; }
 
 .asb-leg-list {
   display: flex;
-  gap: 1.15rem;
+  gap: 0.85rem;
   flex-wrap: wrap;
   align-items: center;
 }
@@ -795,15 +807,15 @@ main { counter-reset: sec; }
 .asb-leg-entry {
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
-  font-size: 0.82rem;
+  gap: 0.4rem;
+  font-size: 0.78rem;
   color: #cbd5e1;
 }
 
 .asb-leg-bullet {
   display: inline-block;
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
   border: 2px solid;
   flex-shrink: 0;
 }
@@ -828,253 +840,197 @@ main { counter-reset: sec; }
   background: repeating-linear-gradient(90deg, var(--c), var(--c) 4px, transparent 4px, transparent 8px);
 }
 
-/* Showcase de la lámina técnica de la habitación */
-.asb-room-showcase {
-  margin-top: 1rem;
-}
-
-.asb-sheet-card {
+/* =========================================================
+   COLUMNA DERECHA: PLANO DE LA HABITACIÓN (EL RECUADRO ROJO)
+   ========================================================= */
+.asb-side-card {
   background: #0f1523;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 14px;
-  padding: 1.5rem;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1rem;
 }
 
-.asb-sheet-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 1.5rem;
-  flex-wrap: wrap;
+.asb-side-header {
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding-bottom: 1rem;
+  padding-bottom: 0.75rem;
 }
 
-.asb-sheet-tag-row {
+.asb-side-tag-row {
   display: flex;
   align-items: center;
   gap: 0.65rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.35rem;
 }
 
-.asb-sheet-badge {
-  font: 700 0.85rem/1 var(--head);
+.asb-side-badge {
+  font: 700 0.82rem/1 var(--head);
   letter-spacing: 0.08em;
-  padding: 0.35rem 0.75rem;
+  padding: 0.3rem 0.65rem;
   border-radius: 4px;
 }
 
-.asb-sheet-code {
-  font: 700 0.78rem/1 var(--head);
+.asb-side-code {
+  font: 700 0.75rem/1 var(--head);
   color: var(--gold);
   letter-spacing: 0.08em;
-  text-transform: uppercase;
 }
 
-.asb-sheet-title {
-  font: 600 1.45rem/1.2 var(--head);
+.asb-side-title {
+  font: 600 1.35rem/1.2 var(--head);
   color: #fff;
-  margin: 0 0 0.35rem;
+  margin: 0 0 0.25rem;
 }
 
-.asb-sheet-sub {
-  font-size: 0.88rem;
+.asb-side-meta {
+  font-size: 0.84rem;
   color: #94a3b8;
   margin: 0;
-  line-height: 1.5;
+  line-height: 1.45;
 }
 
-.asb-sheet-tools {
-  display: flex;
-  gap: 0.6rem;
-}
-
-.asb-action-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 0.55rem 0.95rem;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  border-radius: 6px;
-  color: #fff;
-  font: 500 0.85rem/1 var(--head);
-  cursor: pointer;
-  text-decoration: none;
-  transition: all 0.2s;
-}
-
-.asb-action-btn:hover {
-  background: var(--gold);
-  color: #000;
-  border-color: #fff;
-}
-
-/* Lienzo de dibujo sin recortes */
-.asb-sheet-canvas-box {
+/* Lienzo de dibujo en la columna derecha */
+.asb-side-drawing-box {
   background: #ffffff;
   border-radius: 8px;
   overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
-.asb-drawing-stage {
+.asb-side-img-stage {
   position: relative;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   background: #ffffff;
-  padding: 1.5rem;
-  min-height: 480px;
+  padding: 1rem;
+  min-height: 380px;
 }
 
-.asb-cad-img {
-  max-width: 100%;
-  max-height: 720px;
+.asb-side-cad-img {
+  width: 100%;
+  max-height: 580px;
   height: auto;
   object-fit: contain;
   display: block;
   transition: transform 0.25s ease;
 }
 
-.asb-drawing-stage:hover .asb-cad-img {
-  transform: scale(1.015);
+.asb-side-img-stage:hover .asb-side-cad-img {
+  transform: scale(1.02);
 }
 
-.asb-drawing-overlay-cue {
+.asb-side-zoom-cue {
   position: absolute;
-  bottom: 1rem;
+  bottom: 0.85rem;
   left: 50%;
   transform: translateX(-50%);
   display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
+  gap: 0.4rem;
   background: rgba(15, 23, 42, 0.88);
   backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 99px;
-  padding: 0.45rem 1.1rem;
-  font: 500 0.8rem/1 var(--head);
+  padding: 0.35rem 0.95rem;
+  font: 500 0.76rem/1 var(--head);
   color: #fff;
   pointer-events: none;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
-/* Diagrama vectorial de especialidades 2, 3 y 4 */
-.asb-vector-diagram-stage {
+.asb-side-schem-stage {
   background: #090e18;
-  padding: 1.5rem;
+  padding: 1rem;
 }
 
-.asb-diag-header {
+.asb-side-schem-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 }
 
-.asb-diag-kicker {
-  font: 700 0.85rem/1 var(--head);
-  color: var(--gold);
-}
-
-.asb-diag-scale {
-  font-size: 0.8rem;
-  color: #94a3b8;
-}
-
-.asb-schematic-svg {
+.asb-side-svg {
   width: 100%;
   height: auto;
   display: block;
 }
 
-/* Pie de lámina técnica */
-.asb-sheet-footer {
+/* Pie de la columna derecha */
+.asb-side-footer {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 0.85rem;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding-top: 1.25rem;
+  padding-top: 0.85rem;
 }
 
-.asb-sheet-meta-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
-}
-
-.asb-meta-col {
+.asb-side-info-line {
   display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.78rem;
+  color: #94a3b8;
+  gap: 0.5rem;
 }
 
-.asb-meta-lbl {
-  font: 700 0.72rem/1 var(--head);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--gold);
-}
-
-.asb-meta-val {
-  font-size: 0.86rem;
+.asb-side-info-line b {
   color: #cbd5e1;
-  margin: 0;
-  line-height: 1.45;
 }
 
-/* Paginador fluido entre habitaciones */
-.asb-sheet-nav-bar {
+.asb-side-scale-tag {
+  color: var(--gold);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.asb-side-nav-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 0.5rem;
   flex-wrap: wrap;
-  padding-top: 0.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.asb-step-btn {
+.asb-side-nav-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.55rem 1.15rem;
+  gap: 0.4rem;
+  padding: 0.45rem 0.85rem;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 8px;
+  border-radius: 6px;
   color: #fff;
-  font: 600 0.85rem/1 var(--head);
+  font: 600 0.8rem/1 var(--head);
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.asb-step-btn:hover {
+.asb-side-nav-btn:hover {
   background: var(--gold);
   color: #000;
   border-color: #fff;
 }
 
-.asb-sheet-quick-pills {
+.asb-side-pills {
   display: flex;
-  gap: 0.35rem;
+  gap: 0.25rem;
   flex-wrap: wrap;
   align-items: center;
 }
 
-.asb-quick-pill {
-  width: 2.2rem;
-  height: 2.2rem;
-  border-radius: 6px;
+.asb-side-pill {
+  width: 1.95rem;
+  height: 1.95rem;
+  border-radius: 5px;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: #cbd5e1;
-  font: 600 0.82rem/1 var(--head);
+  font: 600 0.78rem/1 var(--head);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -1082,12 +1038,12 @@ main { counter-reset: sec; }
   transition: all 0.2s;
 }
 
-.asb-quick-pill:hover {
+.asb-side-pill:hover {
   background: rgba(255, 255, 255, 0.15);
   color: #fff;
 }
 
-.asb-quick-pill.active {
+.asb-side-pill.active {
   background: var(--gold);
   color: #000;
   border-color: #fff;
@@ -1121,7 +1077,7 @@ main { counter-reset: sec; }
   position: relative;
   width: 100%;
   height: 100%;
-  max-width: 1600px;
+  max-width: 1500px;
   max-height: 94vh;
   background: #090e18;
   border: 1px solid rgba(255, 255, 255, 0.15);
@@ -1162,13 +1118,7 @@ main { counter-reset: sec; }
   color: #fff;
 }
 
-.asb-modal-tools {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.asb-modal-btn, .asb-modal-close {
+.asb-modal-close {
   width: 2.4rem;
   height: 2.4rem;
   border-radius: 50%;
@@ -1180,13 +1130,6 @@ main { counter-reset: sec; }
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s;
-  text-decoration: none;
-}
-
-.asb-modal-btn:hover {
-  background: rgba(255, 255, 255, 0.15);
-  color: #fff;
-  border-color: #38bdf8;
 }
 
 .asb-modal-close:hover {
@@ -1201,59 +1144,16 @@ main { counter-reset: sec; }
   position: relative;
   background: #050811;
   overflow: hidden;
-  cursor: grab;
   display: flex;
   align-items: center;
   justify-content: center;
-  user-select: none;
-}
-
-.asb-modal-stage:active {
-  cursor: grabbing;
 }
 
 .asb-modal-img {
   max-width: 95%;
   max-height: 95%;
   object-fit: contain;
-  transform-origin: center center;
-  transition: transform 0.05s ease-out;
-  pointer-events: none;
-}
-
-.asb-modal-bottom-bar {
-  background: #0f1624;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 0.75rem 1.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-}
-
-.asb-bottom-nav {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.45rem 0.95rem;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 99px;
-  color: #fff;
-  font: 500 0.82rem/1 var(--head);
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.asb-bottom-nav:hover {
-  background: var(--gold);
-  color: #000;
-  border-color: #fff;
-}
-
-.asb-bottom-hint {
-  font-size: 0.78rem;
-  color: #64748b;
+  display: block;
 }
 
 /* Enlaces del visor 3D */
@@ -1276,27 +1176,20 @@ main { counter-reset: sec; }
 }
 
 /* Responsive */
-@media (max-width: 1024px) {
-  .asb-sheet-meta-grid {
+@media (max-width: 1200px) {
+  .asb-split-container {
     grid-template-columns: 1fr;
-    gap: 1rem;
+  }
+  .asb-right-column {
+    position: static;
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 640px) {
   .asb-pills-bar {
     flex-direction: column;
   }
   .asb-pill-btn {
     width: 100%;
-  }
-  .asb-modal {
-    padding: 0.5rem;
-  }
-  .asb-bottom-hint {
-    display: none;
-  }
-  .asb-action-btn span {
-    display: none;
   }
 }

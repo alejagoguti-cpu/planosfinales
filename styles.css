@@ -462,27 +462,28 @@ main { counter-reset: sec; }
 
 /* ---------- SECCIÓN PLANOS AS-BUILT (PISO 2) ---------- */
 .asbuilt-section {
-  background: #090d16;
-  background-image: radial-gradient(circle at 50% 0%, rgba(30, 58, 138, 0.18) 0%, transparent 65%);
+  background: #0d111a;
+  background-image: radial-gradient(circle at 50% 0%, rgba(30, 58, 138, 0.15) 0%, transparent 60%);
   color: #f1f5f9;
-  padding: clamp(4rem, 6vw, 6rem) var(--pad);
+  padding: clamp(4.5rem, 7vw, 6.5rem) var(--pad);
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   position: relative;
+  scroll-margin-top: 5.5rem;
 }
 
 .asbuilt-head {
-  max-width: 64rem;
+  max-width: 62rem;
   margin-bottom: 2.5rem;
 }
 
 .asbuilt-badge-sup {
   display: inline-block;
   font: 600 0.8rem/1 var(--head);
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--gold);
   margin-bottom: 0.85rem;
-  padding: 0.3rem 0.75rem;
+  padding: 0.35rem 0.8rem;
   background: rgba(181, 149, 53, 0.12);
   border: 1px solid rgba(181, 149, 53, 0.35);
   border-radius: 4px;
@@ -492,6 +493,12 @@ main { counter-reset: sec; }
   font-size: clamp(2.4rem, 1.6rem + 2.4vw, 3.8rem);
   line-height: 1.1;
   margin-bottom: 1rem;
+  color: #fff;
+}
+
+.asb-title-gold {
+  color: var(--gold);
+  font-weight: 500;
 }
 
 .asbuilt-head p {
@@ -501,102 +508,76 @@ main { counter-reset: sec; }
   margin: 0;
 }
 
-/* 4 Pestañas / Especialidades técnicas (SIN EMOJIS, FLAT ICONS) */
-.asb-disciplines-bar {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1rem;
+/* 4 Especialidades técnicas (sin emojis, flat icons, sin truncamientos) */
+.asb-pills-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.85rem;
   margin-bottom: 1.5rem;
 }
 
-.asb-disc-btn {
-  display: flex;
+.asb-pill-btn {
+  display: inline-flex;
   align-items: center;
-  gap: 0.85rem;
-  padding: 1.05rem 1.15rem;
-  background: #101624;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
+  gap: 0.75rem;
+  padding: 0.85rem 1.35rem;
+  background: #131926;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
   color: #cbd5e1;
   cursor: pointer;
-  text-align: left;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-  position: relative;
-  overflow: hidden;
+  font: 500 0.95rem/1 var(--head);
+  white-space: nowrap;
 }
 
-.asb-disc-btn:hover {
-  background: #162035;
+.asb-pill-btn:hover {
+  background: #1a2336;
   color: #fff;
   border-color: rgba(255, 255, 255, 0.25);
   transform: translateY(-2px);
 }
 
-.asb-disc-btn.active {
+.asb-pill-btn.active {
   background: #0f2752;
   color: #fff;
   border-color: #38bdf8;
-  box-shadow: 0 10px 28px rgba(56, 189, 248, 0.25);
+  box-shadow: 0 8px 24px rgba(56, 189, 248, 0.25);
 }
 
-.asb-disc-num-badge {
-  display: flex;
+.asb-pill-num {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
-  height: 2rem;
+  width: 1.75rem;
+  height: 1.75rem;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  font: 700 0.9rem/1 var(--head);
+  font: 700 0.85rem/1 var(--head);
   color: var(--gold);
-  flex-shrink: 0;
-  transition: all 0.2s;
 }
 
-.asb-disc-btn.active .asb-disc-num-badge {
+.asb-pill-btn.active .asb-pill-num {
   background: #38bdf8;
   color: #000;
-  border-color: #38bdf8;
 }
 
-.asb-disc-icon-wrap {
+.asb-pill-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
 }
 
-.asb-disc-text-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-  min-width: 0;
+.asb-pill-label {
+  letter-spacing: 0.02em;
 }
 
-.asb-disc-title {
-  font: 600 0.98rem/1.2 var(--head);
-  color: #fff;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.asb-disc-sub {
-  font-size: 0.78rem;
-  line-height: 1.25;
-  color: #94a3b8;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Banner de especificaciones técnicas */
-.asb-info-banner {
-  background: #0d1320;
+/* Banner descriptivo de la disciplina */
+.asb-discipline-desc {
+  background: #101624;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 10px;
-  padding: 1.15rem 1.5rem;
+  padding: 1.25rem 1.6rem;
   margin-bottom: 2rem;
   display: flex;
   align-items: center;
@@ -605,171 +586,145 @@ main { counter-reset: sec; }
   flex-wrap: wrap;
 }
 
-.asb-banner-left {
+.asb-desc-main {
   flex: 1;
   min-width: 280px;
 }
 
-.asb-disc-tag {
+.asb-tag-pill {
   display: inline-block;
   font: 700 0.72rem/1 var(--head);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   padding: 0.25rem 0.55rem;
+  border: 1px solid;
   border-radius: 4px;
   margin-bottom: 0.4rem;
 }
 
-.asb-banner-title {
+.asb-desc-main h4 {
   font: 600 1.25rem/1.2 var(--head);
   color: #fff;
   margin: 0 0 0.25rem;
 }
 
-.asb-banner-desc {
-  font-size: 0.88rem;
+.asb-desc-main p {
+  font-size: 0.9rem;
   color: #94a3b8;
   margin: 0;
-  line-height: 1.45;
+  line-height: 1.5;
 }
 
-.asb-banner-specs {
+.asb-desc-specs {
   display: flex;
   gap: 0.75rem;
   flex-wrap: wrap;
 }
 
-.asb-spec-chip {
+.asb-spec-item {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 6px;
-  padding: 0.45rem 0.75rem;
+  padding: 0.5rem 0.85rem;
   display: flex;
   flex-direction: column;
 }
 
-.asb-spec-val {
-  font: 700 0.85rem/1 var(--head);
+.asb-sp-v {
+  font: 700 0.88rem/1 var(--head);
   color: var(--gold);
-  margin-bottom: 0.2rem;
+  margin-bottom: 0.25rem;
 }
 
-.asb-spec-lbl {
+.asb-sp-l {
   font-size: 0.7rem;
   color: #64748b;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
-/* Grilla principal de 2 columnas */
-.asb-main-grid {
-  display: grid;
-  grid-template-columns: 1.08fr 0.92fr;
-  gap: 2rem;
-  align-items: start;
+/* Tarjeta amplia de la Planta General */
+.asb-floor-card {
+  background: #0f1523;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 1.5rem;
+  margin-bottom: 2.5rem;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
 }
 
-.asb-plan-col, .asb-room-viewer-col {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.asb-col-header {
+.asb-floor-card-top {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 0.25rem;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 1rem;
 }
 
-.asb-col-header h3 {
+.asb-kicker {
+  display: block;
+  font: 700 0.75rem/1 var(--head);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--gold);
+  margin-bottom: 0.35rem;
+}
+
+.asb-floor-card-title h3 {
   font: 600 1.25rem/1.2 var(--head);
   color: #fff;
-  margin: 0 0 0.25rem;
-}
-
-.asb-col-sub {
-  font-size: 0.84rem;
-  color: #94a3b8;
   margin: 0;
 }
 
-.asb-live-badge {
-  font: 700 0.72rem/1 var(--head);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  padding: 0.25rem 0.6rem;
-  background: rgba(16, 185, 129, 0.15);
-  color: #34d399;
-  border: 1px solid rgba(16, 185, 129, 0.4);
-  border-radius: 99px;
-}
-
-/* Selector rápido de habitaciones */
-.asb-room-selector-strip {
+/* Selector horizontal de habitaciones */
+.asb-rooms-nav {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.6rem 0.85rem;
-  background: #0f1523;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-  overflow-x: auto;
-  scrollbar-width: thin;
+  gap: 0.4rem;
+  flex-wrap: wrap;
 }
 
-.asb-strip-lbl {
-  font: 600 0.78rem/1 var(--head);
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  white-space: nowrap;
-}
-
-.asb-strip-buttons {
-  display: flex;
-  gap: 0.35rem;
-}
-
-.asb-strip-btn {
-  padding: 0.35rem 0.65rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+.asb-room-chip {
+  padding: 0.45rem 0.8rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 6px;
   color: #cbd5e1;
-  font: 600 0.82rem/1 var(--head);
+  font: 600 0.85rem/1 var(--head);
   cursor: pointer;
   transition: all 0.2s;
   white-space: nowrap;
 }
 
-.asb-strip-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
+.asb-room-chip:hover {
+  background: rgba(255, 255, 255, 0.15);
   color: #fff;
 }
 
-.asb-strip-btn.active {
+.asb-room-chip.active {
   background: var(--gold);
   color: #000;
   border-color: #fff;
-  box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.45);
 }
 
-/* Canvas SVG de la planta interactiva */
-.asb-svg-wrapper {
+/* Canvas SVG del plano */
+.asb-svg-box {
   position: relative;
-  background: #050811;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 12px;
-  padding: 0.75rem;
+  background: #070a12;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  padding: 1rem;
   overflow: hidden;
-  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.6);
+  box-shadow: inset 0 0 50px rgba(0, 0, 0, 0.7);
 }
 
 .asb-floor-svg {
   width: 100%;
   height: auto;
-  max-height: 540px;
+  max-height: 580px;
   display: block;
 }
 
@@ -779,22 +734,22 @@ main { counter-reset: sec; }
 }
 
 .asb-room-polygon-g:hover .asb-room-bg {
-  fill: rgba(255, 255, 255, 0.14) !important;
+  fill: rgba(255, 255, 255, 0.18) !important;
   stroke: #fff !important;
   stroke-width: 3 !important;
 }
 
 .asb-room-polygon-g.selected .asb-room-bg {
-  filter: drop-shadow(0 0 10px rgba(234, 179, 8, 0.5));
+  filter: drop-shadow(0 0 12px rgba(234, 179, 8, 0.5));
 }
 
-.asb-label-group {
+.asb-room-lbl-g {
   cursor: pointer;
   user-select: none;
   transition: transform 0.2s;
 }
 
-.asb-label-group:hover {
+.asb-room-lbl-g:hover {
   transform: scale(1.1);
   transform-origin: center;
 }
@@ -811,44 +766,41 @@ main { counter-reset: sec; }
   pointer-events: none;
   z-index: 10;
   backdrop-filter: blur(8px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
 }
 
-/* Leyenda técnica flat */
-.asb-legend-strip {
+/* Leyenda técnica */
+.asb-legend-box {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  background: #0f1523;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
+  gap: 1rem;
+  padding: 1rem 1.25rem 0;
   flex-wrap: wrap;
 }
 
-.asb-leg-title {
+.asb-leg-head {
   font: 700 0.75rem/1 var(--head);
   color: var(--gold);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
 }
 
-.asb-leg-items {
+.asb-leg-list {
   display: flex;
-  gap: 0.85rem;
+  gap: 1.15rem;
   flex-wrap: wrap;
   align-items: center;
 }
 
-.asb-leg-item {
+.asb-leg-entry {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  font-size: 0.78rem;
+  gap: 0.45rem;
+  font-size: 0.82rem;
   color: #cbd5e1;
 }
 
-.asb-leg-swatch {
+.asb-leg-bullet {
   display: inline-block;
   width: 14px;
   height: 14px;
@@ -856,321 +808,290 @@ main { counter-reset: sec; }
   flex-shrink: 0;
 }
 
-.asb-leg-swatch.line {
+.asb-leg-bullet.line {
   height: 3px;
   border: none;
   background-color: var(--c);
 }
 
-.asb-leg-swatch.circle {
+.asb-leg-bullet.circle {
   border-radius: 50%;
 }
 
-.asb-leg-swatch.square, .asb-leg-swatch.box {
+.asb-leg-bullet.square, .asb-leg-bullet.box {
   border-radius: 2px;
 }
 
-.asb-leg-swatch.dash {
+.asb-leg-bullet.dash {
   height: 3px;
   border: none;
   background: repeating-linear-gradient(90deg, var(--c), var(--c) 4px, transparent 4px, transparent 8px);
 }
 
-/* Tarjeta del visor de habitación */
-.asb-viewer-card {
-  background: #0d121c;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 12px;
-  padding: 1.25rem;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5);
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
+/* Showcase de la lámina técnica de la habitación */
+.asb-room-showcase {
+  margin-top: 1rem;
 }
 
-.asb-viewer-top {
+.asb-sheet-card {
+  background: #0f1523;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  padding: 1.5rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.asb-sheet-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 1rem;
+  gap: 1.5rem;
+  flex-wrap: wrap;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding-bottom: 0.85rem;
+  padding-bottom: 1rem;
 }
 
-.asb-room-badge {
-  display: inline-block;
-  font: 700 0.82rem/1 var(--head);
+.asb-sheet-tag-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 0.5rem;
+}
+
+.asb-sheet-badge {
+  font: 700 0.85rem/1 var(--head);
   letter-spacing: 0.08em;
-  padding: 0.35rem 0.65rem;
+  padding: 0.35rem 0.75rem;
   border-radius: 4px;
-  margin-bottom: 0.4rem;
 }
 
-.asb-v-title-wrap h4 {
-  font: 600 1.35rem/1.2 var(--head);
-  color: #fff;
-  margin: 0 0 0.25rem;
-}
-
-.asb-room-type {
-  color: var(--gold);
-}
-
-.asb-room-meta {
-  font-size: 0.86rem;
-  color: #94a3b8;
-  margin: 0;
-}
-
-.asb-v-disc-tag {
+.asb-sheet-code {
   font: 700 0.78rem/1 var(--head);
+  color: var(--gold);
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  padding: 0.4rem 0.75rem;
-  border: 1px solid;
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.03);
-  white-space: nowrap;
 }
 
-.asb-room-bedding {
-  font-size: 0.84rem;
-  color: #cbd5e1;
+.asb-sheet-title {
+  font: 600 1.45rem/1.2 var(--head);
+  color: #fff;
+  margin: 0 0 0.35rem;
+}
+
+.asb-sheet-sub {
+  font-size: 0.88rem;
+  color: #94a3b8;
   margin: 0;
-  background: rgba(255, 255, 255, 0.03);
-  border-radius: 6px;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  line-height: 1.5;
 }
 
-.asb-plan-frame {
-  position: relative;
-  background: #060911;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+.asb-sheet-tools {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.asb-action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.55rem 0.95rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 6px;
+  color: #fff;
+  font: 500 0.85rem/1 var(--head);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.asb-action-btn:hover {
+  background: var(--gold);
+  color: #000;
+  border-color: #fff;
+}
+
+/* Lienzo de dibujo sin recortes */
+.asb-sheet-canvas-box {
+  background: #ffffff;
   border-radius: 8px;
   overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
 }
 
-.asb-img-canvas-wrap {
+.asb-drawing-stage {
   position: relative;
   cursor: pointer;
-  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
   background: #ffffff;
-  min-height: 380px;
+  padding: 1.5rem;
+  min-height: 480px;
 }
 
-.asb-sheet-img {
+.asb-cad-img {
+  max-width: 100%;
+  max-height: 720px;
+  height: auto;
+  object-fit: contain;
+  display: block;
+  transition: transform 0.25s ease;
+}
+
+.asb-drawing-stage:hover .asb-cad-img {
+  transform: scale(1.015);
+}
+
+.asb-drawing-overlay-cue {
+  position: absolute;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: rgba(15, 23, 42, 0.88);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 99px;
+  padding: 0.45rem 1.1rem;
+  font: 500 0.8rem/1 var(--head);
+  color: #fff;
+  pointer-events: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+/* Diagrama vectorial de especialidades 2, 3 y 4 */
+.asb-vector-diagram-stage {
+  background: #090e18;
+  padding: 1.5rem;
+}
+
+.asb-diag-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.asb-diag-kicker {
+  font: 700 0.85rem/1 var(--head);
+  color: var(--gold);
+}
+
+.asb-diag-scale {
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.asb-schematic-svg {
   width: 100%;
   height: auto;
   display: block;
-  transition: transform 0.3s ease;
 }
 
-.asb-img-canvas-wrap:hover .asb-sheet-img {
-  transform: scale(1.02);
-}
-
-.asb-frame-controls {
-  position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
+/* Pie de lámina técnica */
+.asb-sheet-footer {
   display: flex;
-  gap: 0.4rem;
-  z-index: 5;
-}
-
-.asb-f-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.4rem 0.7rem;
-  background: rgba(15, 23, 42, 0.85);
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 6px;
-  color: #fff;
-  font: 500 0.78rem/1 var(--head);
-  cursor: pointer;
-  transition: all 0.2s;
-  text-decoration: none;
-}
-
-.asb-f-btn:hover {
-  background: var(--red);
-  border-color: #ef4444;
-}
-
-.asb-click-hint {
-  position: absolute;
-  bottom: 0.75rem;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(15, 23, 42, 0.85);
-  backdrop-filter: blur(6px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 99px;
-  padding: 0.35rem 0.85rem;
-  font-size: 0.75rem;
-  color: #fff;
-  pointer-events: none;
-}
-
-.asb-sheet-footer-info {
-  background: #0f1523;
+  flex-direction: column;
+  gap: 1.25rem;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 0.85rem 1rem;
+  padding-top: 1.25rem;
 }
 
-.asb-sheet-views-badge {
-  display: inline-block;
+.asb-sheet-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+.asb-meta-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.asb-meta-lbl {
   font: 700 0.72rem/1 var(--head);
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--gold);
-  margin-bottom: 0.35rem;
 }
 
-.asb-sheet-footer-info p {
-  font-size: 0.82rem;
+.asb-meta-val {
+  font-size: 0.86rem;
   color: #cbd5e1;
-  margin: 0 0 0.5rem;
-  line-height: 1.4;
+  margin: 0;
+  line-height: 1.45;
 }
 
-.asb-sheet-meta-row {
+/* Paginador fluido entre habitaciones */
+.asb-sheet-nav-bar {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 1rem;
-  font-size: 0.76rem;
-  color: #94a3b8;
   flex-wrap: wrap;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  padding-top: 0.4rem;
-}
-
-.asb-sheet-meta-row b {
-  color: #fff;
-}
-
-/* Esquemas técnicos SVG para especialidades 2, 3 y 4 */
-.asb-schematic-wrap {
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  background: #080d17;
-}
-
-.asb-schem-badge-line {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.asb-schem-tag {
-  font: 700 0.8rem/1 var(--head);
-  padding: 0.3rem 0.65rem;
-  border-radius: 4px;
-}
-
-.asb-schem-scale {
-  font-size: 0.78rem;
-  color: #94a3b8;
-}
-
-.asb-schem-diagram {
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.asb-detail-svg {
-  width: 100%;
-  height: auto;
-  display: block;
-}
-
-.asb-schem-specs-table table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.82rem;
-}
-
-.asb-schem-specs-table td {
-  padding: 0.4rem 0.6rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  color: #94a3b8;
-}
-
-.asb-schem-specs-table td:nth-child(2) {
-  color: #fff;
-  text-align: right;
-}
-
-/* Barra inferior de navegación de habitaciones */
-.asb-viewer-nav-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
   padding-top: 0.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.asb-v-nav-btn {
+.asb-step-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.45rem 0.85rem;
+  gap: 0.5rem;
+  padding: 0.55rem 1.15rem;
   background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 8px;
   color: #fff;
-  font: 600 0.82rem/1 var(--head);
+  font: 600 0.85rem/1 var(--head);
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.asb-v-nav-btn:hover {
-  background: var(--red);
-  border-color: #ef4444;
+.asb-step-btn:hover {
+  background: var(--gold);
+  color: #000;
+  border-color: #fff;
 }
 
-.asb-v-room-pills {
+.asb-sheet-quick-pills {
   display: flex;
-  gap: 0.3rem;
-  overflow-x: auto;
-  scrollbar-width: none;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  align-items: center;
 }
 
-.asb-v-pill {
-  width: 2.1rem;
-  height: 2.1rem;
+.asb-quick-pill {
+  width: 2.2rem;
+  height: 2.2rem;
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   color: #cbd5e1;
-  font: 600 0.78rem/1 var(--head);
+  font: 600 0.82rem/1 var(--head);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
-  flex-shrink: 0;
 }
 
-.asb-v-pill:hover {
+.asb-quick-pill:hover {
   background: rgba(255, 255, 255, 0.15);
   color: #fff;
 }
 
-.asb-v-pill.active {
+.asb-quick-pill.active {
   background: var(--gold);
   color: #000;
   border-color: #fff;
-  box-shadow: 0 0 10px rgba(212, 175, 55, 0.35);
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
 }
 
 /* Modal Lightbox de Pantalla Completa */
@@ -1196,7 +1117,7 @@ main { counter-reset: sec; }
   -webkit-backdrop-filter: blur(14px);
 }
 
-.asb-modal-content {
+.asb-modal-dialog {
   position: relative;
   width: 100%;
   height: 100%;
@@ -1212,7 +1133,7 @@ main { counter-reset: sec; }
   z-index: 10;
 }
 
-.asb-modal-header {
+.asb-modal-bar {
   background: #0f1624;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   padding: 0.85rem 1.5rem;
@@ -1228,7 +1149,7 @@ main { counter-reset: sec; }
   gap: 0.85rem;
 }
 
-.asb-modal-badge {
+.asb-modal-tag {
   font: 700 0.8rem/1 var(--head);
   color: #000;
   padding: 0.35rem 0.65rem;
@@ -1236,19 +1157,18 @@ main { counter-reset: sec; }
   letter-spacing: 0.05em;
 }
 
-.asb-modal-header h3 {
+.asb-modal-head-txt {
   font: 600 1.15rem/1.2 var(--head);
   color: #fff;
-  margin: 0;
 }
 
-.asb-modal-actions {
+.asb-modal-tools {
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-.asb-icon-btn, .asb-close-btn {
+.asb-modal-btn, .asb-modal-close {
   width: 2.4rem;
   height: 2.4rem;
   border-radius: 50%;
@@ -1263,20 +1183,20 @@ main { counter-reset: sec; }
   text-decoration: none;
 }
 
-.asb-icon-btn:hover {
+.asb-modal-btn:hover {
   background: rgba(255, 255, 255, 0.15);
   color: #fff;
   border-color: #38bdf8;
 }
 
-.asb-close-btn:hover {
+.asb-modal-close:hover {
   background: var(--red);
   color: #fff;
   border-color: #ef4444;
   transform: rotate(90deg);
 }
 
-.asb-modal-body {
+.asb-modal-stage {
   flex: 1;
   position: relative;
   background: #050811;
@@ -1288,7 +1208,7 @@ main { counter-reset: sec; }
   user-select: none;
 }
 
-.asb-modal-body:active {
+.asb-modal-stage:active {
   cursor: grabbing;
 }
 
@@ -1301,7 +1221,7 @@ main { counter-reset: sec; }
   pointer-events: none;
 }
 
-.asb-modal-footer {
+.asb-modal-bottom-bar {
   background: #0f1624;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   padding: 0.75rem 1.5rem;
@@ -1311,7 +1231,7 @@ main { counter-reset: sec; }
   gap: 1rem;
 }
 
-.asb-nav-pill-btn {
+.asb-bottom-nav {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
@@ -1325,12 +1245,13 @@ main { counter-reset: sec; }
   transition: all 0.2s;
 }
 
-.asb-nav-pill-btn:hover {
-  background: var(--red);
-  border-color: #ef4444;
+.asb-bottom-nav:hover {
+  background: var(--gold);
+  color: #000;
+  border-color: #fff;
 }
 
-.asb-modal-hint {
+.asb-bottom-hint {
   font-size: 0.78rem;
   color: #64748b;
 }
@@ -1355,29 +1276,27 @@ main { counter-reset: sec; }
 }
 
 /* Responsive */
-@media (max-width: 1100px) {
-  .asb-disciplines-bar {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .asb-main-grid {
+@media (max-width: 1024px) {
+  .asb-sheet-meta-grid {
     grid-template-columns: 1fr;
+    gap: 1rem;
   }
 }
 
-@media (max-width: 640px) {
-  .asb-disciplines-bar {
-    grid-template-columns: 1fr;
+@media (max-width: 768px) {
+  .asb-pills-bar {
+    flex-direction: column;
+  }
+  .asb-pill-btn {
+    width: 100%;
   }
   .asb-modal {
     padding: 0.5rem;
   }
-  .asb-modal-header h3 {
-    font-size: 0.95rem;
-  }
-  .asb-modal-hint {
+  .asb-bottom-hint {
     display: none;
   }
-  .asb-f-btn span {
+  .asb-action-btn span {
     display: none;
   }
-} (Planos As Built: 1. Electrico con 12 láminas de habitación, 2. Agua Caliente y fría, 3. Desagües, 4. Red contraincendios e iconos flat)
+}

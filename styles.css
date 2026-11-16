@@ -3285,3 +3285,92 @@ main { counter-reset: sec; }
 }
 .levels-panel .btn-view3d,
 .levels-panel .btn-reset { box-shadow: 0 6px 18px rgba(14, 48, 100, .18); white-space: nowrap; }
+
+/* Columnas alineadas entre As Built y Recorre las plantas (sin escalón en la unión) */
+@media (min-width: 1201px) {
+  .levels { grid-template-columns: minmax(0, 53fr) minmax(0, 47fr); }
+}
+@media (min-width: 1001px) and (max-width: 1200px) {
+  .levels { grid-template-columns: minmax(0, 42fr) minmax(0, 58fr); }
+}
+
+/* Entrada de sección: línea dorada que se dibuja + paneles que se abren */
+.asbuilt-section.ab2-on, .levels { position: relative; }
+.asbuilt-section.ab2-on::before,
+.levels::before {
+  content: "";
+  position: absolute;
+  z-index: 5;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gold), rgba(181, 149, 53, .25));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 1.3s var(--ease);
+  pointer-events: none;
+}
+.sec-in::before { transform: scaleX(1); }
+/* Cortinas que se retiran (no recortan el contenido, así las animaciones internas siguen funcionando) */
+.ab2-on .ab2-side, .ab2-on .ab2-main, .levels .levels-list, .levels .levels-panel { position: relative; }
+.js-anim.motion-ready .ab2-on .ab2-side::after,
+.js-anim.motion-ready .ab2-on .ab2-main::after,
+.js-anim.motion-ready .levels .levels-list::after,
+.js-anim.motion-ready .levels .levels-panel::after {
+  content: "";
+  position: absolute;
+  z-index: 6;
+  inset: 0;
+  background: #0b1f3d;
+  transform: scaleX(1);
+  transition: transform 1s var(--ease-io);
+  pointer-events: none;
+}
+.js-anim.motion-ready .ab2-on .ab2-side::after,
+.js-anim.motion-ready .levels .levels-list::after { transform-origin: right; transition-delay: .1s; }
+.js-anim.motion-ready .ab2-on .ab2-main::after,
+.js-anim.motion-ready .levels .levels-panel::after { transform-origin: left; transition-delay: .25s; }
+.js-anim.motion-ready .ab2-on.sec-in .ab2-side::after,
+.js-anim.motion-ready .ab2-on.sec-in .ab2-main::after,
+.js-anim.motion-ready .levels.sec-in .levels-list::after,
+.js-anim.motion-ready .levels.sec-in .levels-panel::after { transform: scaleX(0); }
+.js-anim.motion-ready .levels .levels-panel.rv { opacity: 1; transform: none; }
+.levels-panel { position: relative; }
+@media (max-width: 1000px) { .levels .levels-panel { position: relative; } }
+@media (prefers-reduced-motion: reduce) {
+  .asbuilt-section.ab2-on::before, .levels::before { transform: none; transition: none; }
+  .js-anim.motion-ready .ab2-on .ab2-side::after,
+  .js-anim.motion-ready .ab2-on .ab2-main::after,
+  .js-anim.motion-ready .levels .levels-list::after,
+  .js-anim.motion-ready .levels .levels-panel::after { display: none; }
+}
+
+/* Botón General + mosaico de láminas */
+.ab2-room-gen { grid-column: 1 / -1; letter-spacing: .04em; }
+.ab2-stage.is-mosaic .ab2-pan { overflow-y: auto; scrollbar-width: thin; touch-action: auto; }
+.ab2-mosaic {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+  gap: .7rem;
+  padding: .2rem .2rem 1rem;
+  align-content: start;
+}
+.ab2-tile {
+  display: grid;
+  gap: .35rem;
+  padding: .4rem;
+  border: 1px solid rgba(19, 40, 74, .18);
+  border-radius: 6px;
+  background: #fff;
+  color: var(--ab-ink);
+  font: 500 .8rem/1 var(--head);
+  cursor: pointer;
+  transition: transform .25s var(--ease), box-shadow .25s, border-color .25s;
+}
+.ab2-tile img { width: 100%; height: auto; aspect-ratio: 1024 / 731; object-fit: contain; mix-blend-mode: normal; }
+.ab2-tile:hover { transform: translateY(-3px); border-color: var(--ab-sand); box-shadow: 0 10px 22px -12px rgba(19, 40, 74, .45); }
+.ab2-tile:active { transform: scale(.97); }
+.ab2-tool[disabled] { opacity: .3; pointer-events: none; }
+.ab2-stage.is-mosaic .ab2-zoom { display: none; }
+.ab2-stage.is-mosaic .ab2-pan { inset: 0; }

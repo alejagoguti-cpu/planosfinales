@@ -161,6 +161,16 @@ function initSectionMotion(root = document) {
 }
 initSectionMotion();
 document.documentElement.classList.add('motion-ready');
+
+/* ---------- entrada de secciones partidas (As Built / Plantas): línea dorada + paneles que se abren ---------- */
+const ioSec = new IntersectionObserver((entries) => {
+  for (const e of entries) {
+    if (!e.isIntersecting) continue;
+    e.target.classList.add('sec-in');
+    ioSec.unobserve(e.target);
+  }
+}, { threshold: 0.18 });
+document.querySelectorAll('.asbuilt-section, .levels').forEach((s) => ioSec.observe(s));
 const dynamicMotion = new MutationObserver((records) => {
   if (records.some((r) => r.addedNodes.length)) initSectionMotion();
 });

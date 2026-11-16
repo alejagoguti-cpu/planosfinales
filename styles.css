@@ -2350,3 +2350,13 @@ main { counter-reset: sec; }
   .curtain-marks,
   .curtain-bar { transition: none; animation: none; }
 }
+
+
+/* Entrega FLIP: el encabezado aparece exactamente cuando los logos aterrizan */
+.js-anim:not(.ready) .site-header .header-marks {
+  opacity: 0 !important;
+}
+.js-anim.ready .site-header .header-marks {
+  opacity: 1 !important;
+  transition: opacity .28s cubic-bezier(.23, 1, .32, 1);
+}

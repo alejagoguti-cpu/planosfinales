@@ -15,6 +15,19 @@ const centroid = (loop) => {
 };
 
 export const DISCIPLINAS_ASBUILT = {
+  arquitectonico: {
+    id: 'arquitectonico',
+    num: '5',
+    numLabel: '5. Arquitectónico',
+    title: 'Planta Arquitectónica',
+    code: 'ARQ',
+    color: '#b59535',
+    norma: 'NSR-10 · Título K',
+    tagline: 'Planta arquitectónica As-Built del Piso 2.',
+    iconSvg: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18"/><path d="M3 12h9v9M12 3v5"/></svg>`,
+    legend: [],
+    specs: []
+  },
   electrico: {
     id: 'electrico',
     num: '1',
@@ -103,19 +116,6 @@ export const DISCIPLINAS_ASBUILT = {
       { label: 'Cobertura', val: 'Radio 3.0 m (100%)' },
       { label: 'Detectores', val: '18 direccionables' },
     ]
-  },
-  arquitectonico: {
-    id: 'arquitectonico',
-    num: '5',
-    numLabel: '5. Arquitectónico',
-    title: 'Planta Arquitectónica',
-    code: 'ARQ',
-    color: '#b59535',
-    norma: 'NSR-10 · Título K',
-    tagline: 'Planta arquitectónica As-Built del Piso 2.',
-    iconSvg: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18"/><path d="M3 12h9v9M12 3v5"/></svg>`,
-    legend: [],
-    specs: []
   }
 };
 
@@ -260,9 +260,9 @@ export function initAsBuilt({ rooms, geo }) {
   const svgI = (p, s = 20) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
   const CHEV = svgI('<polyline points="9 18 15 12 9 6"/>', 18);
 
-  let activeDisc = 'electrico';
+  let activeDisc = 'arquitectonico';
   let activeRoom = '215';
-  let activeView = 'redes'; // planta | redes | detalles
+  let activeView = 'planta'; // planta | redes | detalles
 
   const roomsMap = new Map();
   rooms.forEach((r) => roomsMap.set(String(r.n), r));
@@ -529,5 +529,5 @@ export function initAsBuilt({ rooms, geo }) {
   }
 
 
-  setDiscipline('electrico');
+  setDiscipline('arquitectonico');
 }

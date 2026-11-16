@@ -86,11 +86,11 @@ function splitWords(el) {
   $$('.wi', el).forEach((w, i) => w.style.setProperty('--i', i));
   el.classList.add('split');
 }
-['.hero h1', '.welcome h2', '.types-l h2', '.statement h2', '.levels-h', '.detail h2', '.tours h2'].forEach((s) => { const el = $(s); if (el) splitWords(el); });
+['.hero h1', '.welcome h2', '.types-l h2', '.statement h2', '.levels-h', '.detail h2', '.tours h2', '.foot-big'].forEach((s) => { const el = $(s); if (el) splitWords(el); });
 
 /* ---------- aparición al hacer scroll ---------- */
 const revealSel = [
-  '.intro-txt h3', '.intro-txt p', '.shadow-img', '.types-l p', '.types-c', '.pills', '.types-plan',
+  '.intro-txt h3', '.intro-txt p', '.foot-kicker', '.foot-cols > nav', '.shadow-img', '.types-l p', '.types-c', '.pills', '.types-plan',
   '.statement img', '.cols article', '.facts > div', '.tours p', '.tours li', '.foot-logos', '.foot-cols > div',
 ];
 revealSel.forEach((s) => $$(s).forEach((el, i) => { el.classList.add('rv'); el.style.setProperty('--d', `${(i % 4) * 90}ms`); }));
@@ -120,7 +120,15 @@ const motionGroups = [
   ['.detail .cols', 'rv-up'],
   ['.tours ul', 'rv-right'],
   ['.foot-bottom', 'rv-up'],
+  ['.ab2-kicker', 'rv-up'],
+  ['.ab2-lead', 'rv-up'],
+  ['.ab2-rooms-k', 'rv-up'],
+  ['.ab2-head', 'rv-up'],
+  ['.ab2-tools', 'rv-right'],
+  ['.ab2-stage', 'rv-scale'],
 ];
+// contenedores cuyos hijos entran en cascada (usa la propiedad translate para no chocar con hover/press)
+const staggerSel = ['.ab2-discs', '.ab2-rooms', '.viewer-cover', '.foot-nav'];
 function initSectionMotion(root = document) {
   for (const [selector, variant] of motionGroups) {
     root.querySelectorAll(selector).forEach((el, i) => {
@@ -138,10 +146,17 @@ function initSectionMotion(root = document) {
     row.style.setProperty('--row', i);
     io.observe(row);
   });
-  const asbuiltTitle = $('.asbuilt-head h2', root);
-  if (asbuiltTitle && !asbuiltTitle.classList.contains('split')) {
-    splitWords(asbuiltTitle);
-    io.observe(asbuiltTitle);
+  for (const t of root.querySelectorAll('.asbuilt-head h2, .ab2-title')) {
+    if (t.classList.contains('split')) continue;
+    splitWords(t);
+    io.observe(t);
+  }
+  for (const box of root.querySelectorAll(staggerSel.join(','))) {
+    if (box.dataset.stagger) continue;
+    box.dataset.stagger = 'true';
+    box.classList.add('stag');
+    [...box.children].forEach((c, i) => c.style.setProperty('--dl', `${Math.min(i, 12) * 55 + 120}ms`));
+    io.observe(box);
   }
 }
 initSectionMotion();

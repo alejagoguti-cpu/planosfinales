@@ -3185,3 +3185,86 @@ main { counter-reset: sec; }
 .ab2-pan { display: block; }
 .ab2-pan img { display: block; }
 .ab2-schem { margin: 0 auto; }
+
+/* As Built: columna azul ancha (≈ mitad), plano más contenido */
+@media (min-width: 1201px) {
+  .ab2 { grid-template-columns: minmax(0, 53fr) minmax(0, 47fr); }
+  .ab2-side {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    grid-auto-rows: min-content;
+    column-gap: clamp(1.5rem, 2.5vw, 3rem);
+    align-content: start;
+    padding: 6.75rem clamp(1.75rem, 3.2vw, 3.75rem) 1.5rem;
+  }
+  .ab2-kicker, .ab2-title, .ab2-lead { grid-column: 1 / -1; }
+  .ab2-kicker { font-size: .8rem; }
+  .ab2-title { font-size: clamp(3rem, 1.6rem + 2.9vw, 5rem); margin: 1rem 0 .9rem; }
+  .ab2-title span { display: inline; }
+  .ab2-lead { font-size: 1rem; max-width: 36rem; margin-bottom: 1.6rem; }
+  .ab2-discs { grid-column: 1; grid-row: 4 / span 2; gap: .55rem; }
+  .ab2-disc { min-height: 3.25rem; font-size: 1rem; padding: .5rem 1rem; }
+  .ab2-rooms-k { grid-column: 2; grid-row: 4; margin: 0 0 .6rem; font-size: 1rem; }
+  .ab2-rooms { grid-column: 2; grid-row: 5; gap: .4rem; align-content: start; }
+  .ab2-room { min-height: 2.75rem; font-size: 1rem; }
+  .ab2-main { padding-left: clamp(1.25rem, 2.2vw, 2.25rem); padding-right: clamp(1rem, 2vw, 2rem); }
+  .ab2-h { font-size: clamp(1.6rem, 1rem + 1.2vw, 2.2rem); }
+  .ab2-tool { width: 2.6rem; height: 2.6rem; }
+  .ab2-tools { gap: .5rem; }
+  .ab2-views button { padding: .55rem 1rem; }
+}
+@media (min-width: 1201px) and (max-height: 760px) {
+  .ab2-title { font-size: 2.8rem; }
+  .ab2-lead { display: none; }
+  .ab2-disc { min-height: 2.75rem; }
+  .ab2-room { min-height: 2.3rem; }
+}
+@media (min-width: 901px) and (max-width: 1200px) {
+  .ab2 { grid-template-columns: minmax(0, 42fr) minmax(0, 58fr); }
+}
+
+/* Plano protagonista: controles en la barra inferior, el plano usa todo el lienzo */
+.ab2-pan { inset: 0 0 3.9rem 0; }
+.ab2-zoom {
+  top: auto;
+  bottom: .25rem;
+  right: 3.6rem;
+  display: flex;
+  padding: .2rem .35rem;
+}
+.ab2-zoom button { width: 2.3rem; height: 2.3rem; }
+.ab2-north { bottom: .3rem; right: .2rem; }
+.ab2-north svg { width: 30px; height: 30px; }
+.ab2-stage:not(.is-planta) .ab2-zoom { right: 0; }
+@media (min-width: 1201px) {
+  .ab2-side { grid-template-rows: auto auto auto min-content 1fr; }
+  .ab2-rooms { align-self: start; }
+}
+@media (max-width: 900px) {
+  .ab2-pan { inset: 0 0 3.6rem 0; }
+  .ab2-zoom { right: 3rem; }
+  .ab2-zoom button { width: 2rem; height: 2rem; }
+}
+@media (max-width: 560px) {
+  .ab2-pan { inset: 0 0 6.6rem 0; }
+  .ab2-zoom { bottom: 3.4rem; right: 0; }
+  .ab2-north { bottom: 3.4rem; left: 0; right: auto; }
+}
+.ab2-discs { align-self: start; align-content: start; }
+
+/* Entradas en cascada (botones, habitaciones, portada 3D, menú del pie) */
+.js-anim .stag > * {
+  opacity: 0;
+  translate: 0 16px;
+  transition-property: opacity, translate, background, border-color, color, transform, box-shadow;
+  transition-duration: .7s, .7s, .25s, .25s, .25s, .2s, .3s;
+  transition-timing-function: var(--ease);
+  transition-delay: var(--dl, 0ms), var(--dl, 0ms), 0s, 0s, 0s, 0s, 0s;
+}
+.js-anim .ab2-discs.stag > * { translate: -16px 0; }
+.js-anim .stag.in > * { opacity: 1; translate: none; }
+.js-anim .ab2-stage.rv-scale { filter: none; transform: scale(.98); }
+.js-anim .ab2-stage.rv.in { transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .js-anim .stag > * { opacity: 1 !important; translate: none !important; transition: none !important; }
+}

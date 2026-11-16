@@ -10,63 +10,24 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@200;300;400&family=Space+Grotesk:wght@300;400;500&family=Archivo:wght@400;500&display=swap" rel="stylesheet">
   <link rel="preload" as="image" href="assets/img/hero-aerea.webp" fetchpriority="high">
-  <link rel="stylesheet" href="styles.css?v=1.3">
+  <link rel="stylesheet" href="styles.css?v=1.4">
   <script type="importmap">
     { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }
   </script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script type="module" src="assets/js/animaciones.js"></script>
-  <script type="module" src="script.js?v=2.0"></script>
+  <script type="module" src="script.js?v=2.1"></script>
 </head>
 <body>
   <a class="skip" href="#main">Saltar al contenido</a>
 
-  <header class="site-header" id="site-header">
-    <div class="header-inner">
-      <a class="brand" href="#top" aria-label="Hotel Estelar La Fontana, inicio">
+  <header class="site-header site-header-minimal" id="site-header">
+    <div class="header-inner header-logo-only">
+      <a class="brand brand-centered" href="#top" aria-label="Hotel Estelar La Fontana, inicio">
         <img src="assets/logos/estelar.png" alt="Estelar" class="brand-img" width="300" height="300">
-        <div class="brand-text">
-          <span class="brand-eyebrow">Hotel Estelar</span>
-          <span class="brand-name">La Fontana</span>
-          <span class="brand-piso">Piso 2</span>
-        </div>
       </a>
-
-      <nav class="desktop-nav" aria-label="Navegación principal">
-        <a href="#edificio" class="desktop-link">Edificio</a>
-        <a href="#tipologias" class="desktop-link">Tipologías</a>
-        <a href="#plantas" class="desktop-link">Plantas</a>
-        <a href="#as-built" class="desktop-link desktop-link-asbuilt">
-          <span class="nav-glow-dot"></span>
-          Planos As Built
-        </a>
-        <a href="#detalle" class="desktop-link">Acabados</a>
-        <a href="#recorridos" class="desktop-link">Recorridos</a>
-      </nav>
-
-      <div class="header-actions">
-        <a href="#as-built" class="header-cta-btn">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-          <span>As-Built</span>
-        </a>
-        <button class="burger" type="button" aria-expanded="false" aria-controls="menu" aria-label="Abrir menú" data-burger>
-          <i></i><i></i><i></i>
-        </button>
-      </div>
     </div>
   </header>
-
-  <nav class="menu" id="menu" aria-label="Principal" hidden data-menu>
-    <ul>
-      <li><a href="#edificio">Edificio</a></li>
-      <li><a href="#tipologias">Tipologías</a></li>
-      <li><a href="#plantas">Plantas</a></li>
-      <li><a href="#as-built">Planos As Built</a></li>
-      <li><a href="#detalle">Acabados</a></li>
-      <li><a href="#recorridos">Recorridos</a></li>
-      <li><a href="#contacto">Ubicación</a></li>
-    </ul>
-  </nav>
 
   <main id="main">
     <!-- 1 · Portada -->
@@ -144,9 +105,18 @@
           <div>
             <h3 data-p-title>Edificio completo</h3>
             <p data-p-area>Remodelación del Piso 2</p>
-            <p class="panel-sub" data-p-sub>Haz clic en el edificio o en el Piso 2 para abrirlo.</p>
+            <p class="panel-sub" data-p-sub>Activa la vista axonométrica o selecciona el Piso 2 para explorarlo.</p>
           </div>
-          <button type="button" class="btn-reset" data-reset hidden>Ver edificio completo</button>
+          <div class="panel-actions">
+            <button type="button" class="btn-view3d" data-view3d aria-pressed="false">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                <path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z"/>
+                <path d="m4 7.5 8 4.5 8-4.5M12 12v9"/>
+              </svg>
+              Ver en 3D
+            </button>
+            <button type="button" class="btn-reset" data-reset hidden>Ver edificio completo</button>
+          </div>
         </div>
         <p class="panel-hint">Arrastra para girar · rueda para acercar</p>
         <div class="panel-links">

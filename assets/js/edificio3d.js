@@ -314,6 +314,7 @@ export class Edificio3D {
       if (!this.visible) return;
       if (this.ready && !this._assembled && b.top < innerHeight * 0.6) { this._assembled = true; this.assemble(); }
       this.controls.update();
+      this._animateTraffic(dt);
       // las sombras se recalculan solo mientras algo se mueve; la oclusión ambiental solo con la escena quieta
       const busy = performance.now() < this._busyUntil || this.layers.some((l) => gsap?.isTweening(l.position));
       if (busy) r.shadowMap.needsUpdate = true;
@@ -402,11 +403,19 @@ export class Edificio3D {
       { gltf: mEsquina, pos: [236.0, -4.26, 284.0], name: 'EsquinaAk15_PBR' },
       { gltf: mMetro, pos: [236.0, -7.12, 284.0], name: 'Metro127_PBR' },
     ];
+    const occupied = [bb.clone().expandByScalar(3)];
     for (const cm of customList) {
       if (!cm.gltf?.scene) continue;
       const s = cm.gltf.scene;
       s.name = cm.name;
       s.position.set(...cm.pos);
+      s.updateMatrixWorld(true);
+      const customBox = new THREE.Box3().setFromObject(s);
+      if (occupied.some((box) => box.intersectsBox(customBox))) {
+        console.warn(`${cm.name}: omitido para evitar superposición con otro edificio`);
+        continue;
+      }
+      occupied.push(customBox);
       s.traverse((o) => {
         if (!o.isMesh) return;
         o.castShadow = true;
@@ -533,6 +542,10 @@ export class Edificio3D {
     // se oculta la de Revit y se construye una reja recta sobre el lindero, con portón vehicular, seto y faroles
     this._fence(grp);
 
+    // ---------- espacio público de acceso y vehículos
+    this._publicRealm(grp);
+    this._vehicles(grp);
+
     // ---------- árboles en los patios del hotel
     this._extraTrees = this._courtyardTrees(ctx, hotelFeet, mb);
 
@@ -548,8 +561,85 @@ export class Edificio3D {
     };
 
     this.scene.add(grp);
-    this._buildings(ctx.edificios.filter((b) => !inCustomZone(b)));
+    this._buildings(ctx.edificios.filter((b) => !inCustomZone(b) && !onModel(b.p)));
     return grp;
+  }
+
+  /** Espacio público inmediato: jardineras, bancos y bolardos ordenan el acceso sin invadir la circulación. */
+  _publicRealm(grp) {
+    const concrete = new THREE.MeshStandardMaterial({ color: 0xc9c3b8, roughness: 0.92 });
+    const wood = new THREE.MeshStandardMaterial({ color: 0x76523a, roughness: 0.78 });
+    const green = new THREE.MeshStandardMaterial({ color: 0x617a4b, roughness: 1 });
+    const metal = new THREE.MeshStandardMaterial({ color: 0x25272a, roughness: 0.42, metalness: 0.55 });
+    const urban = new THREE.Group();
+    urban.name = 'EspacioPublico';
+
+    const planters = [[-15, 8, 5.2], [2, 10, 4.4], [45, 15, 5.0]];
+    for (const [x, z, w] of planters) {
+      const box = new THREE.Mesh(new THREE.BoxGeometry(w, 0.55, 1.25), concrete);
+      box.position.set(x, 0.275, z); box.castShadow = box.receiveShadow = true; urban.add(box);
+      const shrub = new THREE.Mesh(new THREE.SphereGeometry(w * 0.36, 16, 10), green);
+      shrub.scale.set(1.3, 0.48, 0.7); shrub.position.set(x, 0.72, z);
+      shrub.castShadow = true; urban.add(shrub);
+    }
+
+    const benches = [[-6, 6, 0], [35, 12, Math.PI]];
+    for (const [x, z, yaw] of benches) {
+      const seat = new THREE.Mesh(new THREE.BoxGeometry(3.2, 0.16, 0.62), wood);
+      seat.position.set(x, 0.56, z); seat.rotation.y = yaw; seat.castShadow = true; urban.add(seat);
+      for (const dx of [-1.15, 1.15]) {
+        const leg = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.5, 0.48), metal);
+        leg.position.set(x + dx * Math.cos(yaw), 0.29, z - dx * Math.sin(yaw)); leg.rotation.y = yaw; urban.add(leg);
+      }
+    }
+
+    const bollardGeo = new THREE.CylinderGeometry(0.09, 0.11, 0.8, 12);
+    for (let x = 10; x <= 36; x += 3.2) {
+      const b = new THREE.Mesh(bollardGeo, metal);
+      b.position.set(x, 0.4, 20.2 + (x - 10) * 0.04); b.castShadow = true; urban.add(b);
+    }
+    grp.add(urban);
+  }
+
+  /** Vehículos ligeros en la vía frontal y el acceso. Dos circulan lentamente; otros quedan estacionados. */
+  _vehicles(grp) {
+    const traffic = new THREE.Group();
+    traffic.name = 'Vehiculos';
+    const colors = [0x1d3557, 0xe8e6df, 0x44474c, 0x9f2f2f, 0xb59535];
+    const wheelMat = new THREE.MeshStandardMaterial({ color: 0x141517, roughness: 0.72 });
+    const glassMat = new THREE.MeshStandardMaterial({ color: 0x263743, roughness: 0.12, metalness: 0.15 });
+    const car = (x, z, yaw, color, moving = false, speed = 0) => {
+      const g = new THREE.Group();
+      const bodyMat = new THREE.MeshStandardMaterial({ color, roughness: 0.32, metalness: 0.25 });
+      const body = new THREE.Mesh(new THREE.BoxGeometry(4.1, 0.72, 1.78), bodyMat);
+      body.position.y = 0.72; body.castShadow = body.receiveShadow = true; g.add(body);
+      const cabin = new THREE.Mesh(new THREE.BoxGeometry(2.05, 0.68, 1.52), glassMat);
+      cabin.position.set(-0.1, 1.38, 0); cabin.castShadow = true; g.add(cabin);
+      const wheelGeo = new THREE.CylinderGeometry(0.36, 0.36, 0.22, 16);
+      for (const wx of [-1.35, 1.35]) for (const wz of [-0.88, 0.88]) {
+        const w = new THREE.Mesh(wheelGeo, wheelMat);
+        w.rotation.x = Math.PI / 2; w.position.set(wx, 0.42, wz); w.castShadow = true; g.add(w);
+      }
+      g.position.set(x, 0.02, z); g.rotation.y = yaw; traffic.add(g);
+      if (moving) this._traffic.push({ object: g, speed, min: -72, max: 78 });
+    };
+    this._traffic = [];
+    car(-50, 40.5, 0, colors[0], true, 5.2);
+    car(22, 44.2, Math.PI, colors[1], true, -4.1);
+    car(-22, 35.7, 0, colors[2]);
+    car(5, 36.3, Math.PI, colors[3]);
+    car(48, 38.2, 0, colors[4]);
+    car(27, 7.5, Math.PI * 0.5, colors[1]);
+    grp.add(traffic);
+  }
+
+  _animateTraffic(dt) {
+    if (!this._traffic?.length || reduced || !this.visible) return;
+    for (const v of this._traffic) {
+      v.object.position.x += v.speed * dt;
+      if (v.speed > 0 && v.object.position.x > v.max) v.object.position.x = v.min;
+      if (v.speed < 0 && v.object.position.x < v.min) v.object.position.x = v.max;
+    }
   }
 
   /** Cubierta de teja del ala con alero: los vértices del borde inferior salen `d` m hacia afuera y bajan un poco. */
@@ -968,8 +1058,34 @@ export class Edificio3D {
     this.hemi.intensity = band ? 1.35 : 0.95;
   }
 
+  _setUrbanContext(visible) {
+    for (const name of ['Barrio3D', 'Clinica127_PBR', 'TorresVecinas_PBR', 'EsquinaAk15_PBR', 'Metro127_PBR']) {
+      const o = this.scene.getObjectByName(name);
+      if (o) o.visible = visible;
+    }
+  }
+
+  /** Vista axonométrica enfocada: despeja edificios vecinos y conserva hotel, plaza, vegetación y vehículos. */
+  showAxonometric() {
+    if (this._assembling) { this._tl?.kill(); this._assembling = false; }
+    this.cut = null;
+    this.selectRoom(null, false);
+    this._applyCut(null, true);
+    this._setUrbanContext(false);
+    this.controls.autoRotate = false;
+    this.camera.fov = 23;
+    this.camera.updateProjectionMatrix();
+    const target = this.center.clone().setY(5);
+    const distance = this._fit(1.28);
+    const dir = new THREE.Vector3(-1, 0.82, 1).normalize();
+    this.flyTo(target.clone().addScaledVector(dir, distance), target, 1.9, 'power3.inOut');
+  }
+
   /** Abre el Piso 2 (2) o vuelve al edificio completo (null). */
   setFloor(floor) {
+    this._setUrbanContext(true);
+    this.camera.fov = 32;
+    this.camera.updateProjectionMatrix();
     const band = floor == null ? null : OPEN_FLOOR;
     if (band == null) this.selectRoom(null, false);
     if (floor === this.cut) return;

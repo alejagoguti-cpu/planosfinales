@@ -3268,3 +3268,20 @@ main { counter-reset: sec; }
 @media (prefers-reduced-motion: reduce) {
   .js-anim .stag > * { opacity: 1 !important; translate: none !important; transition: none !important; }
 }
+
+/* Visor 3D limpio: sin textos ni enlaces encima del modelo */
+.levels-panel .panel-top > div:first-child,
+.levels-panel .panel-links,
+.levels-panel .panel-hint { display: none !important; }
+.levels-panel .panel-top { left: auto; right: 1.25rem; justify-content: flex-end; }
+.levels-panel .panel-actions {
+  padding: 0;
+  background: none;
+  border: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  flex-direction: row;
+}
+.levels-panel .btn-view3d,
+.levels-panel .btn-reset { box-shadow: 0 6px 18px rgba(14, 48, 100, .18); white-space: nowrap; }

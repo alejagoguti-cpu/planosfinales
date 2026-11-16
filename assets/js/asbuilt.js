@@ -246,7 +246,7 @@ export function initAsBuilt({ rooms, geo }) {
         <div class="asbuilt-head">
           <span class="asbuilt-badge-sup">Ingeniería & Planimetría Final Conforme a Obra</span>
           <h2>Planos <span class="asb-title-gold">As Built</span></h2>
-          <p>Selecciona una especialidad técnica (1. Eléctrico, 2. Agua Caliente y agua fría, 3. Desagües, 4. Red contraincendios) para ver la planta del Piso 2 y haz clic en cualquier habitación para inspeccionar su plano de detalle a la derecha.</p>
+          <p>Selecciona una especialidad y recorre los planos de detalle de cada habitación.</p>
         </div>
 
         <!-- 4 Pestañas de especialidades en cuadrícula 2x2 perfecta (Las 4 cajas rojas) -->

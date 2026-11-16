@@ -1850,3 +1850,97 @@ main { counter-reset: sec; }
   .header-marks::before,
   .header-marks .brand-img { animation: none; }
 }
+
+
+/* Bloque de marcas siempre horizontal y ópticamente centrado */
+.header-logo-only {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.header-marks {
+  display: grid !important;
+  grid-template-columns: 4.35rem 1px 4.35rem;
+  align-items: center;
+  justify-items: center;
+  column-gap: 1.05rem;
+  width: max-content;
+  margin-inline: auto;
+}
+.header-marks .brand,
+.header-marks > .brand-img {
+  width: 4.35rem;
+  height: 4.35rem;
+  margin: 0;
+}
+.header-marks .brand-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.mark-divider {
+  grid-column: 2;
+  width: 1px;
+  height: 2.35rem;
+}
+@media (max-width: 640px) {
+  .header-marks {
+    grid-template-columns: 3.75rem 1px 3.75rem;
+    column-gap: .8rem;
+  }
+  .header-marks .brand,
+  .header-marks > .brand-img {
+    width: 3.75rem;
+    height: 3.75rem;
+  }
+}
+
+/* Variaciones de entrada: una coreografía distinta según el contenido */
+.js-anim .rv.rv-left { transform: translateX(-42px); }
+.js-anim .rv.rv-right { transform: translateX(42px); }
+.js-anim .rv.rv-scale { transform: scale(.965); filter: blur(5px); }
+.js-anim .rv.rv-focus { transform: translateY(-14px) scale(.985); filter: blur(8px); }
+.js-anim .rv.rv-up { transform: translateY(34px); }
+.js-anim .rv.rv-left.in,
+.js-anim .rv.rv-right.in,
+.js-anim .rv.rv-scale.in,
+.js-anim .rv.rv-focus.in,
+.js-anim .rv.rv-up.in {
+  transform: none;
+  filter: blur(0);
+}
+.js-anim .rv.rv-scale,
+.js-anim .rv.rv-focus {
+  transition-property: opacity, transform, filter;
+  transition-duration: 1.15s;
+}
+.js-anim .row-reveal {
+  opacity: 0;
+  transform: translateX(-28px);
+  transition: opacity .62s var(--ease), transform .75s var(--ease), background .2s, color .2s;
+  transition-delay: calc(var(--row, 0) * 42ms);
+}
+.js-anim .row-reveal.in {
+  opacity: 1;
+  transform: none;
+}
+.asbuilt-section .asb-mep-layer {
+  animation: mepDrawIn .9s var(--ease) both;
+}
+@keyframes mepDrawIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .js-anim .rv.rv-left,
+  .js-anim .rv.rv-right,
+  .js-anim .rv.rv-scale,
+  .js-anim .rv.rv-focus,
+  .js-anim .rv.rv-up,
+  .js-anim .row-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+  }
+  .asbuilt-section .asb-mep-layer { animation: none; }
+}

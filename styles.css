@@ -2367,23 +2367,53 @@ main { counter-reset: sec; }
 .asb-floor-card {
   display: none !important;
 }
+/* Planos AL LADO: texto + especialidades a la izquierda, plano a la derecha */
 .asb-split-container {
-  display: block;
-  max-width: 1500px;
+  display: grid;
+  grid-template-columns: minmax(17rem, 24rem) minmax(0, 1fr);
+  gap: clamp(1.5rem, 3vw, 3rem);
+  align-items: start;
+  max-width: 1600px;
+  margin: 0 auto;
 }
 .asb-left-column {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  position: sticky;
+  top: 6.25rem;
+  min-width: 0;
 }
 .asbuilt-head {
-  max-width: 48rem;
-  margin-bottom: 2rem;
+  max-width: none;
+  margin-bottom: 0;
 }
 .asb-pills-bar {
-  margin-bottom: clamp(2rem, 4vw, 3.5rem);
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0;
+  margin-bottom: 0;
 }
+.asb-pills-bar .asb-pill-btn {
+  width: 100%;
+  min-height: 3.6rem;
+  justify-content: flex-start;
+  text-align: left;
+  border-right: 0;
+  border-bottom: 1px solid #c8c2b6;
+  font-size: .9rem;
+}
+.asb-pills-bar .asb-pill-btn:last-child { border-bottom: 0; }
+.asb-pills-bar .asb-pill-num { display: none; }
 .asb-right-column {
   position: static;
   width: 100%;
+  min-width: 0;
+}
+@media (max-width: 900px) {
+  .asb-split-container { grid-template-columns: 1fr; }
+  .asb-left-column { position: static; }
+  .asb-pills-bar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 .asb-side-card {
   width: 100%;

@@ -10,7 +10,14 @@ if (reduce) document.documentElement.classList.add('no-motion');
 const curtain = document.createElement('div');
 curtain.className = 'curtain';
 curtain.setAttribute('aria-hidden', 'true');
-curtain.innerHTML = `<img src="${$('.brand img')?.getAttribute('src') || 'assets/logos/estelar.png'}" alt=""><span class="curtain-bar"><i></i></span>`;
+curtain.innerHTML = `
+  <div class="curtain-marks">
+    <img src="assets/logos/estelar.png" alt="">
+    <span aria-hidden="true"></span>
+    <img src="assets/logos/baco.png" alt="">
+  </div>
+  <span class="curtain-bar"><i></i></span>
+`;
 let seen = false;
 try { seen = sessionStorage.getItem('hlf-intro') === '1'; sessionStorage.setItem('hlf-intro', '1'); } catch { /* sin almacenamiento */ }
 if (!reduce && !seen) {

@@ -103,8 +103,26 @@ export const DISCIPLINAS_ASBUILT = {
       { label: 'Cobertura', val: 'Radio 3.0 m (100%)' },
       { label: 'Detectores', val: '18 direccionables' },
     ]
+  },
+  arquitectonico: {
+    id: 'arquitectonico',
+    num: '5',
+    numLabel: '5. Arquitectónico',
+    title: 'Planta Arquitectónica',
+    code: 'ARQ',
+    color: '#b59535',
+    norma: 'NSR-10 · Título K',
+    tagline: 'Planta arquitectónica As-Built del Piso 2.',
+    iconSvg: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18"/><path d="M3 12h9v9M12 3v5"/></svg>`,
+    legend: [],
+    specs: []
   }
 };
+
+// Imagen del plano por especialidad (null = esquema dibujado)
+const planImg = (discId, n) => discId === 'electrico'
+  ? `assets/planos/electrico/plano-elec-${n}.jpg`
+  : discId === 'arquitectonico' ? 'assets/planos/p2-arquitectonica.png' : null;
 
 function generateMepSvg(discKey, geo, rooms) {
   const roomCenters = new Map();
@@ -260,6 +278,14 @@ export function initAsBuilt({ rooms, geo }) {
           `).join('')}
         </div>
 
+        <!-- Habitaciones debajo de las especialidades -->
+        <div class="asb-left-rooms" role="group" aria-label="Seleccionar habitación">
+          <span class="asb-left-rooms-k">Habitaciones</span>
+          <div class="asb-left-rooms-grid">
+            ${geo.rooms.map((r) => `<button type="button" class="asb-room-chip ${r.n === activeRoom ? 'active' : ''}" data-select-room="${r.n}">${r.n}</button>`).join('')}
+          </div>
+        </div>
+
         <!-- Banner descriptivo con especificaciones -->
         <div class="asb-discipline-desc" id="asb-disc-desc"></div>
 
@@ -351,8 +377,8 @@ export function initAsBuilt({ rooms, geo }) {
       priv: 26.42,
       camas: '2 Camas Dobles (1600x2000 mm) + Poltrona + Escritorio'
     };
-    const isElectrico = disc.id === 'electrico';
-    const imgSrc = `assets/planos/electrico/plano-elec-${roomNum}.jpg`;
+    const imgSrc = planImg(disc.id, roomNum);
+    const isElectrico = !!imgSrc;
 
     modalTag.textContent = `HABITACIÓN ${roomNum}`;
     modalTag.style.background = disc.color;
@@ -402,8 +428,8 @@ export function initAsBuilt({ rooms, geo }) {
       camas: '2 Camas Dobles (1600×2000 mm) + Poltrona + Escritorio'
     };
 
-    const isElectrico = disc.id === 'electrico';
-    const planImgSrc = `assets/planos/electrico/plano-elec-${r.n}.jpg`;
+    const planImgSrc = planImg(disc.id, r.n);
+    const isElectrico = !!planImgSrc;
 
     inspectorEl.innerHTML = `
       <div class="asb-side-card">
@@ -425,7 +451,7 @@ export function initAsBuilt({ rooms, geo }) {
         <div class="asb-side-drawing-box">
           ${isElectrico ? `
             <div class="asb-side-img-stage" id="asb-side-img-stage" title="Clic para ver en pantalla completa">
-              <img src="${planImgSrc}" alt="Plano As-Built Eléctrico Habitación ${r.n}" class="asb-side-cad-img" id="asb-side-cad-img">
+              <img src="${planImgSrc}" alt="Plano As-Built ${disc.title} Habitación ${r.n}" class="asb-side-cad-img" id="asb-side-cad-img">
               <button type="button" class="asb-side-zoom-btn" id="asb-zoom-btn">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
                 <span>Clic para pantalla completa</span>

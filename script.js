@@ -102,6 +102,8 @@ const roomRows = rooms.map((r) => `<tr class="room" data-n="${r.n}" tabindex="0"
 tbody.innerHTML = p2 + roomRows;
 
 const pTitle = $('[data-p-title]'), pArea = $('[data-p-area]'), pSub = $('[data-p-sub]'), pEmpty = $('[data-p-empty]'), reset = $('[data-reset]'), view3d = $('[data-view3d]');
+const panel = $('.levels-panel');
+const activateViewer = () => panel?.classList.add('is-3d-active');
 const mark = (sel) => $$('tr', tbody).forEach((t) => t.setAttribute('aria-selected', String(t.matches(sel))));
 
 const viewer = new Edificio3D($('[data-viewer]'), geo, {
@@ -111,6 +113,7 @@ const viewer = new Edificio3D($('[data-viewer]'), geo, {
 
 window.edificio3d = viewer; // acceso desde la consola del navegador
 view3d?.addEventListener('click', () => {
+  activateViewer();
   viewer.showAxonometric();
   view3d.setAttribute('aria-pressed', 'true');
   pTitle.textContent = 'Hotel La Fontana · 3D';
@@ -119,6 +122,7 @@ view3d?.addEventListener('click', () => {
   reset.hidden = false;
 });
 function openFloor(f) {
+  activateViewer();
   view3d?.setAttribute('aria-pressed', 'false');
   viewer.setFloor(f);
   reset.hidden = f == null;
@@ -141,6 +145,7 @@ function openFloor(f) {
   }
 }
 function openRoom(n) {
+  activateViewer();
   const r = rooms.find((x) => x.n === n);
   viewer.selectRoom(n);
   reset.hidden = false;
@@ -150,7 +155,6 @@ function openRoom(n) {
   pArea.textContent = `${m2(r.priv)} privados · ${m2(r.cons)} construidos`;
   pSub.textContent = `${r.ubic}. ${r.camas}.`;
 }
-const panel = $('.levels-panel');
 const narrow = matchMedia('(max-width: 1000px)');
 const choose = (tr) => {
   if (tr.dataset.n) openRoom(tr.dataset.n); else openFloor(+tr.dataset.lvl);

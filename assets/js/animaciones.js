@@ -6,7 +6,7 @@ const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 document.documentElement.classList.add('js-anim');
 if (reduce) document.documentElement.classList.add('no-motion');
 
-/* ---------- telón de entrada (solo la primera carga de la sesión) ---------- */
+/* ---------- intro: dos marcas grandes que se reducen hacia el encabezado ---------- */
 const curtain = document.createElement('div');
 curtain.className = 'curtain';
 curtain.setAttribute('aria-hidden', 'true');
@@ -18,15 +18,27 @@ curtain.innerHTML = `
   </div>
   <span class="curtain-bar"><i></i></span>
 `;
-let seen = false;
-try { seen = sessionStorage.getItem('hlf-intro') === '1'; sessionStorage.setItem('hlf-intro', '1'); } catch { /* sin almacenamiento */ }
-if (!reduce && !seen) {
+if (!reduce) {
   document.body.append(curtain);
   const hero = $('.hero > img');
-  const go = () => { curtain.classList.add('out'); document.documentElement.classList.add('ready'); setTimeout(() => curtain.remove(), 1400); };
+  let started = false;
+  const go = () => {
+    if (started) return;
+    started = true;
+    curtain.classList.add('shrink');
+    setTimeout(() => {
+      curtain.classList.add('out');
+      document.documentElement.classList.add('ready');
+    }, 900);
+    setTimeout(() => curtain.remove(), 1900);
+  };
   const t0 = performance.now();
-  const done = () => setTimeout(go, Math.max(0, 1100 - (performance.now() - t0)));
-  if (hero && !hero.complete) { hero.addEventListener('load', done, { once: true }); hero.addEventListener('error', done, { once: true }); setTimeout(go, 3500); } else done();
+  const done = () => setTimeout(go, Math.max(0, 950 - (performance.now() - t0)));
+  if (hero && !hero.complete) {
+    hero.addEventListener('load', done, { once: true });
+    hero.addEventListener('error', done, { once: true });
+    setTimeout(go, 3200);
+  } else done();
 } else document.documentElement.classList.add('ready');
 
 /* ---------- títulos por líneas: cada palabra sube desde una máscara ---------- */

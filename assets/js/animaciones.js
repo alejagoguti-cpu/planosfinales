@@ -102,6 +102,7 @@ function initSectionMotion(root = document) {
   }
 }
 initSectionMotion();
+document.documentElement.classList.add('motion-ready');
 const dynamicMotion = new MutationObserver((records) => {
   if (records.some((r) => r.addedNodes.length)) initSectionMotion();
 });

@@ -2405,3 +2405,79 @@ main { counter-reset: sec; }
     min-height: 24rem;
   }
 }
+
+
+/* Recorridos centrado: cierre cinematográfico de una sola acción */
+.tours {
+  display: grid;
+  grid-template-columns: 1fr;
+  place-items: center;
+  align-content: center;
+  gap: 2.6rem;
+  min-height: 44rem;
+  padding: clamp(7rem, 12vw, 11rem) var(--pad);
+  text-align: center;
+}
+.tours > div {
+  width: min(100%, 54rem);
+  display: grid;
+  justify-items: center;
+}
+.tours h2 {
+  font-size: clamp(4rem, 2.5rem + 6vw, 8.5rem);
+  line-height: .9;
+  letter-spacing: -.055em;
+}
+.tours h2::before {
+  margin-right: auto;
+  margin-left: auto;
+  padding-left: 0;
+  background: none;
+}
+.tours h2::after {
+  content: "";
+  display: block;
+  width: 7rem;
+  height: 1px;
+  margin: 1.7rem auto 0;
+  background: var(--gold);
+  transform-origin: center;
+  animation: tourTitleLine 3s var(--ease) infinite alternate;
+}
+.tours p {
+  max-width: 35rem;
+  margin: 1.5rem auto 0;
+  font-size: clamp(1rem, .9rem + .35vw, 1.25rem);
+}
+.tours ul {
+  width: min(100%, 31rem);
+  margin: 0;
+  padding: 0;
+  display: grid;
+  justify-items: stretch;
+}
+.tours .btn-dark {
+  width: 100%;
+  min-height: 5rem;
+  padding: 1.25rem 1.6rem;
+  border-color: rgba(255,255,255,.58);
+  background: rgba(255,255,255,.06);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-size: clamp(1.15rem, 1rem + .45vw, 1.5rem);
+}
+.tours .btn-dark::after {
+  width: 1.35rem;
+  height: 1.35rem;
+}
+@keyframes tourTitleLine {
+  from { transform: scaleX(.35); opacity: .55; }
+  to { transform: scaleX(1); opacity: 1; }
+}
+@media (max-width: 640px) {
+  .tours { min-height: 38rem; }
+  .tours h2 { font-size: clamp(3.8rem, 18vw, 5.8rem); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tours h2::after { animation: none; }
+}

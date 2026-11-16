@@ -2,8 +2,19 @@ const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const m2 = (n) => `${n.toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m²`;
 
-/* ---------- encabezado minimalista ---------- */
-// La cabecera conserva únicamente el logotipo centrado. No necesita menú ni controles JS.
+/* ---------- encabezado con marcas centradas y menú hamburguesa ---------- */
+const burger = $('[data-burger]');
+const menu = $('[data-menu]');
+function setMenu(open) {
+  if (!burger || !menu) return;
+  menu.hidden = !open;
+  burger.setAttribute('aria-expanded', String(open));
+  burger.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
+  document.body.style.overflow = open ? 'hidden' : '';
+}
+burger?.addEventListener('click', () => setMenu(menu?.hidden ?? true));
+$('a', menu || document.createElement('nav')).forEach((a) => a.addEventListener('click', () => setMenu(false)));
+addEventListener('keydown', (e) => { if (e.key === 'Escape' && menu && !menu.hidden) setMenu(false); });
 
 /* ---------- carrusel con barras ---------- */
 const slider = $('[data-slider]');

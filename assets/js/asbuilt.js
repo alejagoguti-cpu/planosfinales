@@ -241,392 +241,220 @@ function generateMepSvg(discKey, geo, rooms) {
 export function initAsBuilt({ rooms, geo }) {
   const container = document.getElementById('asbuilt-container');
   if (!container) return;
+  container.closest('section')?.classList.add('ab2-on');
+
+  const SHORT = {
+    electrico: 'Eléctrico',
+    agua: 'Agua caliente y agua fría',
+    desagues: 'Desagües',
+    contraincendios: 'Red contraincendios',
+    arquitectonico: 'Arquitectónico',
+  };
+  const ICONS = {
+    electrico: '<path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/>',
+    agua: '<path d="M12 2.7 6.3 8.4a8 8 0 1 0 11.4 0L12 2.7Z"/><path d="M12 11v6M9 14h6"/>',
+    desagues: '<path d="M4 4h16M6 4v4a6 6 0 0 0 12 0V4M12 14v6"/><circle cx="12" cy="21" r=".8"/>',
+    contraincendios: '<path d="M12 22c4 0 7-2.7 7-6.8 0-3.6-2.4-5.6-4-8.2-.5 2-1.6 3.2-3 3.7.2-3.2-1.3-6.2-4-8.7.2 3.6-3 6-3 10.6C5 19.3 8 22 12 22Z"/><path d="M12 22c1.7 0 3-1.2 3-3 0-1.6-1-2.5-2-3.8-.4 1-1 1.4-1.6 1.6C11 15 10 14 9.5 13c-.4 1.4-.5 2.6-.5 3.4 0 1.6 1.3 5.6 3 5.6Z"/>',
+    arquitectonico: '<path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="m4 7.5 8 4.5 8-4.5M12 12v9"/>',
+  };
+  const svgI = (p, s = 20) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+  const CHEV = svgI('<polyline points="9 18 15 12 9 6"/>', 18);
 
   let activeDisc = 'electrico';
   let activeRoom = '215';
-
-  const xs = geo.walls.flatMap((w) => [w[0], w[2]]);
-  const ys = geo.walls.flatMap((w) => [-w[1], -w[3]]);
-  const pad = 90;
-  const minX = Math.min(...xs) - pad;
-  const minY = Math.min(...ys) - pad;
-  const vbWidth = Math.max(...xs) - minX + pad;
-  const vbHeight = Math.max(...ys) - minY + pad;
+  let activeView = 'redes'; // planta | redes | detalles
 
   const roomsMap = new Map();
   rooms.forEach((r) => roomsMap.set(String(r.n), r));
+  const roomInfo = (n) => roomsMap.get(String(n)) || {
+    n, cat: 'Habitación Doble', ala: 'Ala Recta Norte', priv: 26.42,
+    camas: '2 Camas Dobles (1600 × 2000 mm) + Poltrona + Escritorio',
+  };
 
-  // Disposición: EL TEXTO Y NAVEGACIÓN A UN LADO, EL PLANO AL OTRO LADO (Split Master-Detail)
   container.innerHTML = `
-    <div class="asb-split-container">
-      <!-- COLUMNA IZQUIERDA: Texto, 4 Especialidades (en cuadrícula 2x2) y Planta General -->
-      <div class="asb-left-column">
-        <div class="asbuilt-head">
-          <span class="asbuilt-badge-sup">Ingeniería & Planimetría Final Conforme a Obra</span>
-          <h2>Planos <span class="asb-title-gold">As Built</span></h2>
-          <p>Selecciona una especialidad y recorre los planos de detalle de cada habitación.</p>
-        </div>
-
-        <!-- 4 Pestañas de especialidades en cuadrícula 2x2 perfecta (Las 4 cajas rojas) -->
-        <div class="asb-pills-bar" role="tablist" aria-label="Especialidades As-Built">
+    <div class="ab2">
+      <aside class="ab2-side">
+        <span class="ab2-kicker">Ingeniería &amp; Planimetría Final</span>
+        <h2 class="ab2-title">Planos <span>As Built</span></h2>
+        <p class="ab2-lead">Selecciona una especialidad y recorre los planos de detalle de cada habitación.</p>
+        <div class="ab2-discs" role="tablist" aria-label="Especialidades As-Built">
           ${Object.values(DISCIPLINAS_ASBUILT).map((d) => `
-            <button type="button" class="asb-pill-btn ${d.id === activeDisc ? 'active' : ''}" data-disc="${d.id}" style="--dc: ${d.color};" role="tab" aria-selected="${d.id === activeDisc}">
-              <span class="asb-pill-num">${d.num}</span>
-              <span class="asb-pill-icon" style="color: ${d.color};">${d.iconSvg}</span>
-              <span class="asb-pill-label">${d.numLabel}</span>
-              <span class="asb-pill-arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span>
-            </button>
-          `).join('')}
+            <button type="button" class="ab2-disc" data-disc="${d.id}" role="tab" aria-selected="false">
+              <span class="ab2-disc-ic">${svgI(ICONS[d.id] || '')}</span>
+              <span class="ab2-disc-lb">${SHORT[d.id] || d.title}</span>
+              <span class="ab2-disc-ch">${CHEV}</span>
+            </button>`).join('')}
         </div>
-
-        <!-- Habitaciones debajo de las especialidades -->
-        <div class="asb-left-rooms" role="group" aria-label="Seleccionar habitación">
-          <span class="asb-left-rooms-k">Habitaciones</span>
-          <div class="asb-left-rooms-grid">
-            ${geo.rooms.map((r) => `<button type="button" class="asb-room-chip ${r.n === activeRoom ? 'active' : ''}" data-select-room="${r.n}">${r.n}</button>`).join('')}
-          </div>
+        <span class="ab2-rooms-k">Habitaciones</span>
+        <div class="ab2-rooms" role="group" aria-label="Seleccionar habitación">
+          ${geo.rooms.map((r) => `<button type="button" class="ab2-room" data-room="${r.n}">${r.n}</button>`).join('')}
         </div>
+      </aside>
 
-        <!-- Banner descriptivo con especificaciones -->
-        <div class="asb-discipline-desc" id="asb-disc-desc"></div>
-
-        <!-- Tarjeta de la Planta General Interactiva del Piso 2 -->
-        <div class="asb-floor-card">
-          <div class="asb-floor-card-top">
-            <div class="asb-floor-card-title">
-              <span class="asb-kicker">Planta General · Piso 2</span>
-              <h3>Haz clic en una habitación para ver su plano a la derecha</h3>
-            </div>
-            <!-- Selector horizontal de habitaciones -->
-            <div class="asb-rooms-nav" role="group" aria-label="Seleccionar habitación para ver plano">
-              ${geo.rooms.map((r) => `
-                <button type="button" class="asb-room-chip ${r.n === activeRoom ? 'active' : ''}" data-select-room="${r.n}">
-                  Hab ${r.n}
-                </button>
-              `).join('')}
-            </div>
+      <div class="ab2-main">
+        <header class="ab2-head">
+          <div class="ab2-head-txt">
+            <div class="ab2-tags"><span class="ab2-badge" data-ab2-badge></span><span class="ab2-code" data-ab2-code></span></div>
+            <h3 class="ab2-h" data-ab2-h></h3>
+            <p class="ab2-meta" data-ab2-meta></p>
           </div>
-
-          <!-- Lienzo SVG del piso 2 -->
-          <div class="asb-svg-box">
-            <svg class="asb-floor-svg" id="asb-floor-svg" viewBox="${minX} ${minY} ${vbWidth} ${vbHeight}" role="img" aria-label="Planta interactiva del Piso 2">
-            </svg>
-            <div class="asb-plan-tooltip" id="asb-plan-tooltip" hidden></div>
+          <div class="ab2-tools">
+            <button type="button" class="ab2-tool" data-ab2-full title="Pantalla completa" aria-label="Pantalla completa">${svgI('<path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/>')}</button>
+            <button type="button" class="ab2-tool" data-ab2-layers title="Ver redes" aria-label="Ver redes">${svgI('<path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5"/>')}</button>
+            <a class="ab2-tool" data-ab2-down title="Descargar plano" aria-label="Descargar plano" download>${svgI('<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>')}</a>
           </div>
+        </header>
 
-          <!-- Leyenda de convenciones flat -->
-          <div class="asb-legend-box" id="asb-legend-box"></div>
-        </div>
-      </div>
-
-      <!-- COLUMNA DERECHA: EL PLANO DE LA HABITACIÓN (El recuadro verde que solicitó el usuario) -->
-      <div class="asb-right-column" id="asb-right-column">
-        <div class="asb-side-inspector" id="asb-side-inspector">
-          <!-- Inyectado por renderSidePlan() -->
+        <div class="ab2-stage" data-ab2-stage>
+          <div class="ab2-pan" data-ab2-pan></div>
+          <div class="ab2-zoom" role="group" aria-label="Zoom">
+            <button type="button" data-zoom="in" aria-label="Acercar">${svgI('<path d="M12 5v14M5 12h14"/>', 18)}</button>
+            <button type="button" data-zoom="out" aria-label="Alejar">${svgI('<path d="M5 12h14"/>', 18)}</button>
+            <button type="button" data-zoom="reset" aria-label="Centrar">${svgI('<circle cx="12" cy="12" r="4"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>', 18)}</button>
+          </div>
+          <div class="ab2-north" aria-hidden="true"><span>N</span><svg width="34" height="34" viewBox="0 0 34 34" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="17" cy="17" r="15"/><path d="M17 4v26"/><path d="M17 4l-3 7h6l-3-7Z" fill="currentColor"/></svg></div>
+          <div class="ab2-views" role="tablist" aria-label="Vista">
+            <button type="button" data-view="planta">${svgI('<rect x="4" y="3" width="16" height="18"/><path d="M9 21v-5h6v5M8 7h2M14 7h2M8 11h2M14 11h2"/>', 18)} Planta</button>
+            <button type="button" data-view="redes">${svgI('<path d="m12 3 9 5-9 5-9-5 9-5Z"/><path d="m3 13 9 5 9-5"/>', 18)} Redes</button>
+            <button type="button" data-view="detalles">${svgI('<rect x="3" y="4" width="18" height="16" rx="1"/><circle cx="9" cy="10" r="2"/><path d="m21 16-5-5-9 9"/>', 18)} Detalles</button>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Pop-up Modal Lightbox al hacer clic en 'pantalla completa' -->
     <div class="asb-modal" id="asb-modal" hidden role="dialog" aria-modal="true" aria-label="Plano ampliado">
       <div class="asb-modal-overlay" data-close-modal></div>
       <div class="asb-modal-dialog">
         <div class="asb-modal-bar">
           <div class="asb-modal-title-group">
-            <span class="asb-modal-tag" id="asb-modal-tag">HABITACIÓN 215</span>
-            <span class="asb-modal-code" id="asb-modal-code">PLANO ELE-215</span>
-            <span class="asb-modal-head-txt" id="asb-modal-title">Habitación Doble · Ala Recta Norte · 26.42 m²</span>
+            <span class="asb-modal-tag" id="asb-modal-tag"></span>
+            <span class="asb-modal-code" id="asb-modal-code"></span>
+            <span class="asb-modal-head-txt" id="asb-modal-title"></span>
           </div>
-          <button type="button" class="asb-modal-close" data-close-modal aria-label="Cerrar">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          </button>
+          <button type="button" class="asb-modal-close" data-close-modal aria-label="Cerrar">${svgI('<path d="M18 6 6 18M6 6l12 12"/>', 22)}</button>
         </div>
         <div class="asb-modal-stage" id="asb-modal-stage">
           <img src="" alt="Plano As-Built" class="asb-modal-img" id="asb-modal-img">
           <div id="asb-modal-schem" class="asb-modal-schem-wrap" hidden></div>
         </div>
-        <div class="asb-modal-footer">
-          <span id="asb-modal-sub" style="font-size: 0.82rem; color: #94a3b8;">Lámina: 1. Planta (1:50) · 2. Axonometría 3D · 3. Habitación · 4. Baño</span>
-          <span class="asb-modal-scale" style="color: var(--gold); font-weight: 600; font-size: 0.82rem;">Escala 1:50 · As-Built</span>
-        </div>
       </div>
     </div>
   `;
 
-  const svgEl = document.getElementById('asb-floor-svg');
-  const tooltipEl = document.getElementById('asb-plan-tooltip');
-  const descEl = document.getElementById('asb-disc-desc');
-  const legendEl = document.getElementById('asb-legend-box');
-  const inspectorEl = document.getElementById('asb-side-inspector');
+  const $ = (s) => container.querySelector(s);
+  const stage = $('[data-ab2-stage]');
+  const pan = $('[data-ab2-pan]');
+  const down = $('[data-ab2-down]');
 
-  // Pop-up Lightbox
+  /* ---- qué se ve en el lienzo ---- */
+  function currentSource() {
+    const disc = DISCIPLINAS_ASBUILT[activeDisc];
+    if (activeView === 'planta') return { img: 'assets/planos/p2-arquitectonica.png', label: 'Planta arquitectónica · Piso 2', code: 'ARQ' };
+    if (activeView === 'detalles') return { img: 'assets/planos/p2-acabados.png', label: 'Planta de acabados · Piso 2', code: 'ACB' };
+    if (activeDisc === 'arquitectonico') return { img: 'assets/planos/p2-mobiliario.png', label: 'Planta de mobiliario · Piso 2', code: 'ARQ' };
+    if (activeDisc === 'electrico') return { img: `assets/planos/electrico/plano-elec-${activeRoom}.jpg`, label: disc.title, code: disc.code };
+    return { img: null, label: disc.title, code: disc.code };
+  }
+
+  /* ---- zoom y desplazamiento ---- */
+  let z = 1, tx = 0, ty = 0;
+  const apply = () => { pan.style.transform = `translate(${tx}px, ${ty}px) scale(${z})`; stage.classList.toggle('is-zoomed', z > 1.01); };
+  const zoomTo = (nz) => { z = Math.min(5, Math.max(1, nz)); if (z === 1) { tx = 0; ty = 0; } apply(); };
+  container.querySelectorAll('[data-zoom]').forEach((b) => b.addEventListener('click', () => {
+    const k = b.dataset.zoom;
+    if (k === 'in') zoomTo(z * 1.35); else if (k === 'out') zoomTo(z / 1.35); else zoomTo(1);
+  }));
+  stage.addEventListener('wheel', (e) => {
+    if (!e.ctrlKey && z === 1 && e.deltaY > 0) return; // deja hacer scroll de la página
+    e.preventDefault();
+    zoomTo(z * (e.deltaY < 0 ? 1.15 : 1 / 1.15));
+  }, { passive: false });
+  let drag = null;
+  pan.addEventListener('pointerdown', (e) => {
+    if (z <= 1) return;
+    drag = { x: e.clientX - tx, y: e.clientY - ty };
+    pan.setPointerCapture(e.pointerId);
+  });
+  pan.addEventListener('pointermove', (e) => { if (!drag) return; tx = e.clientX - drag.x; ty = e.clientY - drag.y; apply(); });
+  pan.addEventListener('pointerup', () => { drag = null; });
+  pan.addEventListener('dblclick', () => openModal());
+
+  function render() {
+    const disc = DISCIPLINAS_ASBUILT[activeDisc];
+    const r = roomInfo(activeRoom);
+    const src = currentSource();
+
+    container.querySelectorAll('.ab2-disc').forEach((b) => {
+      const on = b.dataset.disc === activeDisc;
+      b.classList.toggle('active', on);
+      b.setAttribute('aria-selected', String(on));
+    });
+    container.querySelectorAll('.ab2-room').forEach((b) => b.classList.toggle('active', b.dataset.room === activeRoom));
+    container.querySelectorAll('[data-view]').forEach((b) => {
+      const on = b.dataset.view === activeView;
+      b.classList.toggle('active', on);
+      b.setAttribute('aria-selected', String(on));
+    });
+
+    $('[data-ab2-badge]').textContent = `Habitación ${r.n}`;
+    $('[data-ab2-code]').textContent = `Plano ${src.code}-${r.n}`;
+    $('[data-ab2-h]').textContent = r.cat;
+    $('[data-ab2-meta]').textContent = `${r.ala} · ${r.priv} m² privados · ${r.camas}`;
+
+    if (src.img) {
+      pan.innerHTML = `<img src="${src.img}" alt="${src.label} · Habitación ${r.n}" draggable="false">`;
+      down.href = src.img;
+      down.removeAttribute('aria-disabled');
+    } else {
+      pan.innerHTML = `<div class="ab2-schem">${renderRoomDetailDiagram(disc.id, r)}</div>`;
+      down.removeAttribute('href');
+      down.setAttribute('aria-disabled', 'true');
+    }
+    stage.classList.toggle('is-planta', activeView !== 'redes' || activeDisc === 'arquitectonico');
+    stage.classList.remove('swap'); void stage.offsetWidth; stage.classList.add('swap');
+    zoomTo(1);
+  }
+
+  function setDiscipline(k) {
+    if (!DISCIPLINAS_ASBUILT[k]) return;
+    activeDisc = k;
+    activeView = k === 'arquitectonico' ? 'planta' : 'redes';
+    render();
+  }
+
+  container.querySelectorAll('.ab2-disc').forEach((b) => b.addEventListener('click', () => setDiscipline(b.dataset.disc)));
+  container.querySelectorAll('.ab2-room').forEach((b) => b.addEventListener('click', () => { activeRoom = b.dataset.room; render(); }));
+  container.querySelectorAll('[data-view]').forEach((b) => b.addEventListener('click', () => { activeView = b.dataset.view; render(); }));
+  $('[data-ab2-layers]').addEventListener('click', () => {
+    if (activeDisc === 'arquitectonico') activeDisc = 'electrico';
+    activeView = 'redes';
+    render();
+  });
+  $('[data-ab2-full]').addEventListener('click', () => openModal());
+
+  /* ---- pantalla completa ---- */
   const modalEl = document.getElementById('asb-modal');
   const modalImg = document.getElementById('asb-modal-img');
   const modalSchem = document.getElementById('asb-modal-schem');
-  const modalTag = document.getElementById('asb-modal-tag');
-  const modalCode = document.getElementById('asb-modal-code');
-  const modalTitle = document.getElementById('asb-modal-title');
-  const modalSub = document.getElementById('asb-modal-sub');
-
-  function openModal(roomNum) {
+  function openModal() {
     const disc = DISCIPLINAS_ASBUILT[activeDisc];
-    const rInfo = roomsMap.get(roomNum) || {
-      n: roomNum,
-      tipo: 'Habitación Doble',
-      cat: 'Habitación Doble',
-      ala: 'Ala Recta Norte',
-      priv: 26.42,
-      camas: '2 Camas Dobles (1600x2000 mm) + Poltrona + Escritorio'
-    };
-    const imgSrc = planImg(disc.id, roomNum);
-    const isElectrico = !!imgSrc;
-
-    modalTag.textContent = `HABITACIÓN ${roomNum}`;
-    modalTag.style.background = disc.color;
-    modalCode.textContent = `PLANO ${disc.code}-${roomNum}`;
-    modalTitle.textContent = `${rInfo.cat} · ${rInfo.ala} · ${rInfo.priv} m² privados`;
-    modalSub.textContent = `Lámina As-Built · 1. Planta (1:50) · 2. Axonometría 3D · 3. Habitación · 4. Baño · ${rInfo.camas}`;
-
-    if (isElectrico) {
-      modalImg.src = imgSrc;
-      modalImg.hidden = false;
-      modalSchem.hidden = true;
+    const r = roomInfo(activeRoom);
+    const src = currentSource();
+    document.getElementById('asb-modal-tag').textContent = `HABITACIÓN ${r.n}`;
+    document.getElementById('asb-modal-code').textContent = `PLANO ${src.code}-${r.n}`;
+    document.getElementById('asb-modal-title').textContent = `${src.label} · ${r.cat} · ${r.priv} m²`;
+    if (src.img) {
+      modalImg.src = src.img; modalImg.hidden = false; modalSchem.hidden = true;
     } else {
-      modalImg.hidden = true;
-      modalSchem.hidden = false;
-      modalSchem.innerHTML = renderRoomDetailDiagram(disc.id, rInfo);
+      modalImg.hidden = true; modalSchem.hidden = false;
+      modalSchem.innerHTML = renderRoomDetailDiagram(disc.id, r);
     }
-
     modalEl.hidden = false;
     document.body.style.overflow = 'hidden';
   }
-
-  function closeModal() {
-    modalEl.hidden = true;
-    document.body.style.overflow = '';
-  }
-
-  container.querySelectorAll('[data-close-modal]').forEach((btn) => {
-    btn.addEventListener('click', closeModal);
-  });
-
-  window.addEventListener('keydown', (e) => {
-    if (modalEl.hidden) return;
-    if (e.key === 'Escape') closeModal();
-  });
-
-  /**
-   * Renderiza el plano de la habitación en la COLUMNA DERECHA (EL RECUADRO VERDE)
-   */
-  function renderSidePlan() {
-    const disc = DISCIPLINAS_ASBUILT[activeDisc];
-    const r = roomsMap.get(activeRoom) || {
-      n: activeRoom,
-      tipo: 'Habitación Doble',
-      cat: 'Habitación Doble',
-      ala: 'Ala Recta Norte',
-      priv: 26.42,
-      camas: '2 Camas Dobles (1600×2000 mm) + Poltrona + Escritorio'
-    };
-
-    const planImgSrc = planImg(disc.id, r.n);
-    const isElectrico = !!planImgSrc;
-
-    inspectorEl.innerHTML = `
-      <div class="asb-side-card">
-        <!-- Cabecera del plano derecho -->
-        <div class="asb-side-header">
-          <div class="asb-side-tag-row">
-            <span class="asb-side-badge" style="background: ${disc.color}; color: #000;">
-              HABITACIÓN ${r.n}
-            </span>
-            <span class="asb-side-code">
-              PLANO ${disc.code}-${r.n}
-            </span>
-          </div>
-          <h3 class="asb-side-title">${r.cat}</h3>
-          <p class="asb-side-meta">${r.ala} · <b>${r.priv} m²</b> privados · ${r.camas}</p>
-        </div>
-
-        <!-- Contenedor del plano de la habitación sin recortes -->
-        <div class="asb-side-drawing-box">
-          ${isElectrico ? `
-            <div class="asb-side-img-stage" id="asb-side-img-stage" title="Clic para ver en pantalla completa">
-              <img src="${planImgSrc}" alt="Plano As-Built ${disc.title} Habitación ${r.n}" class="asb-side-cad-img" id="asb-side-cad-img">
-              <button type="button" class="asb-side-zoom-btn" id="asb-zoom-btn">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
-                <span>Clic para pantalla completa</span>
-              </button>
-            </div>
-          ` : `
-            <div class="asb-side-schem-stage">
-              <div class="asb-side-schem-top">
-                <span style="color: ${disc.color}; font-weight: 700; font-size: 0.9rem;">${disc.title}</span>
-                <span style="font-size: 0.8rem; color: #94a3b8;">Escala 1:50</span>
-              </div>
-              ${renderRoomDetailDiagram(disc.id, r)}
-            </div>
-          `}
-        </div>
-
-        <!-- Barra inferior del plano: Contenido y Navegación entre habitaciones -->
-        <div class="asb-side-footer">
-          <div class="asb-side-info-line">
-            <span><b>Lámina:</b> 1. Planta (1:50) · 2. Axonometría 3D · 3. Habitación · 4. Baño</span>
-            <span class="asb-side-scale-tag">Escala 1:50</span>
-          </div>
-
-          <div class="asb-side-nav-bar">
-            <button type="button" class="asb-side-nav-btn prev" id="asb-side-prev">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-              Anterior
-            </button>
-            <div class="asb-side-pills">
-              ${geo.rooms.map((rm) => `
-                <button type="button" class="asb-side-pill ${rm.n === activeRoom ? 'active' : ''}" data-side-pill="${rm.n}">
-                  ${rm.n}
-                </button>
-              `).join('')}
-            </div>
-            <button type="button" class="asb-side-nav-btn next" id="asb-side-next">
-              Siguiente
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-            </button>
-          </div>
-        </div>
-      </div>
-    `;
-
-    document.getElementById('asb-side-img-stage')?.addEventListener('click', () => {
-      openModal(activeRoom);
-    });
-
-    document.getElementById('asb-side-prev')?.addEventListener('click', () => navigateRoom(-1));
-    document.getElementById('asb-side-next')?.addEventListener('click', () => navigateRoom(1));
-
-    inspectorEl.querySelectorAll('[data-side-pill]').forEach((b) => {
-      b.addEventListener('click', () => selectRoom(b.dataset.sidePill));
-    });
-  }
-
-  function navigateRoom(delta) {
-    const roomKeys = geo.rooms.map((r) => r.n);
-    const idx = roomKeys.indexOf(activeRoom);
-    if (idx === -1) return;
-    const nextIdx = (idx + delta + roomKeys.length) % roomKeys.length;
-    selectRoom(roomKeys[nextIdx]);
-  }
-
-  function renderDisciplineHeader() {
-    const d = DISCIPLINAS_ASBUILT[activeDisc];
-    descEl.innerHTML = `
-      <div class="asb-desc-main">
-        <span class="asb-tag-pill" style="border-color: ${d.color}; color: ${d.color};">
-          ${d.code} · As-Built
-        </span>
-        <h4>${d.title}</h4>
-        <p>${d.tagline} Norma técnica: <b>${d.norma}</b>.</p>
-      </div>
-      <div class="asb-desc-specs">
-        ${d.specs.map((s) => `
-          <div class="asb-spec-item">
-            <span class="asb-sp-v">${s.val}</span>
-            <span class="asb-sp-l">${s.label}</span>
-          </div>
-        `).join('')}
-      </div>
-    `;
-  }
-
-  function renderLegend() {
-    const d = DISCIPLINAS_ASBUILT[activeDisc];
-    legendEl.innerHTML = `
-      <span class="asb-leg-head">Convenciones:</span>
-      <div class="asb-leg-list">
-        ${d.legend.map((l) => `
-          <div class="asb-leg-entry">
-            <span class="asb-leg-bullet ${l.type}" style="--c: ${l.color}; background-color: ${l.type === 'line' ? 'transparent' : l.color}; border-color: ${l.color};"></span>
-            <span>${l.label}</span>
-          </div>
-        `).join('')}
-      </div>
-    `;
-  }
-
-  function renderFloorSvg() {
-    const disc = DISCIPLINAS_ASBUILT[activeDisc];
-
-    let svgHtml = `
-      <!-- Losa y circulaciones -->
-      ${geo.slab.map((l) => `<path class="asb-slab" d="${pathOf(l)}" fill="#141822" stroke="#252d3d" stroke-width="4"/>`).join('')}
-      ${geo.corridor.map((l) => `<path class="asb-circ" d="${pathOf(l)}" fill="#19202e" stroke="#2f3b50" stroke-width="3"/>`).join('')}
-
-      <!-- Habitaciones -->
-      <g class="asb-rooms-g">
-        ${geo.rooms.map((r) => {
-          const isSelected = r.n === activeRoom;
-          return `
-            <g class="asb-room-polygon-g ${isSelected ? 'selected' : ''}" data-room-n="${r.n}">
-              <path class="asb-room-bg" d="${pathOf(r.main)}" fill="${isSelected ? disc.color + '25' : '#0c1018'}" stroke="${isSelected ? disc.color : '#2d3748'}" stroke-width="${isSelected ? 4 : 2}"/>
-              ${r.bath.map((b) => `<path class="asb-bath-bg" d="${pathOf(b)}" fill="${isSelected ? disc.color + '33' : '#0f1420'}" stroke="${isSelected ? disc.color : '#2d3748'}" stroke-width="2"/>`).join('')}
-            </g>
-          `;
-        }).join('')}
-      </g>
-
-      <!-- Núcleos estructurales -->
-      ${geo.stairs.map(([a, b, c, d]) => `<rect class="asb-stair" x="${a}" y="${-d}" width="${c - a}" height="${d - b}" fill="#1e2533" stroke="#475569" stroke-width="2" stroke-dasharray="6,4"/>`).join('')}
-      ${geo.walls.map(([a, b, c, d, t]) => `<line class="asb-wall" x1="${a}" y1="${-b}" x2="${c}" y2="${-d}" stroke="#64748b" stroke-width="${Math.max(t, 6)}" stroke-linecap="round"/>`).join('')}
-      ${geo.columns.map(([a, b, c, d]) => `<rect class="asb-col" x="${a}" y="${-d}" width="${c - a}" height="${d - b}" fill="#334155" stroke="#94a3b8" stroke-width="1.5"/>`).join('')}
-
-      <!-- Capa de ingeniería MEP -->
-      ${generateMepSvg(activeDisc, geo, rooms)}
-
-      <!-- Etiquetas interactivas con número de habitación -->
-      <g class="asb-labels-g">
-        ${geo.rooms.map((r) => {
-          const [cx, cy] = centroid(r.main);
-          const isSelected = r.n === activeRoom;
-          return `
-            <g class="asb-room-lbl-g" data-label-n="${r.n}">
-              <rect x="${cx - 36}" y="${cy - 20}" width="72" height="40" rx="6" fill="${isSelected ? disc.color : '#0f1622'}" stroke="${isSelected ? '#fff' : disc.color}" stroke-width="${isSelected ? 3 : 1.5}" opacity="0.95"/>
-              <text x="${cx}" y="${cy + 7}" fill="${isSelected ? '#000' : '#fff'}" font-family="var(--head)" font-size="24" font-weight="700" text-anchor="middle">${r.n}</text>
-            </g>
-          `;
-        }).join('')}
-      </g>
-    `;
-
-    svgEl.innerHTML = svgHtml;
-    attachRoomEvents();
-  }
-
-  function attachRoomEvents() {
-    svgEl.querySelectorAll('[data-room-n], [data-label-n]').forEach((el) => {
-      const roomNum = el.dataset.roomN || el.dataset.labelN;
-
-      el.addEventListener('click', () => {
-        selectRoom(roomNum);
-      });
-
-      el.addEventListener('mouseenter', (e) => {
-        const rInfo = roomsMap.get(roomNum);
-        if (!rInfo) return;
-        tooltipEl.hidden = false;
-        tooltipEl.innerHTML = `<b>Habitación ${rInfo.n}</b><br><small>${rInfo.cat} · ${rInfo.priv} m² · <i>Clic para ver plano a la derecha</i></small>`;
-      });
-
-      el.addEventListener('mousemove', (e) => {
-        const rect = container.getBoundingClientRect();
-        tooltipEl.style.left = `${e.clientX - rect.left + 15}px`;
-        tooltipEl.style.top = `${e.clientY - rect.top + 15}px`;
-      });
-
-      el.addEventListener('mouseleave', () => {
-        tooltipEl.hidden = true;
-      });
-    });
-  }
+  function closeModal() { modalEl.hidden = true; document.body.style.overflow = ''; }
+  container.querySelectorAll('[data-close-modal]').forEach((b) => b.addEventListener('click', closeModal));
+  window.addEventListener('keydown', (e) => { if (!modalEl.hidden && e.key === 'Escape') closeModal(); });
 
   function renderRoomDetailDiagram(discKey, room) {
     if (discKey === 'agua') {
@@ -701,77 +529,5 @@ export function initAsBuilt({ rooms, geo }) {
   }
 
 
-
-
-
-  function selectRoom(roomNum) {
-    activeRoom = String(roomNum);
-
-    container.querySelectorAll('.asb-room-chip').forEach((b) => {
-      b.classList.toggle('active', b.dataset.selectRoom === activeRoom);
-    });
-
-    const disc = DISCIPLINAS_ASBUILT[activeDisc];
-    svgEl.querySelectorAll('.asb-room-polygon-g').forEach((g) => {
-      const isCur = g.dataset.roomN === activeRoom;
-      g.classList.toggle('selected', isCur);
-      const bg = g.querySelector('.asb-room-bg');
-      if (bg) {
-        bg.setAttribute('fill', isCur ? disc.color + '25' : '#0c1018');
-        bg.setAttribute('stroke', isCur ? disc.color : '#2d3748');
-        bg.setAttribute('stroke-width', isCur ? '4' : '2');
-      }
-    });
-
-    svgEl.querySelectorAll('.asb-room-lbl-g').forEach((g) => {
-      const isCur = g.dataset.labelN === activeRoom;
-      const rect = g.querySelector('rect');
-      const txt = g.querySelector('text');
-      if (rect) {
-        rect.setAttribute('fill', isCur ? disc.color : '#0f1622');
-        rect.setAttribute('stroke', isCur ? '#fff' : disc.color);
-        rect.setAttribute('stroke-width', isCur ? '3' : '1.5');
-      }
-      if (txt) {
-        txt.setAttribute('fill', isCur ? '#000' : '#fff');
-      }
-    });
-
-    // Actualiza el plano en la COLUMNA DERECHA
-    renderSidePlan();
-  }
-
-  function setDiscipline(discKey) {
-    if (!DISCIPLINAS_ASBUILT[discKey]) return;
-    activeDisc = discKey;
-
-    container.querySelectorAll('.asb-pill-btn').forEach((btn) => {
-      const isCur = btn.dataset.disc === activeDisc;
-      btn.classList.toggle('active', isCur);
-      btn.setAttribute('aria-selected', String(isCur));
-    });
-
-    renderDisciplineHeader();
-    renderLegend();
-    renderFloorSvg();
-    renderSidePlan();
-  }
-
-  container.querySelectorAll('.asb-pill-btn').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      btn.classList.remove('flash');
-      void btn.offsetWidth; // reinicia la animación de destello
-      btn.classList.add('flash');
-      setDiscipline(btn.dataset.disc);
-    });
-  });
-
-  container.querySelectorAll('.asb-room-chip').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      selectRoom(btn.dataset.selectRoom);
-    });
-  });
-
   setDiscipline('electrico');
-  selectRoom('215');
 }

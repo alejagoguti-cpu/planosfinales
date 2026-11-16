@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@200;300;400&family=Space+Grotesk:wght@300;400;500&family=Archivo:wght@400;500&display=swap" rel="stylesheet">
   <link rel="preload" as="image" href="assets/img/hero-aerea.webp" fetchpriority="high">
-  <link rel="stylesheet" href="styles.css?v=2.7">
+  <link rel="stylesheet" href="styles.css?v=2.9">
   <script type="importmap">
     { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }
   </script>
@@ -189,17 +189,41 @@
   </main>
 
   <!-- 10 · Pie oscuro -->
-  <footer class="foot" id="contacto">
-    <div class="foot-logos"><img src="assets/logos/estelar.png" alt="Hoteles Estelar" width="300" height="300"><img src="assets/logos/baco.png" alt="Baco Studio" width="300" height="300"></div>
-    <div class="foot-cols">
-      <div class="foot-main">
-        <p>Hotel Estelar La Fontana<br>Av. Calle 127 # 15A-10<br>Bogotá D.C., Colombia</p>
-        <p class="foot-lead">Remodelación del Piso 2.</p>
+  <footer class="foot foot-v2" id="contacto">
+    <div class="foot-top">
+      <div class="foot-claim">
+        <span class="foot-kicker">Hotel Estelar La Fontana · Bogotá</span>
+        <p class="foot-big">Remodelación del <span>Piso 2</span></p>
       </div>
-      <div><h4>Ubicación</h4><p>Santa Bárbara · Usaquén<br>Costado Calle 124 con Carrera 15<br>4.7046° N, 74.0437° O</p><p><a href="https://www.google.com/maps?q=4.704585254832645,-74.04369633465852" target="_blank" rel="noopener">Ver en el mapa</a></p></div>
-      <div><h4>Proyecto</h4><p>Modelo Revit HLF_P2-P6<br>12 habitaciones · 3 alas<br>Altura entre pisos 3,00 m</p></div>
+      <div class="foot-logos"><img src="assets/logos/estelar.png" alt="Hoteles Estelar" width="300" height="300"><img src="assets/logos/baco.png" alt="Baco Studio" width="300" height="300"></div>
     </div>
-    <p class="foot-bottom">© 2026 Hotel La Fontana · Piso 2 | Visualizaciones ilustrativas generadas con IA desde el modelo</p>
+    <div class="foot-cols">
+      <div>
+        <h4>Dirección</h4>
+        <p>Av. Calle 127 # 15A-10<br>Santa Bárbara · Usaquén<br>Bogotá D.C., Colombia</p>
+        <p><a class="foot-link" href="https://www.google.com/maps?q=4.704585254832645,-74.04369633465852" target="_blank" rel="noopener">Ver en el mapa ↗</a></p>
+      </div>
+      <div>
+        <h4>Proyecto</h4>
+        <p>Modelo Revit HLF_P2-P6<br>12 habitaciones · 3 alas<br>Altura entre pisos 3,00 m</p>
+      </div>
+      <nav aria-label="Secciones">
+        <h4>Explora</h4>
+        <ul class="foot-nav">
+          <li><a href="#edificio">Edificio</a></li>
+          <li><a href="#tipologias">Tipologías</a></li>
+          <li><a href="#plantas">Plantas</a></li>
+          <li><a href="#as-built">Planos As Built</a></li>
+          <li><a href="#detalle">Acabados</a></li>
+          <li><a href="#recorridos">Recorridos</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Hotel La Fontana · Piso 2</span>
+      <span>Visualizaciones ilustrativas generadas con IA desde el modelo</span>
+      <a class="foot-up" href="#top">Volver arriba ↑</a>
+    </div>
   </footer>
 </body>
 </html>

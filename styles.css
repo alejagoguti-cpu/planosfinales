@@ -2128,3 +2128,37 @@ main { counter-reset: sec; }
   .tours .btn-dark,
   .tours .btn-dark::before { animation: none; }
 }
+
+
+/* Marcas blancas permanentes y hamburguesa alineada a la derecha */
+.header-marks .brand-img {
+  filter: brightness(0) invert(1);
+}
+@keyframes markFocus {
+  from {
+    opacity: 0;
+    filter: brightness(0) invert(1) blur(12px);
+    transform: translateY(5px) scale(.94);
+  }
+  to {
+    opacity: 1;
+    filter: brightness(0) invert(1) blur(0);
+    transform: translateY(0) scale(1);
+  }
+}
+.site-header-minimal .burger {
+  position: absolute;
+  right: var(--pad);
+  top: 50%;
+  translate: 0 -50%;
+  display: inline-flex;
+  z-index: 3;
+}
+.site-header-minimal .burger i {
+  background: #fff;
+}
+.site-header-minimal .burger:hover,
+.site-header-minimal .burger[aria-expanded="true"] {
+  border-color: rgba(255,255,255,.72);
+  background: rgba(255,255,255,.12);
+}

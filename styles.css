@@ -2162,3 +2162,18 @@ main { counter-reset: sec; }
   border-color: rgba(255,255,255,.72);
   background: rgba(255,255,255,.12);
 }
+
+
+/* Seguridad: si el motor de animación no termina de iniciar, el contenido nunca queda oculto */
+.js-anim:not(.motion-ready) .rv,
+.js-anim:not(.motion-ready) .row-reveal {
+  opacity: 1 !important;
+  transform: none !important;
+  filter: none !important;
+}
+.js-anim:not(.motion-ready) .wipe img,
+.js-anim:not(.motion-ready) .split .wi {
+  opacity: 1 !important;
+  transform: none !important;
+  clip-path: none !important;
+}

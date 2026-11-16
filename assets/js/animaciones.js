@@ -60,7 +60,7 @@ const io = new IntersectionObserver((entries) => {
     io.unobserve(e.target);
   }
 }, { rootMargin: '0px 0px -12% 0px', threshold: 0.01 });
-$('.rv, .wipe, .split').forEach((el) => io.observe(el));
+document.querySelectorAll('.rv, .wipe, .split').forEach((el) => io.observe(el));
 
 /* ---------- coreografía propia de cada sección (incluye contenido generado después de cargar) ---------- */
 const motionGroups = [
@@ -80,7 +80,7 @@ const motionGroups = [
 ];
 function initSectionMotion(root = document) {
   for (const [selector, variant] of motionGroups) {
-    $(selector, root).forEach((el, i) => {
+    root.querySelectorAll(selector).forEach((el, i) => {
       if (el.dataset.motionReady) return;
       el.dataset.motionReady = 'true';
       el.classList.add('rv', variant);
@@ -88,7 +88,7 @@ function initSectionMotion(root = document) {
       io.observe(el);
     });
   }
-  $('.levels tbody tr', root).forEach((row, i) => {
+  root.querySelectorAll('.levels tbody tr').forEach((row, i) => {
     if (row.dataset.motionReady) return;
     row.dataset.motionReady = 'true';
     row.classList.add('row-reveal');

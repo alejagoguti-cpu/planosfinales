@@ -2838,3 +2838,24 @@ main { counter-reset: sec; }
 .asb-pills-bar .asb-pill-btn:hover { transform: translateY(-2px); }
 .asb-pills-bar .asb-pill-btn:active { transform: scale(.97); }
 .asb-pills-bar .asb-pill-btn.active { transform: none; }
+
+/* Sin choques entre secciones: cada bloque queda dentro de su sección */
+.asb-split-container { grid-template-rows: minmax(0, 1fr); }
+.asb-left-column, .asb-right-column { max-height: 100%; }
+.asbuilt-section, .levels { overflow: clip; position: relative; isolation: isolate; }
+@media (max-height: 900px) and (min-width: 901px) {
+  .asbuilt-head h2 { font-size: clamp(2rem, 1.4rem + 1.8vw, 2.8rem); }
+  .asbuilt-head p { font-size: .9rem; }
+  .asb-pills-bar { gap: .4rem; }
+  .asb-pills-bar .asb-pill-btn { min-height: 2.9rem; }
+  .asb-left-rooms-grid .asb-room-chip { min-height: 2.1rem; }
+}
+
+/* Apariciones en scroll más pulidas: recorridos cortos, sin desbordes */
+.js-anim .rv { transform: translateY(18px); transition-duration: .8s; }
+.js-anim .rv.rv-left { transform: translateX(-18px); }
+.js-anim .rv.rv-right { transform: translateX(18px); }
+.js-anim .rv.rv-up { transform: translateY(18px); }
+.js-anim .rv.rv-scale { transform: scale(.985); filter: blur(3px); }
+.js-anim .rv.rv-focus { transform: translateY(-8px); filter: blur(4px); }
+.js-anim .rv.in { transform: none; filter: none; }

@@ -270,10 +270,11 @@ export function initAsBuilt({ rooms, geo }) {
         <!-- 4 Pestañas de especialidades en cuadrícula 2x2 perfecta (Las 4 cajas rojas) -->
         <div class="asb-pills-bar" role="tablist" aria-label="Especialidades As-Built">
           ${Object.values(DISCIPLINAS_ASBUILT).map((d) => `
-            <button type="button" class="asb-pill-btn ${d.id === activeDisc ? 'active' : ''}" data-disc="${d.id}" role="tab" aria-selected="${d.id === activeDisc}">
+            <button type="button" class="asb-pill-btn ${d.id === activeDisc ? 'active' : ''}" data-disc="${d.id}" style="--dc: ${d.color};" role="tab" aria-selected="${d.id === activeDisc}">
               <span class="asb-pill-num">${d.num}</span>
               <span class="asb-pill-icon" style="color: ${d.color};">${d.iconSvg}</span>
               <span class="asb-pill-label">${d.numLabel}</span>
+              <span class="asb-pill-arrow" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></span>
             </button>
           `).join('')}
         </div>
@@ -758,6 +759,9 @@ export function initAsBuilt({ rooms, geo }) {
 
   container.querySelectorAll('.asb-pill-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
+      btn.classList.remove('flash');
+      void btn.offsetWidth; // reinicia la animación de destello
+      btn.classList.add('flash');
       setDiscipline(btn.dataset.disc);
     });
   });

@@ -2,28 +2,8 @@ const $ = (s, el = document) => el.querySelector(s);
 const $$ = (s, el = document) => [...el.querySelectorAll(s)];
 const m2 = (n) => `${n.toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} m²`;
 
-/* ---------- menú ---------- */
-const burger = $('[data-burger]');
-const menu = $('[data-menu]');
-function setMenu(open) {
-  menu.hidden = !open;
-  burger.setAttribute('aria-expanded', String(open));
-  burger.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
-  document.body.style.overflow = open ? 'hidden' : '';
-}
-burger.addEventListener('click', () => setMenu(menu.hidden));
-$$('a', menu).forEach((a) => a.addEventListener('click', () => setMenu(false)));
-addEventListener('keydown', (e) => { if (e.key === 'Escape' && !menu.hidden) setMenu(false); });
-
-// hamburguesa blanca sobre fotos y zonas oscuras, roja sobre fondos claros
-const darkZones = $$('.hero, .slider, .levels, .foot');
-const tintBurger = () => {
-  const y = 40;
-  const onDark = darkZones.some((z) => { const r = z.getBoundingClientRect(); return r.top <= y && r.bottom >= y; });
-  burger.classList.toggle('on-dark', onDark);
-};
-addEventListener('scroll', tintBurger, { passive: true });
-tintBurger();
+/* ---------- encabezado minimalista ---------- */
+// La cabecera conserva únicamente el logotipo centrado. No necesita menú ni controles JS.
 
 /* ---------- carrusel con barras ---------- */
 const slider = $('[data-slider]');
@@ -114,14 +94,14 @@ pills.addEventListener('click', (e) => { const b = e.target.closest('button'); i
 showCat(CATS[0]);
 
 /* ---------- modelo 3D por pisos + lista de niveles y habitaciones ---------- */
-const { Edificio3D } = await import('./assets/js/edificio3d.js?v=2.0');
+const { Edificio3D } = await import('./assets/js/edificio3d.js?v=2.1');
 const tbody = $('[data-levels]');
 const total = rooms.reduce((a, r) => a + r.priv, 0);
 const p2 = `<tr class="lvl" data-lvl="2" tabindex="0" aria-selected="false"><td>Piso 2</td><td>${m2(total)}</td><td>12 habitaciones</td><td>3 alas</td></tr>`;
 const roomRows = rooms.map((r) => `<tr class="room" data-n="${r.n}" tabindex="0" aria-selected="false"><td>Hab. ${r.n}</td><td>${m2(r.priv)}</td><td>${r.tipo}</td><td>${r.ala}</td></tr>`).join('');
 tbody.innerHTML = p2 + roomRows;
 
-const pTitle = $('[data-p-title]'), pArea = $('[data-p-area]'), pSub = $('[data-p-sub]'), pEmpty = $('[data-p-empty]'), reset = $('[data-reset]');
+const pTitle = $('[data-p-title]'), pArea = $('[data-p-area]'), pSub = $('[data-p-sub]'), pEmpty = $('[data-p-empty]'), reset = $('[data-reset]'), view3d = $('[data-view3d]');
 const mark = (sel) => $$('tr', tbody).forEach((t) => t.setAttribute('aria-selected', String(t.matches(sel))));
 
 const viewer = new Edificio3D($('[data-viewer]'), geo, {
@@ -130,7 +110,16 @@ const viewer = new Edificio3D($('[data-viewer]'), geo, {
 });
 
 window.edificio3d = viewer; // acceso desde la consola del navegador
+view3d?.addEventListener('click', () => {
+  viewer.showAxonometric();
+  view3d.setAttribute('aria-pressed', 'true');
+  pTitle.textContent = 'Hotel La Fontana · 3D';
+  pArea.textContent = 'Axonometría del conjunto';
+  pSub.textContent = 'Vista enfocada en el hotel, su acceso y el espacio público inmediato.';
+  reset.hidden = false;
+});
 function openFloor(f) {
+  view3d?.setAttribute('aria-pressed', 'false');
   viewer.setFloor(f);
   reset.hidden = f == null;
   if (pEmpty) pEmpty.hidden = f == null || f === 2;

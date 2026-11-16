@@ -2177,3 +2177,123 @@ main { counter-reset: sec; }
   transform: none !important;
   clip-path: none !important;
 }
+
+
+/* Intro cinematográfica inspirada en la referencia: gran titular + ficha inferior derecha */
+.hero {
+  min-height: 100svh;
+  align-items: stretch;
+}
+.hero-in {
+  width: 100%;
+  max-width: none;
+  min-height: 100svh;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(17rem, .65fr);
+  align-items: end;
+  gap: clamp(2rem, 7vw, 8rem);
+  padding: clamp(8rem, 16vh, 11rem) var(--pad) clamp(3.25rem, 8vh, 6rem);
+}
+.hero h1 {
+  max-width: 7ch;
+  margin: 0;
+  font-size: clamp(4.6rem, 3rem + 7vw, 9.4rem);
+  line-height: .9;
+  letter-spacing: -.055em;
+}
+.hero-copy {
+  align-self: end;
+  justify-self: end;
+  width: min(100%, 25rem);
+  padding-bottom: .7rem;
+  color: #fff;
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 1s var(--ease) 1.05s, transform 1s var(--ease) 1.05s;
+}
+.js-anim.ready .hero-copy {
+  opacity: 1;
+  transform: none;
+}
+.hero-copy p {
+  max-width: 24rem;
+  margin: 0 0 1.4rem;
+  font: 400 clamp(.95rem, .85rem + .25vw, 1.12rem)/1.5 var(--body);
+  color: rgba(255,255,255,.92);
+}
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: .8rem;
+  padding: .85rem 1.25rem;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--brand-blue);
+  text-decoration: none;
+  font: 500 .8rem/1 var(--head);
+  transition: transform .35s var(--ease), background .35s, color .35s;
+}
+.hero-cta::after {
+  content: "↗";
+  font-size: 1.05rem;
+  transition: transform .35s var(--ease);
+}
+.hero-cta:hover {
+  transform: translateY(-4px);
+  background: var(--gold);
+  color: #fff;
+}
+.hero-cta:hover::after { transform: translate(3px, -3px); }
+.hero::after {
+  background:
+    linear-gradient(90deg, rgba(4, 10, 21, .58), rgba(4, 10, 21, .08) 63%),
+    linear-gradient(0deg, rgba(4, 10, 21, .7), rgba(4, 10, 21, .04) 58%);
+}
+
+/* Pantalla de entrada con las dos marcas, limpia y sin cajas */
+.curtain {
+  background: var(--brand-blue);
+}
+.curtain-marks {
+  display: grid;
+  grid-template-columns: 5.5rem 1px 5.5rem;
+  align-items: center;
+  gap: 1.25rem;
+  animation: curtainLogo 1s var(--ease) both;
+}
+.curtain-marks img {
+  width: 5.5rem;
+  height: 5.5rem;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  animation: none;
+}
+.curtain-marks span {
+  width: 1px;
+  height: 3.4rem;
+  background: rgba(181, 149, 53, .75);
+}
+.curtain-bar { width: 13.25rem; }
+
+@media (max-width: 760px) {
+  .hero-in {
+    grid-template-columns: 1fr;
+    align-content: end;
+    gap: 2rem;
+    padding-top: 8rem;
+  }
+  .hero h1 {
+    font-size: clamp(4rem, 18vw, 6.6rem);
+    max-width: 6ch;
+  }
+  .hero-copy {
+    justify-self: start;
+    width: min(100%, 22rem);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-copy { opacity: 1; transform: none; transition: none; }
+}

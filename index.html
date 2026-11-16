@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@200;300;400&family=Space+Grotesk:wght@300;400;500&family=Archivo:wght@400;500&display=swap" rel="stylesheet">
   <link rel="preload" as="image" href="assets/img/hero-aerea.webp" fetchpriority="high">
-  <link rel="stylesheet" href="styles.css?v=1.7">
+  <link rel="stylesheet" href="styles.css?v=1.8">
   <script type="importmap">
     { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }
   </script>
@@ -30,8 +30,23 @@
         <span class="mark-divider" aria-hidden="true"></span>
         <img src="assets/logos/baco.png" alt="Baco Studio" class="brand-img brand-img-baco" width="300" height="300">
       </div>
+      <button class="burger" type="button" aria-expanded="false" aria-controls="menu" aria-label="Abrir menú" data-burger>
+        <i></i><i></i><i></i>
+      </button>
     </div>
   </header>
+
+  <nav class="menu" id="menu" aria-label="Principal" hidden data-menu>
+    <ul>
+      <li><a href="#edificio">Edificio</a></li>
+      <li><a href="#tipologias">Tipologías</a></li>
+      <li><a href="#plantas">Plantas</a></li>
+      <li><a href="#as-built">Planos As Built</a></li>
+      <li><a href="#detalle">Acabados</a></li>
+      <li><a href="#recorridos">Recorridos</a></li>
+      <li><a href="#contacto">Ubicación</a></li>
+    </ul>
+  </nav>
 
   <main id="main">
     <!-- 1 · Portada -->

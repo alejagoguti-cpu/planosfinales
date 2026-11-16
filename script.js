@@ -123,6 +123,7 @@ const viewer = new Edificio3D($('[data-viewer]'), geo, {
 });
 
 window.edificio3d = viewer; // acceso desde la consola del navegador
+$('[data-cover-3d]')?.addEventListener('click', () => view3d?.click());
 view3d?.addEventListener('click', () => {
   activateViewer();
   viewer.showAxonometric();

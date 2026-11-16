@@ -2297,3 +2297,56 @@ main { counter-reset: sec; }
 @media (prefers-reduced-motion: reduce) {
   .hero-copy { opacity: 1; transform: none; transition: none; }
 }
+
+
+/* Intro en tres fases: aparecer → reducir hacia cabecera → revelar portada */
+.curtain {
+  transition: clip-path .85s var(--ease-io);
+}
+.curtain-marks {
+  grid-template-columns: 7rem 1px 7rem;
+  gap: 1.5rem;
+  animation: curtainMarksIn .8s var(--ease) both;
+  transform: translate3d(0, 0, 0) scale(1);
+  transition: transform .9s var(--ease-io), opacity .35s var(--ease);
+  will-change: transform;
+}
+.curtain-marks img {
+  width: 7rem;
+  height: 7rem;
+}
+.curtain.shrink .curtain-marks {
+  transform: translate3d(0, calc(-50vh + 2.65rem), 0) scale(.58);
+}
+.curtain.shrink .curtain-bar {
+  opacity: 0;
+  transform: scaleX(.3);
+}
+.curtain-bar {
+  transition: opacity .3s var(--ease), transform .45s var(--ease);
+  transform-origin: center;
+}
+.curtain.out .curtain-marks {
+  opacity: 0;
+}
+@keyframes curtainMarksIn {
+  from { opacity: 0; filter: blur(12px); }
+  to { opacity: 1; filter: blur(0); }
+}
+@media (max-width: 640px) {
+  .curtain-marks {
+    grid-template-columns: 5.8rem 1px 5.8rem;
+    gap: 1.1rem;
+  }
+  .curtain-marks img {
+    width: 5.8rem;
+    height: 5.8rem;
+  }
+  .curtain.shrink .curtain-marks {
+    transform: translate3d(0, calc(-50vh + 2.65rem), 0) scale(.62);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .curtain-marks,
+  .curtain-bar { transition: none; animation: none; }
+}

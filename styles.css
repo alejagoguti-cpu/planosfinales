@@ -1790,3 +1790,28 @@ main { counter-reset: sec; }
   .asb-svg-box,
   .asb-side-drawing-box { animation: none; }
 }
+
+
+/* Co-branding centrado: únicamente las dos marcas */
+.header-marks {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.15rem;
+}
+.header-marks .brand { min-width: 0; }
+.header-marks .brand-img-baco {
+  width: 4.1rem;
+  height: 4.1rem;
+  object-fit: contain;
+}
+.mark-divider {
+  width: 1px;
+  height: 2.35rem;
+  background: rgba(181, 149, 53, .58);
+}
+@media (max-width: 640px) {
+  .header-marks { gap: .85rem; }
+  .header-marks .brand-img-baco { width: 3.65rem; height: 3.65rem; }
+  .mark-divider { height: 2rem; }
+}

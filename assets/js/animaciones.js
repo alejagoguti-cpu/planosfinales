@@ -25,12 +25,36 @@ if (!reduce) {
   const go = () => {
     if (started) return;
     started = true;
-    curtain.classList.add('shrink');
-    setTimeout(() => {
+    const marks = curtain.querySelector('.curtain-marks');
+    const bar = curtain.querySelector('.curtain-bar');
+    const target = document.querySelector('.header-marks');
+    const fromRect = marks.getBoundingClientRect();
+    const toRect = target?.getBoundingClientRect();
+    if (!toRect || !marks.animate) {
       curtain.classList.add('out');
       document.documentElement.classList.add('ready');
-    }, 900);
-    setTimeout(() => curtain.remove(), 1900);
+      setTimeout(() => curtain.remove(), 950);
+      return;
+    }
+    const dx = toRect.left + toRect.width / 2 - (fromRect.left + fromRect.width / 2);
+    const dy = toRect.top + toRect.height / 2 - (fromRect.top + fromRect.height / 2);
+    const scale = toRect.width / fromRect.width;
+    bar?.animate(
+      [{ opacity: 1, transform: 'scaleX(1)' }, { opacity: 0, transform: 'scaleX(.35)' }],
+      { duration: 320, easing: 'cubic-bezier(.23, 1, .32, 1)', fill: 'forwards' }
+    );
+    const move = marks.animate(
+      [
+        { transform: 'translate3d(0, 0, 0) scale(1)' },
+        { transform: `translate3d(${dx}px, ${dy}px, 0) scale(${scale})` }
+      ],
+      { duration: 1100, easing: 'cubic-bezier(.77, 0, .175, 1)', fill: 'forwards' }
+    );
+    move.finished.then(() => {
+      document.documentElement.classList.add('ready');
+      curtain.classList.add('out');
+      setTimeout(() => curtain.remove(), 900);
+    });
   };
   const t0 = performance.now();
   const done = () => setTimeout(go, Math.max(0, 950 - (performance.now() - t0)));

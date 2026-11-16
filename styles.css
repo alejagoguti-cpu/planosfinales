@@ -2360,3 +2360,48 @@ main { counter-reset: sec; }
   opacity: 1 !important;
   transition: opacity .28s cubic-bezier(.23, 1, .32, 1);
 }
+
+
+/* As-Built simplificado: únicamente navegación y planos de detalle */
+.asb-discipline-desc,
+.asb-floor-card {
+  display: none !important;
+}
+.asb-split-container {
+  display: block;
+  max-width: 1500px;
+}
+.asb-left-column {
+  display: block;
+}
+.asbuilt-head {
+  max-width: 48rem;
+  margin-bottom: 2rem;
+}
+.asb-pills-bar {
+  margin-bottom: clamp(2rem, 4vw, 3.5rem);
+}
+.asb-right-column {
+  position: static;
+  width: 100%;
+}
+.asb-side-card {
+  width: 100%;
+  max-width: none;
+  padding: clamp(1rem, 2.5vw, 2rem);
+}
+.asb-side-drawing-box {
+  min-height: min(72vh, 780px);
+}
+.asb-side-img-stage {
+  min-height: min(68vh, 720px);
+}
+.asb-side-cad-img {
+  max-height: 70vh;
+}
+@media (max-width: 700px) {
+  .asb-side-drawing-box,
+  .asb-side-img-stage {
+    min-height: 24rem;
+  }
+}

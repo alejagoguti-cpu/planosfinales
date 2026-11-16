@@ -434,8 +434,15 @@ export class Edificio3D {
     this._home(true);
     await this._warmUp();
     this.ready = true;
-    if (this.cut != null) { this._assembled = true; this._applyCut(this._band(), true); }   // ya eligió un piso: sin animación de llegada
-    else if (gsap && !reduced) this.layers.forEach((l) => { l.visible = false; });   // esperan la animación de llegada
+    if (this._pendingAxonometric) {
+      this._pendingAxonometric = false;
+      this.showAxonometric();
+    } else if (this.cut != null) {
+      this._assembled = true;
+      this._applyCut(this._band(), true);
+    } else if (gsap && !reduced) {
+      this.layers.forEach((l) => { l.visible = false; });
+    }
     if (this.room) this.selectRoom(this.room, false);
     this._busy(600);
   }
@@ -1065,20 +1072,58 @@ export class Edificio3D {
     }
   }
 
-  /** Vista axonométrica enfocada: despeja edificios vecinos y conserva hotel, plaza, vegetación y vehículos. */
+  /** Vista axonométrica enfocada: se crea únicamente cuando el visitante pulsa “Ver en 3D”. */
   showAxonometric() {
+    if (!this.ready) {
+      this._pendingAxonometric = true;
+      return;
+    }
     if (this._assembling) { this._tl?.kill(); this._assembling = false; }
+    this._assembled = true;
     this.cut = null;
     this.selectRoom(null, false);
-    this._applyCut(null, true);
     this._setUrbanContext(false);
     this.controls.autoRotate = false;
     this.camera.fov = 23;
     this.camera.updateProjectionMatrix();
+
     const target = this.center.clone().setY(5);
     const distance = this._fit(1.28);
     const dir = new THREE.Vector3(-1, 0.82, 1).normalize();
-    this.flyTo(target.clone().addScaledVector(dir, distance), target, 1.9, 'power3.inOut');
+    const axoPos = target.clone().addScaledVector(dir, distance);
+
+    if (!gsap || reduced) {
+      this._applyCut(null, true);
+      this.camera.position.copy(axoPos);
+      this.controls.target.copy(target);
+      this._busy(500);
+      return;
+    }
+
+    gsap.killTweensOf(this.layers.map((l) => l.position));
+    this.layers.forEach((layer, i) => {
+      layer.visible = true;
+      layer.position.y = 7 + i * 3.1;
+      this._fade(layer, 0);
+    });
+    this.outlineMat.opacity = 0;
+    this.camera.position.copy(target.clone().addScaledVector(dir, distance * 1.28).setY(axoPos.y + 18));
+    this.controls.target.copy(target);
+
+    const states = this.layers.map(() => ({ a: 0 }));
+    const tl = gsap.timeline({ onComplete: () => {
+      this.layers.forEach((layer) => { layer.position.y = 0; this._fade(layer, 1); });
+      this.outlineMat.opacity = 0;
+      this._busy(800);
+    } });
+    tl.to(this.outlineMat, { opacity: .9, duration: .45 }, 0);
+    this.layers.forEach((layer, i) => {
+      const at = i * .11;
+      tl.to(layer.position, { y: 0, duration: 1.25, ease: 'power3.inOut' }, at)
+        .to(states[i], { a: 1, duration: .72, ease: 'power2.out', onUpdate: () => this._fade(layer, states[i].a) }, at);
+    });
+    tl.to(this.outlineMat, { opacity: 0, duration: .65 }, .95);
+    this.flyTo(axoPos, target, 1.9, 'power3.inOut');
   }
 
   /** Abre el Piso 2 (2) o vuelve al edificio completo (null). */

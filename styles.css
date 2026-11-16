@@ -1944,3 +1944,21 @@ main { counter-reset: sec; }
   }
   .asbuilt-section .asb-mep-layer { animation: none; }
 }
+
+
+/* Azul de marca confirmado por muestra: RGB 14, 48, 100 */
+:root {
+  --brand-blue: #0e3064;
+  --navy: #0e3064;
+  --red: #0e3064;
+}
+.site-header-minimal {
+  background: rgba(14, 48, 100, .96);
+  border-bottom-color: rgba(181, 149, 53, .52);
+}
+.btn-view3d:hover,
+.btn-view3d[aria-pressed="true"],
+.btn-reset:hover {
+  background: var(--brand-blue);
+  border-color: var(--brand-blue);
+}

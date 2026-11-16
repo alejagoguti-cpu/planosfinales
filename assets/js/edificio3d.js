@@ -10,6 +10,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
@@ -345,10 +346,16 @@ export class Edificio3D {
   }
 
   async _load() {
-    const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
-    const [gltf, ctx] = await Promise.all([
+    const draco = new DRACOLoader();
+    draco.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.7/');
+    const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder).setDRACOLoader(draco);
+    const [gltf, ctx, mClinica, mTorres, mEsquina, mMetro] = await Promise.all([
       loader.loadAsync('assets/modelo/hlf.glb'),
       fetch('assets/modelo/contexto.json').then((r) => r.json()),
+      loader.loadAsync('assets/modelo/clinica127.glb').catch((e) => { console.warn('clinica127', e); return null; }),
+      loader.loadAsync('assets/modelo/torres_vecinas.glb').catch((e) => { console.warn('torres_vecinas', e); return null; }),
+      loader.loadAsync('assets/modelo/esquina_ak15.glb').catch((e) => { console.warn('esquina_ak15', e); return null; }),
+      loader.loadAsync('assets/modelo/metro127.glb').catch((e) => { console.warn('metro127', e); return null; }),
     ]);
 
     // ---------- el ala del modelo Revit, un grupo por piso
@@ -387,6 +394,31 @@ export class Edificio3D {
 
     // contexto inmediato modelado: vías, andenes, separadores y manzanas del barrio en 3D
     this._context(ctx);
+
+    // Edificios PBR ultra realistas (gemelos digitales de alta fidelidad)
+    const customList = [
+      { gltf: mClinica, pos: [236.0, -2.42, 284.0], name: 'Clinica127_PBR' },
+      { gltf: mTorres, pos: [236.0, -2.57, 284.0], name: 'TorresVecinas_PBR' },
+      { gltf: mEsquina, pos: [236.0, -4.26, 284.0], name: 'EsquinaAk15_PBR' },
+      { gltf: mMetro, pos: [236.0, -7.12, 284.0], name: 'Metro127_PBR' },
+    ];
+    for (const cm of customList) {
+      if (!cm.gltf?.scene) continue;
+      const s = cm.gltf.scene;
+      s.name = cm.name;
+      s.position.set(...cm.pos);
+      s.traverse((o) => {
+        if (!o.isMesh) return;
+        o.castShadow = true;
+        o.receiveShadow = true;
+        if (o.material) {
+          o.material.envMapIntensity = 1.1;
+          if (o.material.transparent) o.material.depthWrite = true;
+        }
+      });
+      this.scene.add(s);
+    }
+
     this._rooms();
     await this._trees([...ctx.arboles, ...(this._extraTrees || [])]);
 
@@ -504,8 +536,19 @@ export class Edificio3D {
     // ---------- árboles en los patios del hotel
     this._extraTrees = this._courtyardTrees(ctx, hotelFeet, mb);
 
+    // Excluir cajas genéricas que se reemplazan por modelos digitales PBR
+    const inCustomZone = (b) => {
+      const cx = b.p.reduce((s, p) => s + p[0], 0) / b.p.length;
+      const cz = b.p.reduce((s, p) => s + p[1], 0) / b.p.length;
+      if (cx >= -108 && cx <= -60 && cz >= 67 && cz <= 86) return true; // Clinica 127
+      if (cx >= -165 && cx <= -70 && cz >= -35 && cz <= 2) return true;  // Torres vecinas
+      if (cx >= 110 && cx <= 190 && cz >= -75 && cz <= 42) return true; // Esquina AK 15
+      if (cx >= 6 && cx <= 66 && cz >= 80 && cz <= 195) return true;    // Metro 127
+      return false;
+    };
+
     this.scene.add(grp);
-    this._buildings(ctx.edificios);
+    this._buildings(ctx.edificios.filter((b) => !inCustomZone(b)));
     return grp;
   }
 

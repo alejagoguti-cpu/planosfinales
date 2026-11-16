@@ -105,7 +105,7 @@ pills.addEventListener('click', (e) => { const b = e.target.closest('button'); i
 showCat(CATS[0]);
 
 /* ---------- modelo 3D por pisos + lista de niveles y habitaciones ---------- */
-const { Edificio3D } = await import('./assets/js/edificio3d.js?v=2.1');
+const { Edificio3D } = await import('./assets/js/edificio3d.js?v=2.2');
 const tbody = $('[data-levels]');
 const total = rooms.reduce((a, r) => a + r.priv, 0);
 const p2 = `<tr class="lvl" data-lvl="2" tabindex="0" aria-selected="false"><td>Piso 2</td><td>${m2(total)}</td><td>12 habitaciones</td><td>3 alas</td></tr>`;

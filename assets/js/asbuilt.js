@@ -122,7 +122,7 @@ export const DISCIPLINAS_ASBUILT = {
 // Imagen del plano por especialidad (null = esquema dibujado)
 const planImg = (discId, n) => discId === 'electrico'
   ? `assets/planos/electrico/plano-elec-${n}.jpg`
-  : discId === 'arquitectonico' ? 'assets/planos/p2-arquitectonica.png' : null;
+  : discId === 'arquitectonico' ? 'assets/planos/planta-general.webp' : null;
 
 function generateMepSvg(discKey, geo, rooms) {
   const roomCenters = new Map();
@@ -262,8 +262,9 @@ export function initAsBuilt({ rooms, geo }) {
 
   let activeDisc = 'arquitectonico';
   let activeRoom = 'general';
-  const sheetPages = { '214': 0, '215': 0, '216': 0, '217': 0, '218': 0 };
+  const sheetPages = { '214': 0, '215': 0, '216': 0, '217': 0, '218': 0, '219': 0 };
   const roomSheets = {
+    '219': ['Planta arquitectónica y amoblamiento', 'Pisos, enchapes y cielos', 'Elevaciones generales'],
     '218': ['Planta arquitectónica y amoblamiento', 'Pisos, enchapes y cielos', 'Elevaciones generales'],
     '217': ['Planta arquitectónica y amoblamiento', 'Pisos, enchapes y cielos', 'Elevaciones generales'],
     '216': ['Planta arquitectónica y amoblamiento', 'Pisos, enchapes y cielos', 'Elevaciones generales'],
@@ -370,8 +371,8 @@ export function initAsBuilt({ rooms, geo }) {
       };
     }
     if (activeRoom === GEN && activeDisc === 'electrico') return { mosaic: true, label: 'Láminas eléctricas por habitación', code: 'ELE' };
-    if (activeRoom === GEN) return { img: 'assets/planos/p2-arquitectonica.png', label: 'Planta general · Piso 2', code: 'ARQ', planta: true };
-    if (activeView === 'planta') return { img: 'assets/planos/p2-arquitectonica.png', label: 'Planta arquitectónica · Piso 2', code: 'ARQ' };
+    if (activeRoom === GEN) return { img: 'assets/planos/planta-general.webp', download: 'assets/planos/HLF-planta-general.pdf', label: 'Planta general · Piso 2', code: 'ARQ', planta: true };
+    if (activeView === 'planta') return { img: 'assets/planos/planta-general.webp', download: 'assets/planos/HLF-planta-general.pdf', label: 'Planta arquitectónica · Piso 2', code: 'ARQ' };
     if (activeView === 'detalles') return { img: 'assets/planos/p2-acabados.png', label: 'Planta de acabados · Piso 2', code: 'ACB' };
     if (activeDisc === 'arquitectonico') return { img: 'assets/planos/p2-mobiliario.png', label: 'Planta de mobiliario · Piso 2', code: 'ARQ' };
     if (activeDisc === 'electrico') return { img: `assets/planos/electrico/plano-elec-${activeRoom}.jpg`, label: disc.title, code: disc.code };

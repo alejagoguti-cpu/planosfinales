@@ -275,7 +275,7 @@ export function initAsBuilt({ rooms, geo }) {
     '217': ['Planta arquitectónica y amoblamiento', 'Pisos, enchapes y cielos', 'Elevaciones generales'],
     '216': ['Planta arquitectónica y amoblamiento', 'Pisos, enchapes y cielos', 'Elevaciones generales'],
     '214': ['Planta arquitectónica y amoblamiento', 'Pisos, enchapes y cielos', 'Elevaciones generales'],
-    '215': ['Planta arquitectónica y amoblamiento', 'Pisos, enchapes y cielos', 'Elevaciones generales', 'Detalle de baño'],
+    '215': ['Planta, sección y vista 3D', 'Planta arquitectónica y amoblamiento', 'Pisos, enchapes y cielos', 'Elevaciones generales', 'Detalle de baño'],
   };
   let activeView = 'planta'; // planta | redes | detalles
 
@@ -370,9 +370,9 @@ export function initAsBuilt({ rooms, geo }) {
     if (activeDisc === 'arquitectonico' && sheets) {
       const page = sheetPages[activeRoom];
       return {
-        img: `assets/planos/arquitectonico/arq-${activeRoom}-${page + 1}.webp`,
-        download: `assets/planos/arquitectonico/HLF-${activeRoom}-arquitectonico.pdf`,
-        label: sheets[page], code: `INT-${activeRoom}${(activeRoom === '222' ? 'AC' : 'ABCD')[page]}`,
+        img: `assets/planos/arquitectonico/arq-${activeRoom}-${activeRoom === '215' ? (page === 0 ? 5 : page) : page + 1}.webp`,
+        download: activeRoom === '215' && page === 0 ? 'assets/planos/arquitectonico/HLF-215-planta-seccion-3d.pdf' : `assets/planos/arquitectonico/HLF-${activeRoom}-arquitectonico.pdf`,
+        label: sheets[page], code: activeRoom === '215' && page === 0 ? 'A02' : `INT-${activeRoom}${(activeRoom === '222' ? 'AC' : 'ABCD')[activeRoom === '215' ? page - 1 : page]}`,
         sheet: true, page, count: sheets.length,
       };
     }

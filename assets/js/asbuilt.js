@@ -262,8 +262,9 @@ export function initAsBuilt({ rooms, geo }) {
 
   let activeDisc = 'arquitectonico';
   let activeRoom = 'general';
-  const sheetPages = { '214': 0, '215': 0, '216': 0, '217': 0, '218': 0, '219': 0, '220': 0, '221': 0 };
+  const sheetPages = { '214': 0, '215': 0, '216': 0, '217': 0, '218': 0, '219': 0, '220': 0, '221': 0, '222': 0 };
   const roomSheets = {
+    '222': ['Planta arquitectónica y amoblamiento', 'Elevaciones generales'],
     '221': ['Planta arquitectónica y amoblamiento', 'Pisos, enchapes y cielos'],
     '220': ['Planta arquitectónica y amoblamiento', 'Pisos, enchapes y cielos', 'Elevaciones generales'],
     '219': ['Planta arquitectónica y amoblamiento', 'Pisos, enchapes y cielos', 'Elevaciones generales'],
@@ -368,7 +369,7 @@ export function initAsBuilt({ rooms, geo }) {
       return {
         img: `assets/planos/arquitectonico/arq-${activeRoom}-${page + 1}.webp`,
         download: `assets/planos/arquitectonico/HLF-${activeRoom}-arquitectonico.pdf`,
-        label: sheets[page], code: `INT-${activeRoom}${'ABCD'[page]}`,
+        label: sheets[page], code: `INT-${activeRoom}${(activeRoom === '222' ? 'AC' : 'ABCD')[page]}`,
         sheet: true, page, count: sheets.length,
       };
     }

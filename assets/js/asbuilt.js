@@ -262,9 +262,10 @@ export function initAsBuilt({ rooms, geo }) {
 
   let activeDisc = 'arquitectonico';
   let activeRoom = 'general';
-  const sheetPages = { '214': 0, '215': 0, '216': 0, '217': 0, '218': 0, '219': 0, '220': 0, '221': 0, '222': 0, '223': 0, '224': 0 };
+  const sheetPages = { '214': 0, '215': 0, '216': 0, '217': 0, '218': 0, '219': 0, '220': 0, '221': 0, '222': 0, '223': 0, '224': 0, '225': 0 };
   const roomSheets = {
     '223': ['Planta arquitectónica y amoblamiento', 'Pisos, enchapes y cielos'],
+    '225': ['Planta arquitectónica y amoblamiento', 'Pisos, enchapes y cielos'],
     '224': ['Planta arquitectónica y amoblamiento', 'Pisos, enchapes y cielos'],
     '222': ['Planta arquitectónica y amoblamiento', 'Elevaciones generales'],
     '221': ['Planta arquitectónica y amoblamiento', 'Pisos, enchapes y cielos'],

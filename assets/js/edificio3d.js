@@ -311,7 +311,7 @@ export class Edificio3D {
       const dt = Math.min(clock.getDelta(), 0.1);
       const b = container.getBoundingClientRect();
       this.visible = b.bottom > 0 && b.top < innerHeight && b.width > 0;
-      if (!this.visible) return;
+      if (!this.visible || document.hidden) return;
       if (this.ready && !this._assembled && b.top < innerHeight * 0.6) { this._assembled = true; this.assemble(); }
       this.controls.update();
       this._animateTraffic(dt);

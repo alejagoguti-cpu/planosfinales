@@ -37,8 +37,9 @@ function show(i) {
   $$('button', bars).forEach((b, k) => b.setAttribute('aria-selected', String(k === cur)));
 }
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-function restart() { clearInterval(timer); if (!reduce) timer = setInterval(() => show(cur + 1), 5000); }
+function restart() { clearInterval(timer); if (!reduce && !document.hidden) timer = setInterval(() => { const bounds = slider.getBoundingClientRect(); if (bounds.bottom > 0 && bounds.top < innerHeight) show(cur + 1); }, 5000); }
 restart();
+document.addEventListener('visibilitychange', restart);
 
 /* ---------- plano vectorial del Piso 2 ---------- */
 const NS = 'http://www.w3.org/2000/svg';
@@ -83,7 +84,7 @@ $('[data-fig="rooms"]').textContent = rooms.length;
 $('[data-fig="area"]').textContent = Math.round(rooms.reduce((a, r) => a + r.priv, 0));
 
 /* ---------- planos as built ---------- */
-const { initAsBuilt } = await import('./assets/js/asbuilt.js?v=2.15');
+const { initAsBuilt } = await import('./assets/js/asbuilt.js?v=2.16');
 initAsBuilt({ rooms, geo });
 
 /* ---------- tipologías: cifras + píldoras ---------- */
@@ -105,7 +106,7 @@ pills.addEventListener('click', (e) => { const b = e.target.closest('button'); i
 showCat(CATS[0]);
 
 /* ---------- modelo 3D por pisos + lista de niveles y habitaciones ---------- */
-const { Edificio3D } = await import('./assets/js/edificio3d.js?v=2.3');
+
 const tbody = $('[data-levels]');
 const total = rooms.reduce((a, r) => a + r.priv, 0);
 const p2 = `<tr class="lvl" data-lvl="2" tabindex="0" aria-selected="false"><td>Piso 2</td><td>${m2(total)}</td><td>12 habitaciones</td><td>3 alas</td></tr>`;
@@ -117,14 +118,25 @@ const panel = $('.levels-panel');
 const activateViewer = () => panel?.classList.add('is-3d-active');
 const mark = (sel) => $$('tr', tbody).forEach((t) => t.setAttribute('aria-selected', String(t.matches(sel))));
 
-const viewer = new Edificio3D($('[data-viewer]'), geo, {
-  onPickFloor: () => openFloor(2), // solo el Piso 2 es parte del proyecto
-  onPickRoom: (n) => openRoom(n),
-});
+let viewer;
+let viewerPromise;
+function ensureViewer() {
+  if (!viewerPromise) {
+    viewerPromise = import('./assets/js/edificio3d.js?v=2.4').then(({ Edificio3D }) => {
+      viewer = new Edificio3D($('[data-viewer]'), geo, {
+        onPickFloor: () => openFloor(2),
+        onPickRoom: (n) => openRoom(n),
+      });
+      window.edificio3d = viewer;
+      return viewer;
+    }).catch((error) => { viewerPromise = null; console.error(error); throw error; });
+  }
+  return viewerPromise;
+}
 
-window.edificio3d = viewer; // acceso desde la consola del navegador
 $('[data-cover-3d]')?.addEventListener('click', () => view3d?.click());
-view3d?.addEventListener('click', () => {
+view3d?.addEventListener('click', async () => {
+  await ensureViewer();
   activateViewer();
   viewer.showAxonometric();
   view3d.setAttribute('aria-pressed', 'true');
@@ -133,7 +145,8 @@ view3d?.addEventListener('click', () => {
   pSub.textContent = 'Vista enfocada en el hotel, su acceso y el espacio público inmediato.';
   reset.hidden = false;
 });
-function openFloor(f) {
+async function openFloor(f) {
+  await ensureViewer();
   activateViewer();
   view3d?.setAttribute('aria-pressed', 'false');
   viewer.setFloor(f);
@@ -156,7 +169,8 @@ function openFloor(f) {
     pSub.textContent = '';
   }
 }
-function openRoom(n) {
+async function openRoom(n) {
+  await ensureViewer();
   activateViewer();
   const r = rooms.find((x) => x.n === n);
   viewer.selectRoom(n);

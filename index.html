@@ -14,9 +14,9 @@
   <script type="importmap">
     { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/" } }
   </script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <script type="module" src="assets/js/animaciones.js?v=1.8"></script>
-  <script type="module" src="script.js?v=3.13"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script type="module" src="assets/js/animaciones.js?v=1.9"></script>
+  <script type="module" src="script.js?v=3.14"></script>
 </head>
 <body>
   <a class="skip" href="#main">Saltar al contenido</a>
@@ -25,10 +25,10 @@
     <div class="header-inner header-logo-only">
       <div class="header-marks" aria-label="Hotel Estelar La Fontana y Baco Studio">
         <a class="brand brand-centered" href="#top" aria-label="Hotel Estelar La Fontana, inicio">
-          <img src="assets/logos/estelar.png" alt="Estelar" class="brand-img" width="300" height="300">
+          <img decoding="async" src="assets/logos/estelar.png" alt="Estelar" class="brand-img" width="300" height="300">
         </a>
         <span class="mark-divider" aria-hidden="true"></span>
-        <img src="assets/logos/baco.png" alt="Baco Studio" class="brand-img brand-img-baco" width="300" height="300">
+        <img decoding="async" src="assets/logos/baco.png" alt="Baco Studio" class="brand-img brand-img-baco" width="300" height="300">
       </div>
       <button class="burger" type="button" aria-expanded="false" aria-controls="menu" aria-label="Abrir menú" data-burger>
         <i></i><i></i><i></i>
@@ -51,7 +51,7 @@
   <main id="main">
     <!-- 1 · Portada -->
     <section class="hero" id="top">
-      <img src="assets/img/hero-aerea.webp" alt="Vista aérea nocturna del Hotel La Fontana y su plaza de acceso" fetchpriority="high">
+      <img decoding="async" src="assets/img/hero-aerea.webp" alt="Vista aérea nocturna del Hotel La Fontana y su plaza de acceso" fetchpriority="high">
       <div class="hero-in">
         <h1>Un nuevo<br>Piso 2</h1>
         <div class="hero-copy">
@@ -73,19 +73,19 @@
         <h3>El Piso 2 reúne <b data-fig="rooms">12</b> habitaciones y <b><span data-fig="area">396</span> m²</b> privados repartidos en tres alas.</h3>
         <p>Es un edificio de ladrillo y teja de barro en Santa Bárbara, con una torre esquinera y una plaza con fuente en el acceso. La remodelación trabaja hacia adentro: los corredores, los baños y cada habitación se rediseñan sin tocar el carácter de la fachada.</p>
       </div>
-      <figure class="shadow-img"><img src="assets/img/plaza.webp" loading="lazy" alt="Fachada de ladrillo y acceso principal del hotel junto a la plaza de la fuente"></figure>
+      <figure class="shadow-img"><img decoding="async" src="assets/img/plaza.webp" loading="lazy" alt="Fachada de ladrillo y acceso principal del hotel junto a la plaza de la fuente"></figure>
     </section>
 
     <!-- 4 · Carrusel a sangre con barras -->
     <section class="slider" aria-roledescription="carrusel" aria-label="Galería" data-slider>
       <div class="slides">
-        <figure class="on"><img src="assets/img/renders/doble-frente.webp" alt="Habitación doble con dos camas y cabecero en madera con luz indirecta"><figcaption>Habitación doble</figcaption></figure>
-        <figure><img src="assets/img/renders/doble-escritorio.webp" loading="lazy" alt="Habitación doble con escritorio junto a la ventana"><figcaption>Habitación doble · zona de trabajo</figcaption></figure>
-        <figure><img src="assets/img/renders/doble-sofa.webp" loading="lazy" alt="Habitación doble con sofá frente a la ventana"><figcaption>Habitación doble · sofá</figcaption></figure>
-        <figure><img src="assets/img/renders/doble-minibar.webp" loading="lazy" alt="Habitación doble con minibar y panel de televisión en madera"><figcaption>Habitación doble · minibar y TV</figcaption></figure>
-        <figure><img src="assets/img/renders/bano.webp" loading="lazy" alt="Baño con mesón de mármol, espejo iluminado y ducha con nicho"><figcaption>Baño</figcaption></figure>
-        <figure><img src="assets/img/renders/hall-puertas.webp" loading="lazy" alt="Puertas de habitaciones en madera con marco iluminado en el hall"><figcaption>Hall de habitaciones · puertas</figcaption></figure>
-        <figure><img src="assets/img/renders/hall-ascensor.webp" loading="lazy" alt="Hall del ascensor con consola dorada y lámpara de esferas"><figcaption>Hall del ascensor</figcaption></figure>
+        <figure class="on"><img decoding="async" src="assets/img/renders/doble-frente.webp" loading="lazy" alt="Habitación doble con dos camas y cabecero en madera con luz indirecta"><figcaption>Habitación doble</figcaption></figure>
+        <figure><img decoding="async" src="assets/img/renders/doble-escritorio.webp" loading="lazy" alt="Habitación doble con escritorio junto a la ventana"><figcaption>Habitación doble · zona de trabajo</figcaption></figure>
+        <figure><img decoding="async" src="assets/img/renders/doble-sofa.webp" loading="lazy" alt="Habitación doble con sofá frente a la ventana"><figcaption>Habitación doble · sofá</figcaption></figure>
+        <figure><img decoding="async" src="assets/img/renders/doble-minibar.webp" loading="lazy" alt="Habitación doble con minibar y panel de televisión en madera"><figcaption>Habitación doble · minibar y TV</figcaption></figure>
+        <figure><img decoding="async" src="assets/img/renders/bano.webp" loading="lazy" alt="Baño con mesón de mármol, espejo iluminado y ducha con nicho"><figcaption>Baño</figcaption></figure>
+        <figure><img decoding="async" src="assets/img/renders/hall-puertas.webp" loading="lazy" alt="Puertas de habitaciones en madera con marco iluminado en el hall"><figcaption>Hall de habitaciones · puertas</figcaption></figure>
+        <figure><img decoding="async" src="assets/img/renders/hall-ascensor.webp" loading="lazy" alt="Hall del ascensor con consola dorada y lámpara de esferas"><figcaption>Hall del ascensor</figcaption></figure>
       </div>
       <div class="bars" role="tablist" aria-label="Elegir imagen" data-bars></div>
     </section>
@@ -124,7 +124,7 @@
       <aside class="levels-panel">
         <div class="viewer" data-viewer role="img" aria-label="Modelo 3D del edificio por pisos"></div>
         <div class="viewer-cover">
-          <img class="viewer-cover-logo" src="assets/logos/baco.png" alt="Baco Studio" width="300" height="300">
+          <img decoding="async" class="viewer-cover-logo" src="assets/logos/baco.png" alt="Baco Studio" width="300" height="300">
           <span class="viewer-cover-index">PISO 2 · MODELO DIGITAL</span>
           <button type="button" class="viewer-cover-cta" data-cover-3d>
             <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z"/><path d="m4 7.5 8 4.5 8-4.5M12 12v9"/></svg>
@@ -168,9 +168,9 @@
     <section class="detail" id="detalle">
       <h2>Diseñado hasta el último detalle</h2>
       <div class="cols">
-        <article><img src="assets/img/renders/doble-frente.webp" loading="lazy" alt="Habitación doble con cabecero en madera y luz indirecta"><p><b>Habitaciones</b> – Cabecero continuo en madera con luz indirecta, papel de colgadura Tessera de Vescom y piso vinílico de madera con la veta hacia la ventana.</p></article>
-        <article><img src="assets/img/renders/bano.webp" loading="lazy" alt="Baño con mesón de mármol y espejo iluminado"><p><b>Baños</b> – Mesón flotante en mármol Antik Silver Blue, espejo con luz perimetral, mosaico Mos The Dream en el piso y nicho iluminado en la ducha.</p></article>
-        <article><img src="assets/img/renders/hall-puertas.webp" loading="lazy" alt="Puertas de habitaciones en madera con marco iluminado"><p><b>Hall de habitaciones</b> – Puertas en madera con marco de luz, numeración vertical y alfombra Tweed con borde en mármol a lo largo del corredor.</p></article>
+        <article><img decoding="async" src="assets/img/renders/doble-frente.webp" loading="lazy" alt="Habitación doble con cabecero en madera y luz indirecta"><p><b>Habitaciones</b> – Cabecero continuo en madera con luz indirecta, papel de colgadura Tessera de Vescom y piso vinílico de madera con la veta hacia la ventana.</p></article>
+        <article><img decoding="async" src="assets/img/renders/bano.webp" loading="lazy" alt="Baño con mesón de mármol y espejo iluminado"><p><b>Baños</b> – Mesón flotante en mármol Antik Silver Blue, espejo con luz perimetral, mosaico Mos The Dream en el piso y nicho iluminado en la ducha.</p></article>
+        <article><img decoding="async" src="assets/img/renders/hall-puertas.webp" loading="lazy" alt="Puertas de habitaciones en madera con marco iluminado"><p><b>Hall de habitaciones</b> – Puertas en madera con marco de luz, numeración vertical y alfombra Tweed con borde en mármol a lo largo del corredor.</p></article>
       </div>
       <dl class="facts">
         <div><dt>12</dt><dd>Habitaciones</dd></div>
@@ -199,7 +199,7 @@
         <span class="foot-kicker">Hotel Estelar La Fontana · Bogotá</span>
         <p class="foot-big">Remodelación del <span>Piso 2</span></p>
       </div>
-      <div class="foot-logos"><img src="assets/logos/estelar.png" alt="Hoteles Estelar" width="300" height="300"><img src="assets/logos/baco.png" alt="Baco Studio" width="300" height="300"></div>
+      <div class="foot-logos"><img decoding="async" src="assets/logos/estelar.png" alt="Hoteles Estelar" width="300" height="300"><img decoding="async" src="assets/logos/baco.png" alt="Baco Studio" width="300" height="300"></div>
     </div>
     <div class="foot-cols">
       <div>

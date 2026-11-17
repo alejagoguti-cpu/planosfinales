@@ -48,7 +48,7 @@ if (!reduce) {
         { transform: 'translate3d(0, 0, 0) scale(1)' },
         { transform: `translate3d(${dx}px, ${dy}px, 0) scale(${scale})` }
       ],
-      { duration: 1100, easing: 'cubic-bezier(.77, 0, .175, 1)', fill: 'forwards' }
+      { duration: 650, easing: 'cubic-bezier(.77, 0, .175, 1)', fill: 'forwards' }
     );
     move.finished.then(() => {
       document.documentElement.classList.add('ready');
@@ -57,11 +57,11 @@ if (!reduce) {
     });
   };
   const t0 = performance.now();
-  const done = () => setTimeout(go, Math.max(0, 950 - (performance.now() - t0)));
+  const done = () => setTimeout(go, Math.max(0, 150 - (performance.now() - t0)));
   if (hero && !hero.complete) {
     hero.addEventListener('load', done, { once: true });
     hero.addEventListener('error', done, { once: true });
-    setTimeout(go, 3200);
+    setTimeout(go, 1500);
   } else done();
 } else document.documentElement.classList.add('ready');
 

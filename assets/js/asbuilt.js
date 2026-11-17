@@ -121,7 +121,7 @@ export const DISCIPLINAS_ASBUILT = {
 
 // Imagen del plano por especialidad (null = esquema dibujado)
 const planImg = (discId, n) => discId === 'electrico'
-  ? `assets/planos/electrico/plano-elec-${n}.jpg?v=2`
+  ? `assets/planos/electrico/plano-elec-${n}.webp`
   : discId === 'arquitectonico' ? 'assets/planos/planta-general.webp' : null;
 
 function generateMepSvg(discKey, geo, rooms) {
@@ -380,7 +380,7 @@ export function initAsBuilt({ rooms, geo }) {
       const available = geo.rooms.filter((room) => Number(room.n) >= 214 && Number(room.n) <= 223);
       if (activeRoom === GEN) return { mosaic: true, rooms: available, label: 'Láminas de desagües por habitación', code: 'SAN' };
       if (available.some((room) => String(room.n) === String(activeRoom))) return {
-        img: `assets/planos/desagues/plano-san-${activeRoom}.png`, label: disc.title, code: disc.code,
+        img: `assets/planos/desagues/plano-san-${activeRoom}.webp`, label: disc.title, code: disc.code,
       };
       return { pending: true, label: 'Plano de desagües pendiente', code: 'SAN' };
     }
@@ -389,7 +389,7 @@ export function initAsBuilt({ rooms, geo }) {
     if (activeView === 'planta') return { img: 'assets/planos/planta-general.webp', download: 'assets/planos/HLF-planta-general.pdf', label: 'Planta arquitectónica · Piso 2', code: 'ARQ' };
     if (activeView === 'detalles') return { img: 'assets/planos/p2-acabados.png', label: 'Planta de acabados · Piso 2', code: 'ACB' };
     if (activeDisc === 'arquitectonico') return { img: 'assets/planos/p2-mobiliario.png', label: 'Planta de mobiliario · Piso 2', code: 'ARQ' };
-    if (activeDisc === 'electrico') return { img: `assets/planos/electrico/plano-elec-${activeRoom}.jpg?v=2`, label: disc.title, code: disc.code };
+    if (activeDisc === 'electrico') return { img: `assets/planos/electrico/plano-elec-${activeRoom}.webp`, label: disc.title, code: disc.code };
     return { img: null, label: disc.title, code: disc.code };
   }
 
@@ -450,7 +450,7 @@ export function initAsBuilt({ rooms, geo }) {
     if (src.mosaic) {
       pan.innerHTML = `<div class="ab2-mosaic">${(src.rooms || geo.rooms).map((rm) => `
         <button type="button" class="ab2-tile" data-go-room="${rm.n}">
-          <img src="${src.code === 'SAN' ? `assets/planos/desagues/plano-san-${rm.n}.png` : `assets/planos/electrico/plano-elec-${rm.n}.jpg?v=2`}" alt="${src.label} · Habitación ${rm.n}" loading="lazy" draggable="false">
+          <img src="${src.code === 'SAN' ? `assets/planos/desagues/plano-san-${rm.n}-thumb.webp` : `assets/planos/electrico/plano-elec-${rm.n}-thumb.webp`}" alt="${src.label} · Habitación ${rm.n}" loading="lazy" decoding="async" draggable="false">
           <span>Hab. ${rm.n}</span>
         </button>`).join('')}</div>`;
       pan.querySelectorAll('[data-go-room]').forEach((b) => b.addEventListener('click', () => { activeRoom = b.dataset.goRoom; render(); }));
@@ -461,7 +461,7 @@ export function initAsBuilt({ rooms, geo }) {
       down.removeAttribute('href');
       down.setAttribute('aria-disabled', 'true');
     } else if (src.img) {
-      pan.innerHTML = `<img src="${src.img}" alt="${src.label} · Habitación ${r.n}" draggable="false">`;
+      pan.innerHTML = `<img src="${src.img}" alt="${src.label} · Habitación ${r.n}" decoding="async" draggable="false">`;
       down.href = src.download || src.img;
       down.title = src.sheet ? `Descargar PDF completo · ${src.count} láminas` : 'Descargar plano';
       down.removeAttribute('aria-disabled');

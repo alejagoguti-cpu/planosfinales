@@ -262,6 +262,8 @@ export function initAsBuilt({ rooms, geo }) {
 
   let activeDisc = 'arquitectonico';
   let activeRoom = 'general';
+  let arq214Page = 0;
+  const arq214Sheets = ['Planta arquitectónica y amoblamiento', 'Pisos, enchapes y cielos', 'Elevaciones generales'];
   let activeView = 'planta'; // planta | redes | detalles
 
   const roomsMap = new Map();
@@ -307,6 +309,11 @@ export function initAsBuilt({ rooms, geo }) {
           </div>
         </header>
 
+        <div class="ab2-sheet-nav" data-sheet-nav hidden style="align-items:center;justify-content:space-between;gap:12px;padding:12px 20px;border-bottom:1px solid #ddd">
+          <button type="button" class="ab2-tool" data-sheet-prev aria-label="Lámina anterior">←</button>
+          <span data-sheet-label aria-live="polite" style="text-align:center;font-size:13px"></span>
+          <button type="button" class="ab2-tool" data-sheet-next aria-label="Lámina siguiente">→</button>
+        </div>
         <div class="ab2-stage" data-ab2-stage>
           <div class="ab2-pan" data-ab2-pan></div>
           <div class="ab2-zoom" role="group" aria-label="Zoom">
@@ -346,6 +353,11 @@ export function initAsBuilt({ rooms, geo }) {
   /* ---- qué se ve en el lienzo ---- */
   function currentSource() {
     const disc = DISCIPLINAS_ASBUILT[activeDisc];
+    if (activeDisc === 'arquitectonico' && String(activeRoom) === '214') return {
+      img: `assets/planos/arquitectonico/arq-214-${arq214Page + 1}.webp`,
+      download: 'assets/planos/arquitectonico/HLF-214-arquitectonico.pdf',
+      label: arq214Sheets[arq214Page], code: 'INT-214' + 'ABC'[arq214Page], sheet214: true,
+    };
     if (activeRoom === GEN && activeDisc === 'electrico') return { mosaic: true, label: 'Láminas eléctricas por habitación', code: 'ELE' };
     if (activeRoom === GEN) return { img: 'assets/planos/p2-arquitectonica.png', label: 'Planta general · Piso 2', code: 'ARQ', planta: true };
     if (activeView === 'planta') return { img: 'assets/planos/p2-arquitectonica.png', label: 'Planta arquitectónica · Piso 2', code: 'ARQ' };
@@ -382,6 +394,11 @@ export function initAsBuilt({ rooms, geo }) {
     const disc = DISCIPLINAS_ASBUILT[activeDisc];
     const r = roomInfo(activeRoom);
     const src = currentSource();
+    const sheetNav = $('[data-sheet-nav]');
+    sheetNav.hidden = !src.sheet214;
+    sheetNav.style.display = src.sheet214 ? 'flex' : 'none';
+    $('[data-sheet-label]').textContent = src.sheet214 ? `${arq214Page + 1} / 3 · ${src.label}` : '';
+    stage.style.touchAction = src.sheet214 ? 'pan-y' : '';
 
     container.querySelectorAll('.ab2-disc').forEach((b) => {
       const on = b.dataset.disc === activeDisc;
@@ -397,8 +414,8 @@ export function initAsBuilt({ rooms, geo }) {
 
     const gen = activeRoom === GEN;
     $('[data-ab2-badge]').textContent = gen ? 'Piso 2' : `Habitación ${r.n}`;
-    $('[data-ab2-code]').textContent = gen ? `Plano ${src.code}-P2` : `Plano ${src.code}-${r.n}`;
-    $('[data-ab2-h]').textContent = gen ? (src.mosaic ? 'Láminas eléctricas' : 'Planta general') : r.cat;
+    $('[data-ab2-code]').textContent = src.sheet214 ? src.code : gen ? `Plano ${src.code}-P2` : `Plano ${src.code}-${r.n}`;
+    $('[data-ab2-h]').textContent = gen ? (src.mosaic ? 'Láminas eléctricas' : 'Planta general') : src.sheet214 ? src.label : r.cat;
     $('[data-ab2-meta]').textContent = gen
       ? `${rooms.length} habitaciones · 3 alas · ${totalPriv.toFixed(2)} m² privados${src.mosaic ? ' · elige una lámina para abrirla' : ''}`
       : `${r.ala} · ${r.priv} m² privados · ${r.camas}`;
@@ -415,7 +432,8 @@ export function initAsBuilt({ rooms, geo }) {
       down.setAttribute('aria-disabled', 'true');
     } else if (src.img) {
       pan.innerHTML = `<img src="${src.img}" alt="${src.label} · Habitación ${r.n}" draggable="false">`;
-      down.href = src.img;
+      down.href = src.download || src.img;
+      down.title = src.sheet214 ? 'Descargar PDF completo · 3 láminas' : 'Descargar plano';
       down.removeAttribute('aria-disabled');
     } else {
       pan.innerHTML = `<div class="ab2-schem">${renderRoomDetailDiagram(disc.id, r)}</div>`;
@@ -427,6 +445,32 @@ export function initAsBuilt({ rooms, geo }) {
     stage.classList.remove('swap'); void stage.offsetWidth; stage.classList.add('swap');
     zoomTo(1);
   }
+
+  function moveSheet(delta) {
+    if (!currentSource().sheet214) return;
+    arq214Page = (arq214Page + delta + arq214Sheets.length) % arq214Sheets.length;
+    render();
+  }
+  $('[data-sheet-prev]').addEventListener('click', () => moveSheet(-1));
+  $('[data-sheet-next]').addEventListener('click', () => moveSheet(1));
+  stage.tabIndex = 0;
+  stage.addEventListener('keydown', (e) => {
+    if (!currentSource().sheet214 || !['ArrowLeft', 'ArrowRight'].includes(e.key)) return;
+    e.preventDefault(); moveSheet(e.key === 'ArrowRight' ? 1 : -1);
+  });
+  let swipe = null;
+  stage.addEventListener('pointerdown', (e) => {
+    if (!currentSource().sheet214 || z > 1 || e.target.closest('button')) return;
+    swipe = { x: e.clientX, y: e.clientY, id: e.pointerId };
+    stage.setPointerCapture(e.pointerId);
+  });
+  stage.addEventListener('pointerup', (e) => {
+    if (!swipe || swipe.id !== e.pointerId) return;
+    const dx = e.clientX - swipe.x, dy = e.clientY - swipe.y;
+    swipe = null;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.3) moveSheet(dx < 0 ? 1 : -1);
+  });
+  stage.addEventListener('pointercancel', () => { swipe = null; });
 
   function setDiscipline(k) {
     if (!DISCIPLINAS_ASBUILT[k]) return;
@@ -450,7 +494,7 @@ export function initAsBuilt({ rooms, geo }) {
     if (src.mosaic) return;
     const gen = activeRoom === GEN;
     document.getElementById('asb-modal-tag').textContent = gen ? 'PISO 2' : `HABITACIÓN ${r.n}`;
-    document.getElementById('asb-modal-code').textContent = `PLANO ${src.code}-${gen ? 'P2' : r.n}`;
+    document.getElementById('asb-modal-code').textContent = src.sheet214 ? src.code : `PLANO ${src.code}-${gen ? 'P2' : r.n}`;
     document.getElementById('asb-modal-title').textContent = gen ? src.label : `${src.label} · ${r.cat} · ${r.priv} m²`;
     if (src.img) {
       modalImg.src = src.img; modalImg.hidden = false; modalSchem.hidden = true;

@@ -275,7 +275,11 @@ export function initAsBuilt({ rooms, geo }) {
     '217': ['Planta arquitectónica y amoblamiento', 'Pisos, enchapes y cielos', 'Elevaciones generales'],
     '216': ['Planta arquitectónica y amoblamiento', 'Pisos, enchapes y cielos', 'Elevaciones generales'],
     '214': ['Planta arquitectónica y amoblamiento', 'Pisos, enchapes y cielos', 'Elevaciones generales'],
-    '215': ['Planta, sección y vista 3D', 'Planta arquitectónica y amoblamiento', 'Pisos, enchapes y cielos', 'Elevaciones generales', 'Detalle de baño'],
+    '215': ['Planta arquitectónica y amoblamiento', 'Pisos, enchapes y cielos', 'Elevaciones generales', 'Detalle de baño'],
+  };
+  const presentationCodes = {
+    '215': 'A02', '216': 'A03', '217': 'A04', '218': 'A05',
+    '219': 'A06', '220': 'A07', '221': 'A08', '222': 'A09',
   };
   let activeView = 'planta'; // planta | redes | detalles
 
@@ -369,11 +373,24 @@ export function initAsBuilt({ rooms, geo }) {
     const sheets = roomSheets[activeRoom];
     if (activeDisc === 'arquitectonico' && sheets) {
       const page = sheetPages[activeRoom];
+      const presentationCode = presentationCodes[activeRoom];
+      const count = sheets.length + Number(Boolean(presentationCode));
+      const directory = 'assets/planos/arquitectonico';
+      if (presentationCode && page === 0) {
+        return {
+          img: `${directory}/arq-${activeRoom}-presentacion.webp`,
+          download: `${directory}/HLF-${activeRoom}-planta-seccion-3d.pdf`,
+          label: 'Planta, sección y vista 3D', code: presentationCode,
+          sheet: true, page, count, singlePageDownload: true,
+        };
+      }
+      const sheetIndex = page - Number(Boolean(presentationCode));
       return {
-        img: activeRoom === '215' && page === 0 ? 'assets/planos/arquitectonico/arq-215-presentacion.webp' : `assets/planos/arquitectonico/arq-${activeRoom}-${activeRoom === '215' ? page : page + 1}.webp`,
-        download: activeRoom === '215' && page === 0 ? 'assets/planos/arquitectonico/HLF-215-planta-seccion-3d.pdf' : `assets/planos/arquitectonico/HLF-${activeRoom}-arquitectonico.pdf`,
-        label: sheets[page], code: activeRoom === '215' && page === 0 ? 'A02' : `INT-${activeRoom}${(activeRoom === '222' ? 'AC' : 'ABCD')[activeRoom === '215' ? page - 1 : page]}`,
-        sheet: true, page, count: sheets.length,
+        img: `${directory}/arq-${activeRoom}-${sheetIndex + 1}.webp`,
+        download: `${directory}/HLF-${activeRoom}-arquitectonico.pdf`,
+        label: sheets[sheetIndex],
+        code: `INT-${activeRoom}${(activeRoom === '222' ? 'AC' : 'ABCD')[sheetIndex]}`,
+        sheet: true, page, count, downloadCount: sheets.length,
       };
     }
     if (activeDisc === 'desagues' && activeView === 'redes') {
@@ -463,7 +480,7 @@ export function initAsBuilt({ rooms, geo }) {
     } else if (src.img) {
       pan.innerHTML = `<img src="${src.img}" alt="${src.label} · Habitación ${r.n}" decoding="async" draggable="false">`;
       down.href = src.download || src.img;
-      down.title = src.sheet ? `Descargar PDF completo · ${src.count} láminas` : 'Descargar plano';
+      down.title = src.sheet && !src.singlePageDownload ? `Descargar PDF completo · ${src.downloadCount} láminas` : 'Descargar plano';
       down.removeAttribute('aria-disabled');
     } else {
       pan.innerHTML = `<div class="ab2-schem">${renderRoomDetailDiagram(disc.id, r)}</div>`;
@@ -477,8 +494,8 @@ export function initAsBuilt({ rooms, geo }) {
   }
 
   function moveSheet(delta) {
-    if (!currentSource().sheet) return;
-    const count = roomSheets[activeRoom].length;
+    const { sheet, count } = currentSource();
+    if (!sheet) return;
     sheetPages[activeRoom] = (sheetPages[activeRoom] + delta + count) % count;
     render();
   }

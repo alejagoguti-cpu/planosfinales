@@ -3,6 +3,85 @@
 // Disposición solicitada: Plano de habitación a la DERECHA, interactivo con la planta a la izquierda.
 
 const NS = 'http://www.w3.org/2000/svg';
+const PDF_BY_ROOM = {
+  "214": {
+    "electrico": "Sheet-HAB 214 SUITE D - PLANTA Y RED ELECTRICA - HABITACION Y BAÑO.pdf",
+    "agua": "Sheet-HAB 214 SUITE D - RED AGUA FRIA Y CALIENTE.pdf",
+    "contraincendios": "Sheet-HAB 214 SUITE D - RED CONTRA INCENDIOS.pdf",
+    "desagues": "Sheet-HAB 214 SUITE D - RED SANITARIA.pdf"
+  },
+  "215": {
+    "electrico": "Sheet-HAB 215 STANDARD KING - PLANTA Y RED ELECTRICA - HABITACION Y BAÑO.pdf",
+    "agua": "Sheet-HAB 215 STANDARD KING - RED AGUA FRIA Y CALIENTE.pdf",
+    "contraincendios": "Sheet-HAB 215 STANDARD KING - RED CONTRA INCENDIOS.pdf",
+    "desagues": "Sheet-HAB 215 STANDARD KING - RED SANITARIA.pdf"
+  },
+  "216": {
+    "electrico": "Sheet-HAB 216 STANDARD TWIN - PLANTA Y RED ELECTRICA - HABITACION Y BAÑO.pdf",
+    "agua": "Sheet-HAB 216 STANDARD TWIN - RED AGUA FRIA Y CALIENTE.pdf",
+    "contraincendios": "Sheet-HAB 216 STANDARD TWIN - RED CONTRA INCENDIOS.pdf",
+    "desagues": "Sheet-HAB 216 STANDARD TWIN - RED SANITARIA.pdf"
+  },
+  "217": {
+    "electrico": "Sheet-HAB 217 STANDARD KING - PLANTA Y RED ELECTRICA - HABITACION Y BAÑO.pdf",
+    "agua": "Sheet-HAB 217 STANDARD KING - RED AGUA FRIA Y CALIENTE.pdf",
+    "contraincendios": "Sheet-HAB 217 STANDARD KING - RED CONTRA INCENDIOS.pdf",
+    "desagues": "Sheet-HAB 217 STANDARD KING - RED SANITARIA.pdf"
+  },
+  "218": {
+    "electrico": "Sheet-HAB 218 STANDARD TWIN - PLANTA Y RED ELECTRICA - HABITACION Y BAÑO.pdf",
+    "agua": "Sheet-HAB 218 STANDARD TWIN - RED AGUA FRIA Y CALIENTE.pdf",
+    "contraincendios": "Sheet-HAB 218 STANDARD TWIN - RED CONTRA INCENDIOS.pdf",
+    "desagues": "Sheet-HAB 218 STANDARD TWIN - RED SANITARIA.pdf"
+  },
+  "219": {
+    "electrico": "Sheet-HAB 219 STANDARD KING - PLANTA Y RED ELECTRICA - HABITACION Y BAÑO.pdf",
+    "agua": "Sheet-HAB 219 STANDARD KING - RED AGUA FRIA Y CALIENTE.pdf",
+    "contraincendios": "Sheet-HAB 219 STANDARD KING - RED CONTRA INCENDIOS.pdf",
+    "desagues": "Sheet-HAB 219 STANDARD KING - RED SANITARIA.pdf"
+  },
+  "220": {
+    "electrico": "Sheet-HAB 220 STANDARD TWIN - PLANTA Y RED ELECTRICA - HABITACION Y BAÑO.pdf",
+    "agua": "Sheet-HAB 220 STANDARD TWIN - RED AGUA FRIA Y CALIENTE.pdf",
+    "contraincendios": "Sheet-HAB 220 STANDARD TWIN - RED CONTRA INCENDIOS.pdf",
+    "desagues": "Sheet-HAB 220 STANDARD TWIN - RED SANITARIA.pdf"
+  },
+  "221": {
+    "electrico": "Sheet-HAB 221 STANDARD KING - PLANTA Y RED ELECTRICA - HABITACION Y BAÑO.pdf",
+    "agua": "Sheet-HAB 221 STANDARD KING - RED AGUA FRIA Y CALIENTE.pdf",
+    "contraincendios": "Sheet-HAB 221 STANDARD KING - RED CONTRA INCENDIOS.pdf",
+    "desagues": "Sheet-HAB 221 STANDARD KING - RED SANITARIA.pdf"
+  },
+  "222": {
+    "electrico": "Sheet-HAB 222 JUNIOR SUITE C - PLANTA Y RED ELECTRICA - HABITACION Y BAÑO.pdf",
+    "agua": "Sheet-HAB 222 JUNIOR SUITE C - RED AGUA FRIA Y CALIENTE.pdf",
+    "contraincendios": "Sheet-HAB 222 JUNIOR SUITE C - RED CONTRA INCENDIOS.pdf",
+    "desagues": "Sheet-HAB 222 JUNIOR SUITE C - RED SANITARIA.pdf"
+  },
+  "223": {
+    "electrico": "Sheet-HAB 223 JUNIOR SUITE C - PLANTA Y RED ELECTRICA - HABITACION Y BAÑO.pdf",
+    "agua": "Sheet-HAB 223 JUNIOR SUITE C - RED AGUA FRIA Y CALIENTE.pdf",
+    "contraincendios": "Sheet-HAB 223 JUNIOR SUITE C - RED CONTRA INCENDIOS.pdf",
+    "desagues": "Sheet-HAB 223 JUNIOR SUITE C - RED SANITARIA.pdf"
+  },
+  "224": {
+    "electrico": "Sheet-HAB 224 JUNIOR SUITE C - PLANTA Y RED ELECTRICA - HABITACION Y BAÑO.pdf",
+    "agua": "Sheet-HAB 224 JUNIOR SUITE C - RED AGUA FRIA Y CALIENTE.pdf",
+    "desagues": "Sheet-HAB 224 JUNIOR SUITE C - RED SANITARIA.pdf"
+  },
+  "225": {
+    "electrico": "Sheet-HAB 225 JUNIOR SUITE B - PLANTA Y RED ELECTRICA - HABITACION Y BAÑO.pdf",
+    "agua": "Sheet-HAB 225 JUNIOR SUITE B - RED AGUA FRIA Y CALIENTE.pdf",
+    "contraincendios": "Sheet-HAB 225 JUNIOR SUITE B - RED CONTRA INCENDIOS.pdf",
+    "desagues": "Sheet-HAB 225 JUNIOR SUITE B - RED SANITARIA.pdf"
+  },
+  "general": {
+    "agua": "Sheet-RED HIDRAULICA Y SANITARIA.pdf",
+    "contraincendios": "Sheet-RED CONTRA INCENDIOS - PLANTA, CORTE Y AXONOMETRIA.pdf",
+    "electrico": "Sheet-REDES ELECTRICAS.pdf",
+    "desagues": "Sheet-RED HIDRAULICA Y SANITARIA.pdf"
+  }
+};
 const pathOf = (loop) => `M${loop.map(([x, y]) => `${x} ${-y}`).join('L')}Z`;
 const centroid = (loop) => {
   let a = 0, cx = 0, cy = 0;
@@ -370,6 +449,14 @@ export function initAsBuilt({ rooms, geo }) {
   /* ---- qué se ve en el lienzo ---- */
   function currentSource() {
     const disc = DISCIPLINAS_ASBUILT[activeDisc];
+    if (activeDisc !== 'arquitectonico') {
+      const file = PDF_BY_ROOM[activeRoom]?.[activeDisc];
+      if (file) {
+        const pdf = 'assets/planos/redes/' + encodeURIComponent(file);
+        return { pdf, download: pdf, label: file.replace(/^Sheet-/, '').replace(/\.pdf$/i, ''), code: disc.code };
+      }
+      return { pending: true, label: 'Plano PDF pendiente de exportación', code: disc.code };
+    }
     const sheets = roomSheets[activeRoom];
     if (activeDisc === 'arquitectonico' && sheets) {
       const page = sheetPages[activeRoom];
@@ -474,9 +561,14 @@ export function initAsBuilt({ rooms, geo }) {
       down.removeAttribute('href');
       down.setAttribute('aria-disabled', 'true');
     } else if (src.pending) {
-      pan.innerHTML = '<div class="ab2-schem" role="status">Plano de desagües pendiente de carga para esta habitación.</div>';
+      pan.innerHTML = '<div class="ab2-schem" role="status">Plano PDF pendiente de exportación para esta habitación.</div>';
       down.removeAttribute('href');
       down.setAttribute('aria-disabled', 'true');
+    } else if (src.pdf) {
+      pan.innerHTML = `<iframe src="${src.pdf}#toolbar=1" title="${src.label}" style="width:100%;height:100%;border:0;background:#fff" loading="lazy"></iframe>`;
+      down.href = src.pdf;
+      down.title = 'Descargar plano PDF';
+      down.removeAttribute('aria-disabled');
     } else if (src.img) {
       pan.innerHTML = `<img src="${src.img}" alt="${src.label} · Habitación ${r.n}" decoding="async" draggable="false">`;
       down.href = src.download || src.img;
@@ -544,7 +636,10 @@ export function initAsBuilt({ rooms, geo }) {
     document.getElementById('asb-modal-tag').textContent = gen ? 'PISO 2' : `HABITACIÓN ${r.n}`;
     document.getElementById('asb-modal-code').textContent = src.sheet ? src.code : `PLANO ${src.code}-${gen ? 'P2' : r.n}`;
     document.getElementById('asb-modal-title').textContent = gen ? src.label : `${src.label} · ${r.cat} · ${r.priv} m²`;
-    if (src.img) {
+    if (src.pdf) {
+      modalImg.hidden = true; modalSchem.hidden = false;
+      modalSchem.innerHTML = `<iframe src="${src.pdf}#toolbar=1" title="${src.label}" style="width:min(90vw,1100px);height:75vh;border:0;background:#fff"></iframe>`;
+    } else if (src.img) {
       modalImg.src = src.img; modalImg.hidden = false; modalSchem.hidden = true;
     } else {
       modalImg.hidden = true; modalSchem.hidden = false;

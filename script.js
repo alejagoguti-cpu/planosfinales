@@ -106,7 +106,10 @@ pills.addEventListener('click', (e) => { const b = e.target.closest('button'); i
 showCat(CATS[0]);
 
 /* ---------- modelo 3D por pisos + lista de niveles y habitaciones ---------- */
-
+const { TourVR360 } = await import('./assets/js/tour360.js?v=1.0');
+const tourVR = new TourVR360();
+const vrEnterBtn = $('[data-vr-enter]');
+let activeRoomObj = null;
 const tbody = $('[data-levels]');
 const total = rooms.reduce((a, r) => a + r.priv, 0);
 const p2 = `<tr class="lvl" data-lvl="2" tabindex="0" aria-selected="false"><td>Piso 2</td><td>${m2(total)}</td><td>12 habitaciones</td><td>3 alas</td></tr>`;
@@ -148,6 +151,8 @@ view3d?.addEventListener('click', async () => {
 async function openFloor(f) {
   await ensureViewer();
   activateViewer();
+  activeRoomObj = null;
+  if (vrEnterBtn) vrEnterBtn.hidden = true;
   view3d?.setAttribute('aria-pressed', 'false');
   viewer.setFloor(f);
   reset.hidden = f == null;
@@ -163,24 +168,44 @@ async function openFloor(f) {
   pTitle.textContent = `Piso ${f}`;
   if (f === 2) {
     pArea.textContent = `${m2(total)} · 12 habitaciones`;
-    pSub.textContent = 'Elige una habitación en la lista o haz clic sobre ella en el modelo.';
+    pSub.textContent = 'Elige una habitación en la lista o haz clic sobre ella en el modelo para entrar al Tour VR 360°.';
   } else {
     pArea.textContent = 'En modelado';
     pSub.textContent = '';
+  }
+}
+function enterRoomVR(r) {
+  if (!r) return;
+  const roomData = viewer?.rooms?.get(r.n);
+  if (roomData && viewer.flyTo) {
+    // Animación de inmersión estilo video: la cámara desciende directo al interior de la habitación
+    const target = roomData.center.clone().setY(4.55);
+    const divePos = target.clone();
+    divePos.y += 0.35;
+    divePos.z += 0.4;
+    viewer.flyTo(divePos, target, 0.75, 'power3.in');
+    setTimeout(() => tourVR.show(r, 'camas'), 620);
+  } else {
+    tourVR.show(r, 'camas');
   }
 }
 async function openRoom(n) {
   await ensureViewer();
   activateViewer();
   const r = rooms.find((x) => x.n === n);
+  const alreadySelected = activeRoomObj && activeRoomObj.n === n;
+  activeRoomObj = r;
   viewer.selectRoom(n);
   reset.hidden = false;
+  if (vrEnterBtn) vrEnterBtn.hidden = false;
   if (pEmpty) pEmpty.hidden = true;
   mark(`[data-n="${n}"]`);
   pTitle.textContent = `Habitación ${r.n} · ${r.tipo}`;
   pArea.textContent = `${m2(r.priv)} privados · ${m2(r.cons)} construidos`;
   pSub.textContent = `${r.ubic}. ${r.camas}.`;
+  if (alreadySelected) enterRoomVR(r);
 }
+vrEnterBtn?.addEventListener('click', () => enterRoomVR(activeRoomObj));
 const narrow = matchMedia('(max-width: 1000px)');
 const choose = (tr) => {
   if (tr.dataset.n) { window.asBuiltSelectRoom?.(tr.dataset.n); openRoom(tr.dataset.n); return; } else openFloor(+tr.dataset.lvl);

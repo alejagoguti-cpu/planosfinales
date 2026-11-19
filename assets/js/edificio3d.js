@@ -26,14 +26,14 @@ const BANDS = ['PISO 1', 'PISO 2', 'PISO 3', 'PISO 4', 'PISO 5', 'PISO 6', 'CUBI
 const gsap = window.gsap;
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-// ------------------------------------------------------------------ texturas reales
+// ------------------------------------------------------------------ texturas reales PBR
 const texLoader = new THREE.TextureLoader();
 const texCache = new Map();
-function tex(name, metres = 1, rx = null, ry = null) {
-  const key = `${name}|${metres}|${rx}|${ry}`;
+function tex(name, metres = 1, rx = null, ry = null, isLinear = false) {
+  const key = `${name}|${metres}|${rx}|${ry}|${isLinear}`;
   if (texCache.has(key)) return texCache.get(key);
   const t = texLoader.load(`assets/tex/${name}`, undefined, undefined, () => {});
-  t.colorSpace = THREE.SRGBColorSpace;
+  t.colorSpace = isLinear ? THREE.NoColorSpace : THREE.SRGBColorSpace;
   t.wrapS = t.wrapT = THREE.RepeatWrapping;
   t.repeat.set(rx ?? 1 / metres, ry ?? 1 / metres);
   t.anisotropy = 8;
@@ -42,22 +42,82 @@ function tex(name, metres = 1, rx = null, ry = null) {
 }
 
 // La geometría es la del modelo de Revit tal cual. Cada material de Revit (por su nombre) recibe su
-// textura real del catálogo de acabados; el que no tiene regla conserva su color de Revit.
-// Las texturas se proyectan en triplanar (coordenadas del mundo, en metros): no dependen de las UV del modelo.
+// textura PBR real de alta resolución (Base Color + Normal + Roughness) proyectada en triplanar.
 const RULES = [
   [/LADRILLO|MAMPOSTER/i, { map: ['ladrillo.webp', 1.2], roughness: 0.92, tint: 0xf0e2d8, macro: 0.32 }],
   [/TEJA|Default Roof/i, { map: ['teja.webp', 2.0], roughness: 0.88, tint: 0xe6d2c6, macro: 0.4 }],
-  [/VINIL|VETA/i, { map: ['piso-madera.webp', 1.6], roughness: 0.55 }],
-  [/SANTORINI/i, { map: ['santorini.webp', 1.2], roughness: 0.35 }],
-  [/MOS THE DREAM/i, { map: ['mosaico.webp', 0.6], roughness: 0.4 }],
+  [/CABECERO-NOGAL|PORTAL-MADERA|PORTAL-CABEZAL|GUARDAESCOBAS-MADERA|PUERTA|SIKUANI|Sikuani|MELAMINA|FORMICA|ALERO|CABECERO/i, {
+    map: ['pbr-hlf/nogal-hlf.jpg', 1.2],
+    normalMap: 'pbr-hlf/nogal-hlf-n.png',
+    roughnessMap: 'pbr-hlf/nogal-hlf-r.png',
+    roughness: 0.44, normalScale: 0.65, envMapIntensity: 0.9,
+  }],
+  [/PANEL TEJIDO ARENA/i, {
+    map: ['pbr-hlf/panel-roble-hlf.png', 1.1],
+    normalMap: 'pbr-hlf/panel-roble-hlf-n.png',
+    roughnessMap: 'pbr-hlf/panel-roble-hlf-r.png',
+    roughness: 0.78, normalScale: 0.5,
+  }],
+  [/VINIL|VETA/i, {
+    map: ['pbr-hlf/piso-madera-hlf.jpg', 2.2],
+    normalMap: 'pbr-hlf/piso-madera-hlf-n.png',
+    roughnessMap: 'pbr-hlf/piso-madera-hlf-r.png',
+    roughness: 0.40, normalScale: 0.75, envMapIntensity: 0.95,
+  }],
+  [/BAÑO MURO|SANTORINI/i, {
+    map: ['pbr-hlf/bano-muro-hlf.png', 1.2],
+    normalMap: 'pbr-hlf/bano-muro-hlf-n.png',
+    roughnessMap: 'pbr-hlf/bano-muro-hlf-r.png',
+    roughness: 0.62, normalScale: 0.65, envMapIntensity: 0.8,
+  }],
+  [/MOS THE DREAM|PISO BAÑO/i, {
+    map: ['pbr-hlf/bano-piso-hlf.jpg', 0.75],
+    roughness: 0.42, envMapIntensity: 0.85,
+  }],
   [/ALFOMBRA/i, { map: ['alfombra-hall.webp', 2.0], roughness: 1 }],
-  [/MARMOL|PHANTOM|Amazonico|SINTERIZADA/i, { map: ['piedra-phantom.webp', 1.2], roughness: 0.25 }],
-  [/SIKUANI|Sikuani|MELAMINA|FORMICA|ALERO|CABECERO/i, { map: ['nogal.webp', 1.2], roughness: 0.55 }],
-  [/PAPEL TAPIZ TEJIDO OLIVA/i, { map: ['tejido-oliva.webp', 0.8], roughness: 0.95 }],
-  [/PAPEL|Lismore/i, { map: ['papel-tessera.webp', 1.0], roughness: 0.9 }],
+  [/Amazonico/i, {
+    map: ['pbr-hlf/marmol-amazonico-hlf.jpg', 1.1],
+    roughness: 0.22, envMapIntensity: 1.4,
+  }],
+  [/MARMOL|PHANTOM|SINTERIZADA|MESON/i, {
+    map: ['pbr-hlf/marmol-gris-hlf.jpg', 1.2],
+    normalMap: 'pbr-hlf/marmol-gris-hlf-n.png',
+    roughnessMap: 'pbr-hlf/marmol-gris-hlf-r.png',
+    roughness: 0.24, normalScale: 0.4, envMapIntensity: 1.4,
+  }],
+  [/MARTILLADO|CUERO ACOLCHADO|QUILT/i, {
+    map: ['pbr-hlf/minibar-acolchado-hlf.jpg', 0.65],
+    roughness: 0.58, envMapIntensity: 0.8,
+  }],
+  [/Plain Natural|TRAILBLAZER/i, {
+    map: ['pbr-hlf/boucle-taupe-hlf.jpg', 0.55],
+    normalMap: 'pbr-hlf/boucle-taupe-hlf-n.png',
+    roughnessMap: 'pbr-hlf/boucle-taupe-hlf-r.png',
+    roughness: 0.90, normalScale: 0.85, tint: 0xfbf4ea,
+  }],
+  [/TEJIDO AVENA|Plain Grey Jacquard/i, {
+    map: ['pbr-hlf/tejido-avena-hlf.jpg', 0.55],
+    normalMap: 'pbr-hlf/tejido-avena-hlf-n.png',
+    roughnessMap: 'pbr-hlf/tejido-avena-hlf-r.png',
+    roughness: 0.90, normalScale: 0.8,
+  }],
+  [/TENDIDO BLANCO/i, {
+    map: ['pbr-hlf/tendido-blanco-hlf.jpg', 0.65],
+    normalMap: 'pbr-hlf/tendido-blanco-hlf-n.png',
+    roughnessMap: 'pbr-hlf/tendido-blanco-hlf-r.png',
+    roughness: 0.88, normalScale: 0.55, tint: 0xf4efe6,
+  }],
+  [/TEJIDO OLIVA|PAPEL|Lismore/i, {
+    map: ['pbr-hlf/papel-oliva-hlf.png', 1.0],
+    normalMap: 'pbr-hlf/papel-oliva-hlf-n.png',
+    roughnessMap: 'pbr-hlf/papel-oliva-hlf-r.png',
+    roughness: 0.86, normalScale: 0.65,
+  }],
   [/TEJIDO TERRACOTA/i, { map: ['tejido-terracota.webp', 0.5], roughness: 1 }],
-  [/TA-01|Carpet/i, { map: ['tapete-lana.webp', 2.0], roughness: 1 }],
-  [/TAPETE|TA-04/i, { map: ['tapete-puntos.webp', 2.0], roughness: 1 }],
+  [/TA-01|TAPETE|TA-04|Carpet/i, {
+    map: ['pbr-hlf/tapete-circular-hlf.png', 2.4],
+    roughness: 0.95,
+  }],
   [/PLAZA ABANICO/i, { map: ['plaza-abanico.webp', 4.0], roughness: 0.85, macro: 0.25 }],
   [/ANDEN ADOQUIN/i, { map: ['adoquin-arcilla.webp', 1.5], roughness: 0.9, tint: 0xe4d6cf, macro: 0.25 }],
   [/ASFALTO/i, { map: ['asfalto.webp', 4.0], roughness: 0.95, macro: 0.3 }],
@@ -65,14 +125,17 @@ const RULES = [
   [/PODOTACTIL/i, { map: ['podotactil.webp', 1.0], roughness: 0.9 }],
   [/hlf_adoquin/i, { map: ['adoquin-vehicular.webp', 2.0], roughness: 0.9, macro: 0.25 }],
   [/HIEDRA/i, { map: ['seto-verde.webp', 1.5], roughness: 1 }],
-  [/VIDRIO LUZ CALIDA/i, { color: 0xffe2a8, emissive: 0xffc870, emissiveIntensity: 1.2, roughness: 0.2 }],
+  [/TV Screen/i, { color: 0x0d0d10, roughness: 0.08, metalness: 0.2, envMapIntensity: 1.8 }],
+  [/TV Black/i, { color: 0x141416, roughness: 0.35, metalness: 0.25 }],
+  [/VIDRIO LUZ CALIDA/i, { color: 0xffe2a8, emissive: 0xffc870, emissiveIntensity: 1.6, roughness: 0.2 }],
   // vidrio: oscuro y reflectivo (refleja el cielo), como se ve una ventana real desde afuera
-  [/VIDRIO|Glass/i, { color: 0x24323a, roughness: 0.04, metalness: 0.2, transparent: true, opacity: 0.78, envMapIntensity: 2.2 }],
-  [/Mirror|Aluminum|Stainless/i, { color: 0xd8dadc, roughness: 0.15, metalness: 0.9 }],
-  [/Sthal|ACERO|MARCO NEGRO/i, { color: 0x2b2c2e, roughness: 0.38, metalness: 0.75 }],
-  [/DORADO|BRONCE|LATON/i, { color: 0xb59535, roughness: 0.3, metalness: 0.85 }],
-  [/PINTURA BLANCA|HLF-BLANCO|HLF-WHITE|SOBRE LAS NUBES|BALAUSTRE/i, { color: 0xeeebe4, roughness: 0.85 }],
-  [/LED|Luz/i, { color: 0xfff1d8, emissive: 0xffe2b0, emissiveIntensity: 1 }],
+  [/VIDRIO|Glass/i, { color: 0x24323a, roughness: 0.04, metalness: 0.2, transparent: true, opacity: 0.45, envMapIntensity: 2.2 }],
+  [/Mirror/i, { color: 0xf2f2f2, roughness: 0.02, metalness: 1.0, envMapIntensity: 2.4 }],
+  [/Aluminum|Stainless|Chrome|Cromado/i, { color: 0xd8dadc, roughness: 0.16, metalness: 0.92, envMapIntensity: 1.6 }],
+  [/Sthal|ACERO|MARCO NEGRO/i, { color: 0x1a1b1d, roughness: 0.32, metalness: 0.8, envMapIntensity: 1.1 }],
+  [/DORADO|BRONCE|LATON|Gold Blurry/i, { color: 0xc8a25e, roughness: 0.26, metalness: 0.94, envMapIntensity: 1.6 }],
+  [/PINTURA BLANCA|HLF-BLANCO|HLF-WHITE|SOBRE LAS NUBES|BALAUSTRE|Default Wall|Sin material/i, { color: 0xede6da, roughness: 0.88 }],
+  [/LED|Luz/i, { color: 0xfff1d8, emissive: 0xffd28a, emissiveIntensity: 2.2 }],
 ];
 
 /** Proyección triplanar en coordenadas del mundo + variación grande para que no se note la repetición. */
@@ -104,8 +167,20 @@ function materialFor(src) {
   for (const [re, def] of RULES) {
     if (!re.test(name)) continue;
     const m = new THREE.MeshStandardMaterial({ name, roughness: def.roughness ?? 0.85, metalness: def.metalness ?? 0 });
-    if (def.map) { m.map = tex(def.map[0], 1); m.color.set(def.tint ?? 0xffffff); triplanar(m, def.map[1], def.macro ?? 0); }
-    else m.color.set(def.color ?? src.color);
+    if (def.map) {
+      m.map = tex(def.map[0], 1);
+      m.color.set(def.tint ?? 0xffffff);
+      triplanar(m, def.map[1], def.macro ?? 0);
+      if (def.normalMap) {
+        m.normalMap = tex(def.normalMap, def.map[1], null, null, true);
+        m.normalScale.setScalar(def.normalScale ?? 0.65);
+      }
+      if (def.roughnessMap) {
+        m.roughnessMap = tex(def.roughnessMap, def.map[1], null, null, true);
+      }
+    } else {
+      m.color.set(def.color ?? src.color);
+    }
     if (def.emissive) { m.emissive.set(def.emissive); m.emissiveIntensity = def.emissiveIntensity; }
     if (def.transparent) { m.transparent = true; m.opacity = def.opacity; m.depthWrite = false; }
     if (def.envMapIntensity) m.envMapIntensity = def.envMapIntensity;
@@ -114,7 +189,7 @@ function materialFor(src) {
   const m = src.clone();   // sin regla: conserva el color del material de Revit
   m.roughness = 0.85; m.metalness = 0;
   if (src.color.r + src.color.g + src.color.b < 0.02) m.color.set(0x3a3a3a);
-  if (/Sin material|Default Wall/i.test(name)) m.color.set(0xd6d0c6);   // muros sin material: revoque claro, no gris de Revit
+  if (/Sin material|Default Wall/i.test(name)) m.color.set(0xede6da);
   return m;
 }
 

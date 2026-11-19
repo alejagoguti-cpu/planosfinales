@@ -360,6 +360,13 @@ export function initAsBuilt({ rooms, geo }) {
     '215': 'A02', '216': 'A03', '217': 'A04', '218': 'A05',
     '219': 'A06', '220': 'A07', '221': 'A08', '222': 'A09',
   };
+  const TECH_SHEETS = {
+    desagues: { dir: 'assets/planos/desagues', pre: 'san', code: 'SAN', name: 'desagües', labels: ['Red sanitaria'], count: () => 1 },
+    agua: { dir: 'assets/planos/agua', pre: 'agu', code: 'HID', name: 'agua fría y caliente', labels: ['Red de agua fría y caliente'], count: () => 1 },
+    contraincendios: { dir: 'assets/planos/contraincendios', pre: 'rci', code: 'RCI', name: 'red contra incendios', labels: ['Red contra incendios'], count: (n) => (n === '224' ? 0 : 1) },
+    electrico: { dir: 'assets/planos/electrico', pre: 'ele', code: 'ELE', name: 'red eléctrica', labels: ['Planta y red eléctrica · habitación y baño', 'Cortes red eléctrica'], count: (n) => (Number(n) <= 221 ? 2 : Number(n) <= 222 ? 1 : 0) },
+  };
+  const techPages = Object.fromEntries(Object.keys(TECH_SHEETS).map((k) => [k, {}]));
   let activeView = 'planta'; // planta | redes | detalles
 
   const roomsMap = new Map();
@@ -449,15 +456,20 @@ export function initAsBuilt({ rooms, geo }) {
   /* ---- qué se ve en el lienzo ---- */
   function currentSource() {
     const disc = DISCIPLINAS_ASBUILT[activeDisc];
-    if (activeDisc === 'desagues') {
-      // Misma lógica que arquitectónico: lámina en WebP + PDF descargable por habitación.
-      if (activeRoom === GEN) return { mosaic: true, rooms: geo.rooms, label: 'Láminas de desagües por habitación', code: 'SAN' };
-      const directory = 'assets/planos/desagues';
+    const tech = TECH_SHEETS[activeDisc];
+    if (tech) {
+      // Misma lógica que arquitectónico: láminas en WebP + PDF descargable por habitación.
+      const available = geo.rooms.filter((room) => tech.count(String(room.n)) > 0);
+      if (activeRoom === GEN) return { mosaic: true, rooms: available, label: `Láminas de ${tech.name} por habitación`, title: `Láminas de ${tech.name}`, thumb: (n) => `${tech.dir}/${tech.pre}-${n}-thumb.webp`, code: tech.code };
+      const count = tech.count(activeRoom);
+      if (!count) return { pending: true, label: 'Plano pendiente de exportación', code: tech.code };
+      const pages = techPages[activeDisc];
+      const page = Math.min(pages[activeRoom] || 0, count - 1);
       return {
-        img: `${directory}/san-${activeRoom}-1.webp`,
-        download: `${directory}/HLF-${activeRoom}-desagues.pdf`,
-        label: 'Red sanitaria', code: `SAN-${activeRoom}`,
-        sheet: true, page: 0, count: 1, singlePageDownload: true,
+        img: `${tech.dir}/${tech.pre}-${activeRoom}-${page + 1}.webp`,
+        download: `${tech.dir}/HLF-${activeRoom}-${activeDisc}.pdf`,
+        label: tech.labels[page], code: `${tech.code}-${activeRoom}${count > 1 ? 'AB'[page] : ''}`,
+        sheet: true, page, count, downloadCount: count, singlePageDownload: count === 1, pages,
       };
     }
     if (activeDisc !== 'arquitectonico') {
@@ -491,7 +503,6 @@ export function initAsBuilt({ rooms, geo }) {
         sheet: true, page, count, downloadCount: sheets.length,
       };
     }
-    if (activeRoom === GEN && activeDisc === 'electrico') return { mosaic: true, label: 'Láminas eléctricas por habitación', code: 'ELE' };
     if (activeRoom === GEN) return { img: 'assets/planos/planta-general.webp', download: 'assets/planos/HLF-planta-general.pdf', label: 'Planta general · Piso 2', code: 'ARQ', planta: true };
     if (activeView === 'planta') return { img: 'assets/planos/planta-general.webp', download: 'assets/planos/HLF-planta-general.pdf', label: 'Planta arquitectónica · Piso 2', code: 'ARQ' };
     if (activeView === 'detalles') return { img: 'assets/planos/p2-acabados.png', label: 'Planta de acabados · Piso 2', code: 'ACB' };
@@ -578,7 +589,7 @@ export function initAsBuilt({ rooms, geo }) {
     const gen = activeRoom === GEN;
     $('[data-ab2-badge]').textContent = gen ? 'Piso 2' : `Habitación ${r.n}`;
     $('[data-ab2-code]').textContent = src.sheet ? src.code : gen ? `Plano ${src.code}-P2` : `Plano ${src.code}-${r.n}`;
-    $('[data-ab2-h]').textContent = src.pdf ? disc.title : gen ? (src.mosaic ? (src.code === 'SAN' ? 'Láminas de desagües' : 'Láminas eléctricas') : 'Planta general') : src.sheet ? src.label : r.cat;
+    $('[data-ab2-h]').textContent = src.pdf ? disc.title : gen ? (src.mosaic ? src.title : 'Planta general') : src.sheet ? src.label : r.cat;
     $('[data-ab2-meta]').textContent = gen
       ? `${rooms.length} habitaciones · 3 alas · ${totalPriv.toFixed(2)} m² privados${src.mosaic ? ' · elige una lámina para abrirla' : ''}`
       : `${r.ala} · ${r.priv} m² privados · ${r.camas}`;
@@ -587,7 +598,7 @@ export function initAsBuilt({ rooms, geo }) {
     if (src.mosaic) {
       pan.innerHTML = `<div class="ab2-mosaic">${(src.rooms || geo.rooms).map((rm) => `
         <button type="button" class="ab2-tile" data-go-room="${rm.n}">
-          <img src="${src.code === 'SAN' ? `assets/planos/desagues/san-${rm.n}-thumb.webp` : `assets/planos/electrico/plano-elec-${rm.n}-thumb.webp`}" alt="${src.label} · Habitación ${rm.n}" loading="lazy" decoding="async" draggable="false">
+          <img src="${src.thumb(rm.n)}" alt="${src.label} · Habitación ${rm.n}" loading="lazy" decoding="async" draggable="false">
           <span>Hab. ${rm.n}</span>
         </button>`).join('')}</div>`;
       pan.querySelectorAll('[data-go-room]').forEach((b) => b.addEventListener('click', () => { activeRoom = b.dataset.goRoom; render(); }));
@@ -620,9 +631,10 @@ export function initAsBuilt({ rooms, geo }) {
   }
 
   function moveSheet(delta) {
-    const { sheet, count } = currentSource();
+    const { sheet, count, page, pages } = currentSource();
     if (!sheet || count <= 1) return;
-    sheetPages[activeRoom] = (sheetPages[activeRoom] + delta + count) % count;
+    if (pages) pages[activeRoom] = (page + delta + count) % count;
+    else sheetPages[activeRoom] = (sheetPages[activeRoom] + delta + count) % count;
     render();
   }
   $('[data-sheet-prev]').addEventListener('click', () => moveSheet(-1));

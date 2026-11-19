@@ -84,7 +84,7 @@ $('[data-fig="rooms"]').textContent = rooms.length;
 $('[data-fig="area"]').textContent = Math.round(rooms.reduce((a, r) => a + r.priv, 0));
 
 /* ---------- planos as built ---------- */
-const { initAsBuilt } = await import('./assets/js/asbuilt.js?v=2.22');
+const { initAsBuilt } = await import('./assets/js/asbuilt.js?v=2.23');
 initAsBuilt({ rooms, geo });
 
 /* ---------- tipologías: cifras + píldoras ---------- */

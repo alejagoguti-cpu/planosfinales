@@ -449,6 +449,17 @@ export function initAsBuilt({ rooms, geo }) {
   /* ---- qué se ve en el lienzo ---- */
   function currentSource() {
     const disc = DISCIPLINAS_ASBUILT[activeDisc];
+    if (activeDisc === 'desagues') {
+      // Misma lógica que arquitectónico: lámina en WebP + PDF descargable por habitación.
+      if (activeRoom === GEN) return { mosaic: true, rooms: geo.rooms, label: 'Láminas de desagües por habitación', code: 'SAN' };
+      const directory = 'assets/planos/desagues';
+      return {
+        img: `${directory}/san-${activeRoom}-1.webp`,
+        download: `${directory}/HLF-${activeRoom}-desagues.pdf`,
+        label: 'Red sanitaria', code: `SAN-${activeRoom}`,
+        sheet: true, page: 0, count: 1, singlePageDownload: true,
+      };
+    }
     if (activeDisc !== 'arquitectonico') {
       const file = PDF_BY_ROOM[activeRoom]?.[activeDisc];
       if (file) {
@@ -479,14 +490,6 @@ export function initAsBuilt({ rooms, geo }) {
         code: `INT-${activeRoom}${(activeRoom === '222' ? 'AC' : 'ABCD')[sheetIndex]}`,
         sheet: true, page, count, downloadCount: sheets.length,
       };
-    }
-    if (activeDisc === 'desagues' && activeView === 'redes') {
-      const available = geo.rooms.filter((room) => Number(room.n) >= 214 && Number(room.n) <= 223);
-      if (activeRoom === GEN) return { mosaic: true, rooms: available, label: 'Láminas de desagües por habitación', code: 'SAN' };
-      if (available.some((room) => String(room.n) === String(activeRoom))) return {
-        img: `assets/planos/desagues/plano-san-${activeRoom}.webp`, label: disc.title, code: disc.code,
-      };
-      return { pending: true, label: 'Plano de desagües pendiente', code: 'SAN' };
     }
     if (activeRoom === GEN && activeDisc === 'electrico') return { mosaic: true, label: 'Láminas eléctricas por habitación', code: 'ELE' };
     if (activeRoom === GEN) return { img: 'assets/planos/planta-general.webp', download: 'assets/planos/HLF-planta-general.pdf', label: 'Planta general · Piso 2', code: 'ARQ', planta: true };
@@ -584,7 +587,7 @@ export function initAsBuilt({ rooms, geo }) {
     if (src.mosaic) {
       pan.innerHTML = `<div class="ab2-mosaic">${(src.rooms || geo.rooms).map((rm) => `
         <button type="button" class="ab2-tile" data-go-room="${rm.n}">
-          <img src="${src.code === 'SAN' ? `assets/planos/desagues/plano-san-${rm.n}-thumb.webp` : `assets/planos/electrico/plano-elec-${rm.n}-thumb.webp`}" alt="${src.label} · Habitación ${rm.n}" loading="lazy" decoding="async" draggable="false">
+          <img src="${src.code === 'SAN' ? `assets/planos/desagues/san-${rm.n}-thumb.webp` : `assets/planos/electrico/plano-elec-${rm.n}-thumb.webp`}" alt="${src.label} · Habitación ${rm.n}" loading="lazy" decoding="async" draggable="false">
           <span>Hab. ${rm.n}</span>
         </button>`).join('')}</div>`;
       pan.querySelectorAll('[data-go-room]').forEach((b) => b.addEventListener('click', () => { activeRoom = b.dataset.goRoom; render(); }));
@@ -618,7 +621,7 @@ export function initAsBuilt({ rooms, geo }) {
 
   function moveSheet(delta) {
     const { sheet, count } = currentSource();
-    if (!sheet) return;
+    if (!sheet || count <= 1) return;
     sheetPages[activeRoom] = (sheetPages[activeRoom] + delta + count) % count;
     render();
   }

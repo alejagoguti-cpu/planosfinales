@@ -84,7 +84,7 @@ $('[data-fig="rooms"]').textContent = rooms.length;
 $('[data-fig="area"]').textContent = Math.round(rooms.reduce((a, r) => a + r.priv, 0));
 
 /* ---------- planos as built ---------- */
-const { initAsBuilt } = await import('./assets/js/asbuilt.js?v=2.19');
+const { initAsBuilt } = await import('./assets/js/asbuilt.js?v=2.20');
 initAsBuilt({ rooms, geo });
 
 /* ---------- tipologías: cifras + píldoras ---------- */
@@ -183,7 +183,7 @@ async function openRoom(n) {
 }
 const narrow = matchMedia('(max-width: 1000px)');
 const choose = (tr) => {
-  if (tr.dataset.n) openRoom(tr.dataset.n); else openFloor(+tr.dataset.lvl);
+  if (tr.dataset.n) { window.asBuiltSelectRoom?.(tr.dataset.n); openRoom(tr.dataset.n); return; } else openFloor(+tr.dataset.lvl);
   // en pantallas angostas el visor queda arriba de la lista: se sube para ver el cambio
   if (narrow.matches) panel.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
 };

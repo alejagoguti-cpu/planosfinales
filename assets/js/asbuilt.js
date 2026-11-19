@@ -364,7 +364,7 @@ export function initAsBuilt({ rooms, geo }) {
     desagues: { dir: 'assets/planos/desagues', pre: 'san', code: 'SAN', name: 'desagües', labels: ['Red sanitaria'], count: () => 1 },
     agua: { dir: 'assets/planos/agua', pre: 'agu', code: 'HID', name: 'agua fría y caliente', labels: ['Red de agua fría y caliente'], count: () => 1 },
     contraincendios: { dir: 'assets/planos/contraincendios', pre: 'rci', code: 'RCI', name: 'red contra incendios', labels: ['Red contra incendios'], count: (n) => (n === '224' ? 0 : 1) },
-    electrico: { dir: 'assets/planos/electrico', pre: 'ele', code: 'ELE', name: 'red eléctrica', labels: ['Planta y red eléctrica · habitación y baño', 'Cortes red eléctrica'], count: (n) => (Number(n) <= 221 ? 2 : Number(n) <= 222 ? 1 : 0) },
+    electrico: { dir: 'assets/planos/electrico', pre: 'ele', code: 'ELE', name: 'red eléctrica', labels: ['Planta y red eléctrica · habitación y baño', 'Cortes red eléctrica'], count: (n) => (Number(n) <= 221 ? 2 : 1) },
   };
   const techPages = Object.fromEntries(Object.keys(TECH_SHEETS).map((k) => [k, {}]));
   let activeView = 'planta'; // planta | redes | detalles

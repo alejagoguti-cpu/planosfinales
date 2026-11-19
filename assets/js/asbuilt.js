@@ -540,7 +540,7 @@ export function initAsBuilt({ rooms, geo }) {
       canvas.height = Math.floor(viewport.height);
       canvas.style.width = Math.floor(original.width * scale) + 'px';
       canvas.style.height = Math.floor(original.height * scale) + 'px';
-      await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+      await page.render({ canvasContext: canvas.getContext('2d'), viewport, background: '#fff' }).promise;
       if (!host.isConnected) return;
       canvas.hidden = false;
       status.hidden = true;
@@ -575,7 +575,7 @@ export function initAsBuilt({ rooms, geo }) {
     const gen = activeRoom === GEN;
     $('[data-ab2-badge]').textContent = gen ? 'Piso 2' : `Habitación ${r.n}`;
     $('[data-ab2-code]').textContent = src.sheet ? src.code : gen ? `Plano ${src.code}-P2` : `Plano ${src.code}-${r.n}`;
-    $('[data-ab2-h]').textContent = gen ? (src.mosaic ? (src.code === 'SAN' ? 'Láminas de desagües' : 'Láminas eléctricas') : 'Planta general') : src.sheet ? src.label : r.cat;
+    $('[data-ab2-h]').textContent = src.pdf ? disc.title : gen ? (src.mosaic ? (src.code === 'SAN' ? 'Láminas de desagües' : 'Láminas eléctricas') : 'Planta general') : src.sheet ? src.label : r.cat;
     $('[data-ab2-meta]').textContent = gen
       ? `${rooms.length} habitaciones · 3 alas · ${totalPriv.toFixed(2)} m² privados${src.mosaic ? ' · elige una lámina para abrirla' : ''}`
       : `${r.ala} · ${r.priv} m² privados · ${r.camas}`;
@@ -595,7 +595,7 @@ export function initAsBuilt({ rooms, geo }) {
       down.removeAttribute('href');
       down.setAttribute('aria-disabled', 'true');
     } else if (src.pdf) {
-      pan.innerHTML = '<div class="ab2-pdf-preview" style="width:100%;height:100%;display:grid;place-items:center;background:#f4f1e9"><canvas hidden style="max-width:100%;max-height:100%;box-shadow:0 8px 30px rgba(0,0,0,.18)"></canvas><p>Preparando vista del plano…</p></div>';
+      pan.innerHTML = '<div class="ab2-pdf-preview" style="width:100%;height:100%;display:grid;place-items:center;background:transparent"><canvas hidden style="max-width:100%;max-height:100%;background:#fff"></canvas><p>Preparando vista del plano…</p></div>';
       renderPdfPage(src.pdf, pan.querySelector('.ab2-pdf-preview'));
       down.href = src.pdf;
       down.title = 'Descargar plano PDF';
@@ -610,7 +610,7 @@ export function initAsBuilt({ rooms, geo }) {
       down.removeAttribute('href');
       down.setAttribute('aria-disabled', 'true');
     }
-    stage.classList.toggle('is-planta', !!src.planta || activeView !== 'redes' || activeDisc === 'arquitectonico');
+    stage.classList.toggle('is-planta', !!src.pdf || !!src.planta || activeView !== 'redes' || activeDisc === 'arquitectonico');
     stage.classList.toggle('is-mosaic', !!src.mosaic || !!src.pending);
     stage.classList.remove('swap'); void stage.offsetWidth; stage.classList.add('swap');
     zoomTo(1);
@@ -669,7 +669,7 @@ export function initAsBuilt({ rooms, geo }) {
     document.getElementById('asb-modal-title').textContent = gen ? src.label : `${src.label} · ${r.cat} · ${r.priv} m²`;
     if (src.pdf) {
       modalImg.hidden = true; modalSchem.hidden = false;
-      modalSchem.innerHTML = '<div style="width:min(86vw,1000px);height:75vh;display:grid;place-items:center;background:#f4f1e9"><canvas hidden style="max-width:100%;max-height:100%"></canvas><p>Preparando vista del plano…</p></div>';
+      modalSchem.innerHTML = '<div style="width:min(86vw,1000px);height:75vh;display:grid;place-items:center;background:var(--ab-cream)"><canvas hidden style="max-width:100%;max-height:100%;background:#fff"></canvas><p>Preparando vista del plano…</p></div>';
       renderPdfPage(src.pdf, modalSchem.firstElementChild);
     } else if (src.img) {
       modalImg.src = src.img; modalImg.hidden = false; modalSchem.hidden = true;

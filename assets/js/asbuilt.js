@@ -53,8 +53,8 @@ export const DISCIPLINAS_ASBUILT = {
   },
   agua: {
     id: 'agua',
-    num: '3',
-    numLabel: '3. Agua Caliente y agua fría',
+    num: '4',
+    numLabel: '4. Agua Caliente y agua fría',
     title: 'Red Hidráulica (Agua Fría y Caliente)',
     code: 'HID',
     color: '#0284c7',
@@ -75,8 +75,8 @@ export const DISCIPLINAS_ASBUILT = {
   },
   desagues: {
     id: 'desagues',
-    num: '4',
-    numLabel: '4. Desagües',
+    num: '3',
+    numLabel: '3. Desagües',
     title: 'Red Sanitaria y Desagües',
     code: 'SAN',
     color: '#10b981',
@@ -299,7 +299,7 @@ export function initAsBuilt({ rooms, geo }) {
         <h2 class="ab2-title">Planos <span>As Built</span></h2>
         <p class="ab2-lead">Selecciona una especialidad y recorre los planos de detalle de cada habitación.</p>
         <div class="ab2-discs" role="tablist" aria-label="Especialidades As-Built">
-          ${['arquitectonico', 'contraincendios', 'agua', 'desagues', 'electrico'].map((id) => DISCIPLINAS_ASBUILT[id]).map((d) => `
+          ${['arquitectonico', 'contraincendios', 'desagues', 'agua', 'electrico'].map((id) => DISCIPLINAS_ASBUILT[id]).map((d) => `
             <button type="button" class="ab2-disc" data-disc="${d.id}" role="tab" aria-selected="false">
               <span class="ab2-disc-ic">${svgI(ICONS[d.id] || '')}</span>
               <span class="ab2-disc-lb">${SHORT[d.id] || d.title}</span>

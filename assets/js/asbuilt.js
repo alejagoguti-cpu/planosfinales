@@ -17,8 +17,8 @@ const centroid = (loop) => {
 export const DISCIPLINAS_ASBUILT = {
   arquitectonico: {
     id: 'arquitectonico',
-    num: '5',
-    numLabel: '5. Arquitectónico',
+    num: '1',
+    numLabel: '1. Arquitectónico',
     title: 'Planta Arquitectónica',
     code: 'ARQ',
     color: '#b59535',
@@ -30,8 +30,8 @@ export const DISCIPLINAS_ASBUILT = {
   },
   electrico: {
     id: 'electrico',
-    num: '1',
-    numLabel: '1. Eléctrico',
+    num: '3',
+    numLabel: '3. Eléctrico',
     title: 'Red Eléctrica e Iluminación',
     code: 'ELE',
     color: '#eab308',
@@ -53,8 +53,8 @@ export const DISCIPLINAS_ASBUILT = {
   },
   agua: {
     id: 'agua',
-    num: '2',
-    numLabel: '2. Agua Caliente y agua fría',
+    num: '4',
+    numLabel: '4. Agua Caliente y agua fría',
     title: 'Red Hidráulica (Agua Fría y Caliente)',
     code: 'HID',
     color: '#0284c7',
@@ -75,8 +75,8 @@ export const DISCIPLINAS_ASBUILT = {
   },
   desagues: {
     id: 'desagues',
-    num: '3',
-    numLabel: '3. Desagües',
+    num: '5',
+    numLabel: '5. Desagües',
     title: 'Red Sanitaria y Desagües',
     code: 'SAN',
     color: '#10b981',
@@ -97,8 +97,8 @@ export const DISCIPLINAS_ASBUILT = {
   },
   contraincendios: {
     id: 'contraincendios',
-    num: '4',
-    numLabel: '4. Red contraincendios',
+    num: '2',
+    numLabel: '2. Red contraincendios',
     title: 'Red Contra Incendios y Detección',
     code: 'RCI',
     color: '#ef4444',
@@ -299,7 +299,7 @@ export function initAsBuilt({ rooms, geo }) {
         <h2 class="ab2-title">Planos <span>As Built</span></h2>
         <p class="ab2-lead">Selecciona una especialidad y recorre los planos de detalle de cada habitación.</p>
         <div class="ab2-discs" role="tablist" aria-label="Especialidades As-Built">
-          ${Object.values(DISCIPLINAS_ASBUILT).map((d) => `
+          ${['arquitectonico', 'contraincendios', 'electrico', 'agua', 'desagues'].map((id) => DISCIPLINAS_ASBUILT[id]).map((d) => `
             <button type="button" class="ab2-disc" data-disc="${d.id}" role="tab" aria-selected="false">
               <span class="ab2-disc-ic">${svgI(ICONS[d.id] || '')}</span>
               <span class="ab2-disc-lb">${SHORT[d.id] || d.title}</span>

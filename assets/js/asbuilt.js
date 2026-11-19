@@ -520,6 +520,36 @@ export function initAsBuilt({ rooms, geo }) {
   pan.addEventListener('pointerup', () => { drag = null; });
   pan.addEventListener('dblclick', () => { if (!currentSource().mosaic) openModal(); });
 
+  const pdfDocuments = new Map();
+  async function renderPdfPage(url, host) {
+    const canvas = host.querySelector('canvas');
+    const status = host.querySelector('p');
+    try {
+      if (!window.pdfjsLib) throw new Error('PDF.js no está disponible');
+      pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      if (!pdfDocuments.has(url)) pdfDocuments.set(url, pdfjsLib.getDocument(url).promise);
+      const pdf = await pdfDocuments.get(url);
+      const page = await pdf.getPage(1);
+      if (!host.isConnected) return;
+      const original = page.getViewport({ scale: 1 });
+      const width = host.clientWidth || 800, height = host.clientHeight || 600;
+      const scale = Math.min((width - 24) / original.width, (height - 24) / original.height);
+      const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+      const viewport = page.getViewport({ scale: scale * pixelRatio });
+      canvas.width = Math.floor(viewport.width);
+      canvas.height = Math.floor(viewport.height);
+      canvas.style.width = Math.floor(original.width * scale) + 'px';
+      canvas.style.height = Math.floor(original.height * scale) + 'px';
+      await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+      if (!host.isConnected) return;
+      canvas.hidden = false;
+      status.hidden = true;
+    } catch (error) {
+      console.error('No se pudo previsualizar el plano', error);
+      status.innerHTML = 'No se pudo cargar la vista. <a href="' + url + '" target="_blank" rel="noopener">Abrir PDF</a>';
+    }
+  }
+
   function render() {
     const disc = DISCIPLINAS_ASBUILT[activeDisc];
     const r = roomInfo(activeRoom);
@@ -565,7 +595,8 @@ export function initAsBuilt({ rooms, geo }) {
       down.removeAttribute('href');
       down.setAttribute('aria-disabled', 'true');
     } else if (src.pdf) {
-      pan.innerHTML = `<iframe src="${src.pdf}#toolbar=1" title="${src.label}" style="width:100%;height:100%;border:0;background:#fff" loading="lazy"></iframe>`;
+      pan.innerHTML = '<div class="ab2-pdf-preview" style="width:100%;height:100%;display:grid;place-items:center;background:#f4f1e9"><canvas hidden style="max-width:100%;max-height:100%;box-shadow:0 8px 30px rgba(0,0,0,.18)"></canvas><p>Preparando vista del plano…</p></div>';
+      renderPdfPage(src.pdf, pan.querySelector('.ab2-pdf-preview'));
       down.href = src.pdf;
       down.title = 'Descargar plano PDF';
       down.removeAttribute('aria-disabled');
@@ -638,7 +669,8 @@ export function initAsBuilt({ rooms, geo }) {
     document.getElementById('asb-modal-title').textContent = gen ? src.label : `${src.label} · ${r.cat} · ${r.priv} m²`;
     if (src.pdf) {
       modalImg.hidden = true; modalSchem.hidden = false;
-      modalSchem.innerHTML = `<iframe src="${src.pdf}#toolbar=1" title="${src.label}" style="width:min(90vw,1100px);height:75vh;border:0;background:#fff"></iframe>`;
+      modalSchem.innerHTML = '<div style="width:min(86vw,1000px);height:75vh;display:grid;place-items:center;background:#f4f1e9"><canvas hidden style="max-width:100%;max-height:100%"></canvas><p>Preparando vista del plano…</p></div>';
+      renderPdfPage(src.pdf, modalSchem.firstElementChild);
     } else if (src.img) {
       modalImg.src = src.img; modalImg.hidden = false; modalSchem.hidden = true;
     } else {

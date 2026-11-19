@@ -30,8 +30,8 @@ export const DISCIPLINAS_ASBUILT = {
   },
   electrico: {
     id: 'electrico',
-    num: '3',
-    numLabel: '3. Eléctrico',
+    num: '5',
+    numLabel: '5. Eléctrico',
     title: 'Red Eléctrica e Iluminación',
     code: 'ELE',
     color: '#eab308',
@@ -53,8 +53,8 @@ export const DISCIPLINAS_ASBUILT = {
   },
   agua: {
     id: 'agua',
-    num: '4',
-    numLabel: '4. Agua Caliente y agua fría',
+    num: '3',
+    numLabel: '3. Agua Caliente y agua fría',
     title: 'Red Hidráulica (Agua Fría y Caliente)',
     code: 'HID',
     color: '#0284c7',
@@ -75,8 +75,8 @@ export const DISCIPLINAS_ASBUILT = {
   },
   desagues: {
     id: 'desagues',
-    num: '5',
-    numLabel: '5. Desagües',
+    num: '4',
+    numLabel: '4. Desagües',
     title: 'Red Sanitaria y Desagües',
     code: 'SAN',
     color: '#10b981',
@@ -299,7 +299,7 @@ export function initAsBuilt({ rooms, geo }) {
         <h2 class="ab2-title">Planos <span>As Built</span></h2>
         <p class="ab2-lead">Selecciona una especialidad y recorre los planos de detalle de cada habitación.</p>
         <div class="ab2-discs" role="tablist" aria-label="Especialidades As-Built">
-          ${['arquitectonico', 'contraincendios', 'electrico', 'agua', 'desagues'].map((id) => DISCIPLINAS_ASBUILT[id]).map((d) => `
+          ${['arquitectonico', 'contraincendios', 'agua', 'desagues', 'electrico'].map((id) => DISCIPLINAS_ASBUILT[id]).map((d) => `
             <button type="button" class="ab2-disc" data-disc="${d.id}" role="tab" aria-selected="false">
               <span class="ab2-disc-ic">${svgI(ICONS[d.id] || '')}</span>
               <span class="ab2-disc-lb">${SHORT[d.id] || d.title}</span>

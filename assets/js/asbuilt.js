@@ -725,5 +725,13 @@ export function initAsBuilt({ rooms, geo }) {
   }
 
 
-  setDiscipline('arquitectonico');
+  window.asBuiltSelectRoom = (n) => {
+    activeRoom = String(n);
+    activeDisc = 'agua';
+    activeView = 'redes';
+    render();
+    document.getElementById('as-built')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  setDiscipline('agua');
 }

@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Planos técnicos PDF · Hotel La Fontana</title>
+  <style>
+    :root{font-family:Arial,sans-serif;color:#181818;background:#f3f0e9}body{margin:0}main{max-width:1180px;margin:auto;padding:48px 22px 80px}a{color:inherit}header{display:flex;justify-content:space-between;gap:20px;align-items:end;margin-bottom:36px}h1{font-size:clamp(2rem,6vw,5rem);font-weight:400;line-height:.95;margin:0}header p{max-width:430px;margin:0;color:#555}.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin:28px 0}.toolbar button{border:1px solid #bbb;background:#fff;padding:10px 14px;cursor:pointer}.toolbar button[aria-pressed="true"]{background:#b51f2a;color:#fff;border-color:#b51f2a}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:12px}.card{background:#fff;border:1px solid #d8d3c9;padding:18px;display:flex;flex-direction:column;gap:14px}.card small{color:#777;text-transform:uppercase;letter-spacing:.08em}.card h2{font-size:1rem;line-height:1.35;margin:0;font-weight:500}.actions{display:flex;gap:8px;margin-top:auto}.actions a{padding:9px 11px;border:1px solid #bbb;text-decoration:none}.actions a:first-child{background:#181818;color:#fff;border-color:#181818}.back{display:inline-block;margin-bottom:24px}.empty{color:#777}@media(max-width:700px){header{display:block}header p{margin-top:18px}}
+  </style>
+</head>
+<body><main>
+  <a class="back" href="./">← Volver al proyecto</a>
+  <header><h1>Planos técnicos<br>en PDF</h1><p>Cada lámina fue exportada individualmente desde el modelo de redes. Puedes abrirla en el navegador o descargar el archivo.</p></header>
+  <div class="toolbar" id="filters" aria-label="Filtrar planos"></div>
+  <section class="grid" id="plans" aria-live="polite"><p class="empty">Cargando planos…</p></section>
+  <script>
+    const classify=n=>/CONTRA INCENDIOS/.test(n)?'Incendios':/SANITARIA/.test(n)?'Desagües':/AGUA FRIA|HIDRAULICA/.test(n)?'Agua':/ELECTRICA/.test(n)?'Eléctrico':'General';
+    const label=n=>n.replace(/^Sheet-/,'').replace(/\.pdf$/i,'');
+    const base='assets/planos/redes/';
+    const plans=document.querySelector('#plans'), filters=document.querySelector('#filters');
+    fetch(base+'manifest.json').then(r=>r.json()).then(files=>{
+      const data=files.map(file=>({file,name:label(file),group:classify(file)}));
+      const groups=['Todos',...new Set(data.map(x=>x.group))];
+      filters.innerHTML=groups.map((g,i)=>`<button aria-pressed="${i===0}" data-group="${g}">${g}</button>`).join('');
+      const draw=g=>{const rows=g==='Todos'?data:data.filter(x=>x.group===g);plans.innerHTML=rows.map(x=>`<article class="card"><small>${x.group}</small><h2>${x.name}</h2><div class="actions"><a href="${base+encodeURIComponent(x.file)}" target="_blank" rel="noopener">Abrir</a><a href="${base+encodeURIComponent(x.file)}" download>Descargar</a></div></article>`).join('')||'<p class="empty">No hay planos en esta categoría.</p>'};
+      filters.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;filters.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));draw(b.dataset.group)});draw('Todos');
+    }).catch(()=>plans.innerHTML='<p class="empty">No fue posible cargar la lista de planos.</p>');
+  </script>
+</main></body></html>
